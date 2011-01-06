@@ -1,0 +1,461 @@
+=encoding utf8
+
+=head1 NAME 
+
+DBIx::Skinny::Manual::EN::Intro - Intro to DBIx::Skinny
+
+=head1 DESCRIPTION
+
+
+=head1 Caution
+
+L<DBIx::Skinny> runs on MySQL, SQLite, PostgreSQL and Oracle.
+
+However it is designed to be extensible to other databases.
+
+Be aware that APIs may change - this is alpha software!
+
+=head1 Base Class Defintions
+
+Let's work with an example project called C<Proj>. Your Skinny 
+model for this project would be:
+
+    package Proj::Model;
+    use DBIx::Skinny conect_info => +{
+        dsn => 'dbi:SQLite:',
+        username => '',
+        password => '',
+    };
+    1;
+
+
+=head2 DSN file usage
+
+If you want to directly use DSN files then you can create your model like this:
+
+    package Proj::Model;
+    use DBIx::Skinny;
+    1;
+
+
+=head2 ->connect_info
+
+    Proj::Model->connect_info(....); 
+
+=head2 ->connect
+
+    Proj::Model->connect(....);
+
+=head2 Proj::Model->new($connection_info)
+
+    my $model = Proj::Model->new($connection_info); 
+
+=head2 ->set_dbh
+
+    Proj::Model->set_dbh($dbh);
+
+=head1 Schema class definition
+
+The recommended way to define your schema classes is automatically via
+L<DBIx::Skinny::Schema::Loader>. However, read on for info about
+manual setup.
+
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+    };
+    1;
+
+Unlike most OR mappers which require a class for every table, in Skinny
+you can install all your tables in a single class.
+
+=head3 Dealing with multi-byte (utf-8) values for a column
+
+Automatic processing of columns is achieved via C<install_utf8_columns>:
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    
+    install_utf8_columns qw/name/;
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+    };
+    1;
+
+Note that the C<name> column will be processed automatically for
+B<all> tables, not just the C<user> table.
+
+=head3 Inflate/deflate Processing
+
+To enable inflate/deflate processing on the columns 
+C<created_at> and C<updated_at> you can do the following:
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    use DateTime;
+    use DateTime::Format::Strptime;
+    use DateTime::Format::MySQL;
+    use DateTime::TimeZone;
+    
+    my $timezone = DateTime::TimeZone->new(name => 'Asia/Tokyo');
+    install_inflate_rule '^.+_at$' => callback {
+        inflate {
+            my $value = shift;
+            my $dt = DateTime::Format::Strptime->new(
+                pattern   => '%Y-%m-%d %H:%M:%S',
+                time_zone => $timezone,
+            )->parse_datetime($value);
+            return DateTime->from_object( object => $dt );
+        };
+        deflate {
+            my $value = shift;
+            return DateTime::Format::MySQL->format_datetime($value);
+        };
+    };
+    
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+    };
+    1;
+
+
+=head3 Triggers
+
+
+Skinny supports insert/update/delete triggers:
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    use DateTime;
+    
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+        trigger pre_insert => sub {
+            my ( $class, $args ) = @_;
+            $args->{created_at} ||= DateTime->now;
+        };
+    };
+    1;
+
+The available triggers are:
+
+C<pre_insert>, C<post_insert>, C<pre_update>, C<post_update>, C<pre_delete>,
+C<post_delete>
+
+Triggers are stackable, meaning you can have several triggers of the same
+type and they will fire in the order of definition.
+
+=head2 new
+
+
+    my $model = Proj::Model->new;
+    $model->do();
+
+
+
+    Proj::Model->do()
+
+
+=head2 connection_info / connect /reconnect / set_dbh
+
+=head3 connection_info
+
+C<connect_info> is used to set the database connection info:
+
+    Proj::Model->connection_info({
+        dsn      => 'dbi:mysql:test',
+        username => 'username',
+        password => 'password'
+        connect_options => +{
+            RaiseError => 1,
+            PrintError => 0,
+            AutoCommit => 1,
+        },
+    });
+
+The default C<connect_options> are:
+
+C<RaiseError: 1>
+
+C<PrintError: 0>
+
+C<AutoCommit: 1>
+
+
+
+=head3 connect
+
+If you want to explictly connect to the database then:
+
+    Proj::Model->connect({
+        dsn      => 'dbi:mysql:test',
+        username => 'username',
+        password => 'password'
+        connect_options => +{
+            RaiseError => 1,
+            PrintError => 0,
+            AutoCommit => 1,
+        },
+    });
+
+
+=head3 reconnect
+
+
+    Proj::Model->reconnect({
+        dsn      => 'dbi:mysql:test',
+        username => 'username',
+        password => 'password'
+        connect_options => +{
+            RaiseError => 1,
+            PrintError => 0,
+            AutoCommit => 1,
+        },
+    });
+
+
+
+=head3 set_dbh
+
+    Proj::Model->set_dbh($dbh);
+
+=head2 dbh
+
+    my $dbh = Proj::Model->dbh;
+
+=head2 do
+
+C<< Model->do >> is a shortcut for C<< $dbh->do >>
+
+    Proj::Model->do(q{
+        CREATE TABLE foo (
+            id   INT,
+            name TEXT
+        )
+    });
+
+=head2 insert / create
+
+To insert records into a table:
+
+    my $row = Proj::Model->insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+C<< ->insert() >> returns a L<DBIx::Skinny::Row>> class, so you can access
+columns like so:
+
+    print $row->name; # nekokak
+    print $row->mail; # nekokak _at_ gmail.com
+
+    my $row = Proj::Model->create('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+=head2 update ( $table, $values_href, $where )
+
+
+    Proj::Model->update('user', {name => 'yappo'}, {id => 1})
+
+You can also call the C<< ->update >> method on the Row object returned
+from insert:
+
+    my $row = Proj::Model->insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+    $row->update({name => 'yappo'});
+
+=head2 delete ( $table, $where )
+
+    Proj::Model->delete('user', {id => 1});
+
+    my $row = Proj::Model->insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+    $row->delete;
+
+=head2 bulk_insert
+
+To insert multiple rows at once:
+
+    Proj::Model->bulk_insert('user',
+        [
+            {
+                name => 'nekokak',
+                mail => 'nekokak _at_ gmail.com',
+            },
+            {
+                name => 'yappo',
+                mail => 'yappo _at_ example.com',
+            },
+        ]
+    );
+
+NOTE: triggers are not supported with bulk inserts
+
+=head2 find_or_create / find_or_insert
+
+    my $row = Proj::Model->find_or_create('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+
+    my $row = Proj::Model->find_or_insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+=head2 single / search / search_named /search_by_sql / count
+
+=head3 single
+
+Used when you want a single row:
+
+    my $row = Proj::Model->single('user',{name => 'nekokak'});
+
+=head3 search ( $table, $where, $limit_offset )
+
+
+    my $itr = Proj::Model->search('user',
+        {
+            name => 'nekokak',
+        },
+        { }
+    );
+
+See L<DBIx::Class::Manual::EN::Resultset> for more information on 
+the C<$where> clause.
+
+=head3 search_named ( $sql, $placeholder_bindings, $sprintf_bindings )
+
+This method supports search with named placeholders:
+
+    my $itr = Proj::Model->search_named(q{SELECT * FROM user WHERE id > :id}, {id => 1});
+
+It is also possible to interpolate data with sprintf control strings:
+
+    my $itr = Proj::Model->search_named(q{SELECT * FROM user WHERE id > :id LIMIT %s}, {id => 1}, [10]);
+
+A fourth argument can be used to specify a table for query options. (???)
+
+    my $itr = Proj::Model->search_named(q{SELECT * FROM user WHERE id > :id LIMIT %s}, {id => 1}, [10], 'user');
+
+
+=head3 search_by_sql
+
+Typical DBI-style placeholders:
+
+    my $itr = Proj::Model->search_by_sql(q{SELECT * FROM user WHERE id = ?}, [1], 'user');
+
+=head3 count ( $table, $count_column, $where )
+
+    my $count = Porj::Model->count('user' , 'id', {name => 'nekokak'});
+
+=head2 resultset
+
+Please see L<DBIx::Skinny::Manual::EN::Resultset>
+
+=head2 Transactions
+
+Transactions are easy in Skinny:
+
+    my $txn = Proj::Model->txn_scope;
+    
+    my $row = Proj::Model->single('user', {id => 1});
+    $row->set({name => 'nekokak'});
+    $row->update;
+    
+    $txn->commit;
+
+Here's another way:
+
+    Proj::Model->txn_begin;
+    
+    my $row = Proj::Model->single('user', {id => 1});
+    $row->set({name => 'nekokak'});
+    $row->update;
+    
+    Proj::Model->txn_commit;
+    Proj::Model->txn_end;
+
+It is expected that the database support transactions. For MySQL this means
+using the InnoDB engine.
+
+
+=head2 Mixing in methods
+
+=head3 Class level
+
+
+    package Proj::Model;
+    use DBIx::Skinny;
+    use DBIx::Skinny::Mixin modules => ['+Mixin::Foo'];
+    1;
+
+    package Mixin::Foo;
+    sub register_method {
+        +{
+            foo => sub { 'foo' },
+        };
+    }
+
+Now
+
+    Proj::Model->foo;
+
+is possible
+
+
+=head3 Row object level
+
+
+    package Proj::Model::Row::User;
+    use strict;
+    use warnings;
+    use utf8;
+    use base 'DBIx::Skinny::Row';
+    sub foo {
+        say 'foo';
+    }
+    1;
+
+Now
+
+    $row->foo;
+
+is possible.
+
+Here's a more practical example:
+
+    package Proj::Model::Row::User;
+    use base 'DBIx::Skinny::Row';
+    sub blogs {
+        my $self = shift;
+        $self->{skinny}->search('blog',{user_id => $self->id});
+    }
+
+Now you can call:
+
+    $user->blogs;
+
+

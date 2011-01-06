@@ -1,0 +1,175 @@
+=encoding utf8
+
+=head1 NAME 
+
+DBIx::Skinny::Manual::JA::Resultset - DBIx::Skinnyのresultsetの使い方
+
+=head1 DESCRIPTION
+
+動的にSQLを組み立てるresultsetメソッドの各種使い方マニュアルです。
+
+Please translate and read the person in the sphere in English. 
+
+=head1 resultsetの細かい使い方
+
+CGIなどのアプリケーションを開発している場合、
+ユーザの入力に応じたSQLを組み立てたい場合がほとんどでしょう。
+
+その場合はresultsetメソッドを使用して、SQLを動的に組み立てていく事が可能です。
+
+まず始めにresultsetオブジェクトを取得します。
+
+    my $rs = Proj::Model->resultset;
+
+resultsetオブジェクトにselectするカラムを指定してみましょう。
+
+    $rs->add_select('user.id' => 'user_id');
+
+一つ目の引数はSELECT時に使用されるベースとなるカラム指定で
+二つ目の引数はASで指定される名前になります。
+
+この場合は
+
+    SELECT user.id
+    FROM
+
+となります。
+
+resultsetでSQLを組み立てている時に途中でSQLを確認したくなる場合がありますが、その場合は
+
+    warn $rs->as_sql;
+
+とすればその時点で、どのようなSQLが組み上がるかが出力されます。
+
+次にselectするテーブルを指定します
+
+    $rs->from(['user']);
+
+    SELECT user.id
+    FROM user
+
+引数はarrayrefで複数指定する事も可能です。
+
+    $rs->from(['user', 'hoge']);
+
+    SELECT user.id
+    FROM user, hoge
+
+次にwhere句を指定しましょう。
+where句を指定するにはadd_whereメソッドを使用します。
+
+    user.name = ?
+    
+    # bind = nekokak
+
+なwhere句を指定するにはこのように指定します。
+
+    $rs->add_where('user.name' => 'nekokak');
+
+    SELECT user.id
+    FROM user
+    WHERE (user.name = ?)
+
+bindされている値を確認するにはbindメソッドを使用します。
+
+    use Data::Dumper;
+    warn Dumper $rs->bind;
+
+    $VAR1 = [
+            'nekokak'
+            ];
+
+
+この時点のSQLを実行する場合retrieveメソッドを使用します。
+retrieveメソッドを呼び出した時点でその時点のクエリが実行されます。
+
+    my $itr = $rs->retrieve;
+
+基本的な使い方はこのようになります。
+
+resultsetメソッドを呼び出す段階でfromやselectするカラムが決まっている場合は
+resultsetメソッドの引数で指定する事も可能です。
+
+    my $rs = Proj::Model->resultset(
+        {
+            select => [
+                         'user.name',
+                         'user.id AS user_id',
+                      ],
+            from   => ['user'],
+        }
+    );
+
+resultsetメソッドを呼び出す時にselectするカラムを指定する場合は微妙にインタフェースがことなっています。
+select時に指定したいカラムの形式そのままを指定してください。
+
+=head1 複雑なSQLを組み上げる
+
+Skinnyでもある程度複雑なSQLを組み上げることはできます。
+
+複雑なwhere句の指定方法
+
+IN/NOT INを使う場合
+
+    $rs->add_where('user.id' => {'IN' => \@user_ids});
+    $rs->add_where('user.id' => {'NOT IN' => \@user_ids});
+
+INの場合はこのように指定する事も可能です。
+
+    $rs->add_where('user.id' => \@user_ids);
+
+
+比較演算子を使う場合
+
+    $rs->add_where('user.id' => {'<' => 1});
+    $rs->add_where('user.id' => {'>' => 1});
+    $rs->add_where('user.id' => {'!=' => 1});
+
+IS NULL/ IS NOT NULLを指定したい場合はscalarリファレンスを指定します
+
+
+    $rs->add_where('user.id' => \'IS NULL');
+    $rs->add_where('user.id' => \'IS NOT NULL');
+
+検索条件をorで囲みたい場合はこのように指定します
+
+    $rs->add_where('user.id' => [{'>' => 10}, {'<' => 100}]);
+
+また検索条件を明示的にandで囲みたい場合は
+
+    $rs->add_where('user.id' => ['-and' => {'>' => 10}, {'<' => 100}]);
+
+このように指定します。
+
+また演算子が固定の場合は
+
+    $rs->add_where('user.id' => ['-and' => 1,2,3]);
+
+このように指定する事も可能です。でもあまり使わないでしょうね。
+
+テーブルJOINする場合
+
+    $rs->from([]);
+    $rs->add_join(
+        user => [
+            {
+                type  => 'inner',
+                table => 'bookmark',
+                condition => 'user.id = bookmark.user_id',
+            },
+        ],
+    );
+
+    FROM user INNER JOIN bookmark ON user.id = bookmark.user_id
+
+このようなJOINクエリが生成されます。
+
+始めに$rs->from([]);を呼び出して、from を空にしているのは
+add_joinで起点となるテーブルを指定しているためです。
+
+引数のtypeはjoinのさせ方、
+
+tableはjoinさせるテーブル
+
+conditionはJOIN時の条件となります。
+

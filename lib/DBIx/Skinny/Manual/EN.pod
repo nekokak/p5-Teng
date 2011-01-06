@@ -1,0 +1,39 @@
+=encoding utf8
+
+=head1 NAME 
+
+DBIx::Skinny::Manual::EN - DBIx::Skinny Manual (English)
+
+=head1 DESCRIPTION
+
+Why I made DBIx::Skinny.
+
+=head1 MOTIVATION
+
+There are many OR mappers for Perl - L<Class::DBI>, L<DBIx::Class>, L<Data::ObjectDriver>, L<Data::Model>, L<Rose::DB::Object>, L<DBIx::DataModel>, etc.
+
+The OR mappers listed here basically use OO methods based on SQL queries to assemble a database result.
+
+Various objects are the result.
+
+L<Class::DBI> and L<DBIx::Class> have been widely used. L<DBIx::Class> is an especially powerful OR mapper but also a bit heavyweight and somewhat slow.
+
+=head2 Design Objectives
+
+The main objectives of L<DBIx::Skinny> are:
+
+=head3 Inflate when dealing with utf8 issues
+
+=head3 Handle common OR operations 
+
+=head3 Intuitive select statements
+
+=head3 Smaller code base.
+
+
+=head1 Feedback
+
+  IRC: #dbix-skinny@irc.perl.org
+
+  ML: http://groups.google.com/group/dbix-skinny
+

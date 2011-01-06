@@ -1,0 +1,62 @@
+=encoding utf8
+
+=head1 NAME 
+
+DBIx::Skinny::Manual::JA - DBIx::Skinnyの設計思想など
+
+=head1 DESCRIPTION
+
+DBIx::Skinnyをなぜ作る事にしたのか、
+また作るにあたっての設計思想など。
+
+Please translate and read the person in the sphere in English. 
+
+=head1 なぜDBIx::Skinnyを書いたのか
+
+PerlのORマッパーは色々あります
+
+Class::DBI, DBIx::Class, Data::ObjectDriber, Data::Model, etc...
+
+ここにあげたORマッパーは基本的には利用者が設定したtable構成を基にSQLを組み立ててdatabaseにクエリを投げます。
+
+そしてその結果を各種オブジェクトにしています。
+
+私はいままでClass::DBIやDBIx::Classを色々使ってきました。
+
+特にDBIx::ClassはとてもパワフルなORマッパーだと思います。
+
+DBICはパワフルが由縁にとてもヘビーなORマッパーです。
+
+とても複雑なSQLをPerlのデータ構造を基に組み立てる事ができるようにできていますが、
+複雑なSQLを組み立てる場合、複雑なPerlのデータ構造を必要とします。
+
+もちろん、dbhを普通に触ることもできるので、任意のSQLを実行させる事もできます。
+ただ、任意のSQLを実行した場合、その結果はDBIを直接さわっているのとなんら変わりがありませんでした。
+
+inflateもしてくれない、utf8周りの処理もしてくれない。
+してくれないものだから、自前でその部分の処理を行う必要があります。
+それではORマッパーの存在意義が薄くなってしまうと感じました。
+
+せっかくDBICに色々なコンポーネントを追加しても任意のSQLを実行する場合その恩恵にあずかることができないのです。
+
+また、DBICには色々な機能があるため、処理速度も重い方だと私はおもいます。
+HotSpotな部分でパフォーマンスが求められる部分にはDBICを使わずにDBIを直接使う事もしばしばありました。
+
+Skinnyの大きな目的としては
+
+１：生のSQLを発行した時にinflateとかutf8-flagを処理してくれる
+
+２：update,insert,deleteはDBICというかよくあるORマッパーみたいにできる
+
+３：簡単なselectもよくあるORマッパーみたいにできる
+
+４：小さなオブジェクト群で構成されており、デバッグが行いやすい
+
+です。
+
+貧弱だったりバギーだったりするかもしれませんがどうぞよろしく:)
+
+=head2 feedback
+
+DBIx::Skinnyのfeedbackをしたいと思う人は
+#perl-casual@irc.freenode.netもしくは#dbix-skinny@irc.perl.orgまたはメールでお願いします。

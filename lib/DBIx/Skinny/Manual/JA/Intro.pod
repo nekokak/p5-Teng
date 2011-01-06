@@ -1,0 +1,605 @@
+=encoding utf8
+
+=head1 NAME 
+
+DBIx::Skinny::Manual::JA::Intro - DBIx::Skinnyの日本語ドキュメント
+
+=head1 DESCRIPTION
+
+Skinnyの総合的な使い方を網羅するマニュアルです。
+
+Please translate and read the person in the sphere in English. 
+
+=head1 注意
+
+現在SkinnyはMySQLとSQLiteとPostgreSQLとOracleをサポートしています。
+
+他のDBDを使いたい場合は、
+DBIx::Skinny::DBD::*を作っていただく必要があります。
+
+まだまだα版なので色々変わる事があるかもしれません。
+
+=head2 Skinnyの基本クラスの定義
+
+Skinnyを操作するClassを定義します。
+
+例えばProjというプロジェクトでSkinnyを使う場合
+
+    package Proj::Model;
+    use DBIx::Skinny connect_info => +{
+        dsn => 'dbi:SQLite:',
+        username => '',
+        password => '',
+    };
+    1;
+
+このようなClassを用意します。
+ちなみに、DBIx::Skinnyをuseすると
+
+use strict;
+
+use warnings;
+
+された事と同じ状態にします。
+
+DBIx::Skinnyをuseする時の引数でdsnなどDBの接続に必要な情報を渡す事ができます。
+
+.pmファイルに直接dsnなどを書きたくない場合は
+
+    package Proj::Model;
+    use DBIx::Skinny;
+    1;
+
+DBIx::Skinnyをuseする時の引数にdsnなどを書かずにClassを作成しておき、
+DBにクエリを投げる前に
+
+    Proj::Model->connect_info(....); # connect_infoを設定する
+
+もしくは
+
+    Proj::Model->connect(....): # connectメソッドをdsnなどの引数ともに呼び出す
+
+もしくは
+
+    my $model = Proj::Model->new($connection_info); # インスタンスを作りつつコネクション情報を設定する
+
+としてやればよいです。
+
+また元々dbのhandlerを別で持っている場合でそれを使い回したい場合は
+
+    Proj::Model->set_dbh($dbh);
+
+このようにset_dbhにhandlerを渡してやれば内部で持っているdatabase handlerを置き換える事ができます。
+
+=head2 スキーマクラスの定義
+
+Skinnyでは他のORマッパーと同じように各tableに対応するschemaの設定を書く必要があります。
+
+例えばuserテーブルがある場合
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+    };
+    1;
+
+DBIx::Skinny::SchemaをuseするとSchemaを構成するために必要なmethodがexportされます。
+
+ちなみに、DBIx::Skinny::Schemaでもuseすると
+
+use strict;
+
+use warnings;
+
+された事と同じ状態にします。
+
+この例ではuserテーブルの
+プライマリキーはid
+各カラムにはid/guid/login_id/login_pw/name/mail/created_at/updated_at
+がある事を定義しています。
+
+Skinnyでは他のORマッパーと異なり、テーブル毎にClassを作る必要はありません。
+
+この例の場合Proj::Model::Schemaに全てのテーブル情報を記載します。
+
+=head3 マルチバイトな値を扱うカラムについて
+
+このuserテーブルの例でnameカラムがマルチバイトな文字列が入る場合でutf8flagの処理を自動で行いたい場合は
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    
+    install_utf8_columns qw/name/;
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+    };
+    1;
+
+このようにinstall_utf8_columnsに対象となるカラム名を設定します。
+
+ここで注意が必要なのですが、Skinnyはルールベースな設計しています。
+
+Skinnyの根本思想としてはモジュール利用者が好きに生のSQLを実行して、
+その結果をちょっといい感じのオブジェクトに纏めて
+ちょっと楽をしようというものです。
+
+脱線しましたがinstall_utf8_columnsに対象となるカラム名を設定するのですが
+この設定はSkinnyで取り扱う全テーブルに対しての設定となります。
+
+ですのでuserテーブル以外のテーブルにnameカラムがあった場合、
+install_utf8_columnsにnameを設定しているとuserテーブル以外のテーブルのnameカラムもutf8flag周りの処理が行われます。
+
+=head3 inflate/deflateの処理について
+
+Skinnyにもinflate/deflateの処理を書く事ができます
+
+userテーブルの例の場合でcreated_at/updated_atなカラムをDateTimeでinflate/deflateしたい場合は
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    use DateTime;
+    use DateTime::Format::Strptime;
+    use DateTime::Format::MySQL;
+    use DateTime::TimeZone;
+    
+    my $timezone = DateTime::TimeZone->new(name => 'Asia/Tokyo');
+    install_inflate_rule '^.+_at$' => callback {
+        inflate {
+            my $value = shift;
+            my $dt = DateTime::Format::Strptime->new(
+                pattern   => '%Y-%m-%d %H:%M:%S',
+                time_zone => $timezone,
+            )->parse_datetime($value);
+            return DateTime->from_object( object => $dt );
+        };
+        deflate {
+            my $value = shift;
+            return DateTime::Format::MySQL->format_datetime($value);
+        };
+    };
+    
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+    };
+    1;
+
+例えばこのように書きます。
+
+install_inflate_ruleに対象となるカラムのルールを書きます。
+ここは正規表現で書く事ができます。
+
+install_inflate_ruleもinstall_utf8_columnsと同様Skinnyで扱う全テーブルが対象となります。
+
+=head3 triggerについて
+
+Skinnyにもinsert/update/deleteなどを行った場合にtriggerによるHookをかける事ができます。
+
+例えばinsert時にcreated_atを自動で設定するtriggerをかけたい場合は
+
+    package Proj::Model::Schema;
+    use DBIx::Skinny::Schema;
+    use DateTime;
+    
+    install_table 'user' => schema {
+        pk 'id';
+        columns qw/
+            id guid login_id login_pw name mail created_at updated_at
+        /;
+        trigger pre_insert => sub {
+            my ( $class, $args ) = @_;
+            $args->{created_at} ||= DateTime->now;
+        };
+    };
+    1;
+
+例えばこのように書きます
+
+現在トリガーを設定できるポイントは
+
+pre_insert / post_insert / pre_update / post_update / pre_delete / post_delete
+
+があります
+
+トリガーはテーブル単位で設定する事ができます
+
+またトリガーは同じHookポイントに対して複数設定する事もできます。
+同じHookポイントに複数設定した場合は設定した順番に実行されます。
+
+=head2 new
+
+Skinnyはインスタンスを作っても作らなくてもDBを操作する事もできるようになっています。
+
+インスタンスを作ってDB操作を行う場合
+
+    my $model = Proj::Model->new;
+    $model->do();
+
+インスタンスを作らずにDB操作を行う場合
+
+    Proj::Model->do()
+
+インスタンスを作る場合と作らない場合の最大の違いは
+インスタンスを作った場合はそのコネクションはインスタンスに紐付けられ
+インスタンスを作らない場合はコネクションはクラスに紐付けられることです。
+
+WEBでリクエスト毎にDBコネクションを管理したい場合はインスタンスを作り、
+バッチ処理などで特別DBコネクションを管理する必要がない場合はインスタンスを作らずに使えば良いです。
+
+=head2 connection_info / connect /reconnect / set_dbh
+
+=head3 connection_info
+
+connect_infoメソッドではDB接続情報を設定します
+
+    Proj::Model->connection_info({
+        dsn      => 'dbi:mysql:test',
+        username => 'username',
+        password => 'password'
+        connect_options => +{
+            RaiseError => 1,
+            PrintError => 0,
+            AutoCommit => 1,
+        },
+    });
+
+connection_infoメソッドを呼び出した時点ではDBの接続は確立されません。
+
+また引数で渡しているconnect_optionsは特に指定されなければ、
+内部では
+
+RaiseError: 1
+
+PrintError: 0
+
+AutoCommit: 1
+
+でDBに接続されます。
+
+
+=head3 connect
+
+明示的にDB接続を行いたい場合はconnectメソッドを使用します。
+
+    Proj::Model->connect({
+        dsn      => 'dbi:mysql:test',
+        username => 'username',
+        password => 'password'
+        connect_options => +{
+            RaiseError => 1,
+            PrintError => 0,
+            AutoCommit => 1,
+        },
+    });
+
+
+=head3 reconnect
+
+一度DBに接続された状態で他のDBに接続しなおしたい場合は
+reconnectメソッドを使用します。
+
+    Proj::Model->reconnect({
+        dsn      => 'dbi:mysql:test',
+        username => 'username',
+        password => 'password'
+        connect_options => +{
+            RaiseError => 1,
+            PrintError => 0,
+            AutoCommit => 1,
+        },
+    });
+
+reconnectメソッドを呼び出すと呼び出す前まで保持していたdatabase handlerは破棄されます。
+
+=head3 set_dbh
+
+既にdatabase handlerを別で管理しており、Skinnyでそのhandlerを使いたい場合は
+set_dbhメソッドを使用します。
+
+    Proj::Model->set_dbh($dbh);
+
+set_dbhメソッドを呼び出すと呼び出す前まで保持していたdatabase handlerは破棄されます。
+
+=head2 dbh
+
+dbhメソッドを呼び出すとその時点でのdatabase handlerが取得できます。
+
+    my $dbh = Proj::Model->dbh;
+
+=head2 do
+
+doメソッドは$dbh->doのショートカットになっています。
+
+    Proj::Model->do(q{
+        CREATE TABLE foo (
+            id   INT,
+            name TEXT
+        )
+    });
+
+=head2 insert / create
+
+userテーブルにレコードをinsertするには以下のようにします。
+
+    my $row = Proj::Model->insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+insertメソッドの返り値はSkinnyのRowクラスになっていますので
+
+    print $row->name; # nekokak
+    print $row->mail; # nekokak _at_ gmail.com
+
+このようにカラム名をメソッドとしてデータにアクセスできます
+
+また、createメソッドはinsertメソッドのエイリアスになっているのでどちらでもOKです
+
+    my $row = Proj::Model->create('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+=head2 update
+
+userテーブルのレコードをupdateするには以下のようにします。
+
+    Proj::Model->update('user', {name => 'yappo'}, {id => 1})
+
+一つ目のhashrefが更新する情報で
+二つ目のhashrefが更新対象とするレコードの条件です。
+
+また、Rowクラスから直接updateをかけることもできます。
+
+    my $row = Proj::Model->insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+    $row->update({name => 'yappo'});
+
+=head2 delete
+
+userテーブルのレコードをdeleteするには以下のようにします
+
+    Proj::Model->delete('user', {id => 1});
+
+hashrefでdelete対象とするレコードの条件を指定できます。
+
+またdeleteメソッドもupdateメソッドと同じくRowクラスから直接deleteをかけることもできます。
+
+    my $row = Proj::Model->insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+    $row->delete;
+
+=head2 bulk_insert
+
+userテーブルに一気に複数行insertをかけたい場合は以下のようにします。
+
+    Proj::Model->bulk_insert('user',
+        [
+            {
+                name => 'nekokak',
+                mail => 'nekokak _at_ gmail.com',
+            },
+            {
+                name => 'yappo',
+                mail => 'yappo _at_ example.com',
+            },
+        ]
+    );
+
+bulk_insertでは現状insertのトリガーは利用できませんのでご注意ください。
+
+=head2 find_or_create / find_or_insert
+
+userテーブルに指定した条件のレコードが存在すればその行をselectし
+レコードが存在しなければinsertを行うことが出来ます。
+
+    my $row = Proj::Model->find_or_create('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+また、find_or_insertメソッドはfind_or_createメソッドのエイリアスになっているのでどちらでもOKです
+
+    my $row = Proj::Model->find_or_insert('user',{
+        name => 'nekokak',
+        mail => 'nekokak _at_ gmail.com',
+    });
+
+=head2 single / search / search_named /search_by_sql / count
+
+=head3 single
+
+userテーブル１行だけ取得したい場合に使用します。
+
+    my $row = Proj::Model->single('user',{name => 'nekokak'});
+
+=head3 search
+
+userテーブルに対してselectクエリを発行する場合にsearchメソッドを使用します。
+
+    my $itr = Proj::Model->search('user',
+        {
+            name => 'nekokak',
+        },
+        { }
+    );
+
+二つ目のhashrefに検索条件
+三つ目のhashrefにorderやlimitなどのオプションを渡せます。
+
+searchメソッドはメソッドの返り値をスカラーコンテキストで受けるかリストコンテキストでうけるかで
+返り値の情報が変わりま。
+スカラーコンテキストで受けた場合はDBIx::Skinny::Iteratorが取得でき、
+リストコンテキストで受けた場合は結果Rowの配列を取得することができます。
+
+細かい検索条件の指定の仕方はDBIx::Class::Manual::JA::Resultsetを参考にしてください。
+
+=head3 search_named
+
+selectクエリを発行する場合でnamedなプレスホルダーを使いつつ
+SQLを実行させることができます。
+
+    my $itr = Proj::Model->search_named(q{SELECT * FROM user WHERE id > :id}, {id => 1});
+
+一つ目の引数に発行したいクエリ
+二つ目の引数にはプレスホルダーに相当するHashrefを指定します。
+この例の場合':id'に相当する部分がHashrefのidのvalueである1と置き換えられます。
+
+また、%sなどを指定してSQLを書き換える事も可能です。
+
+    my $itr = Proj::Model->search_named(q{SELECT * FROM user WHERE id > :id LIMIT %s}, {id => 1}, [10]);
+
+LIMITの値などBindの値で置き換えられない場合などに使用します。
+三つ目の引数にarrayrefで指定してください。
+
+    my $itr = Proj::Model->search_named(q{SELECT * FROM user WHERE id > :id LIMIT %s}, {id => 1}, [10], 'user');
+
+また四つ目の引数はオプションでクエリのベースとなっているテーブルを指定することができます。
+これは必須項目では有りません。
+
+=head3 search_by_sql
+
+selectクエリを発行する場合に生のを使うにはこのメソッドを使います。
+
+    my $itr = Proj::Model->search_by_sql(q{SELECT * FROM user WHERE id = ?}, [1], 'user');
+
+一つ目の引数に発行したいクエリ
+二つ目の引数に発行したいクエリに使用するbindの値
+三つ目の引数はオプションです。指定しなくてもよいです。別の項目で細かく説明します。
+
+=head3 count
+
+userテーブルのcountをとりたい場合はcountメソッドを使用します。
+
+    my $count = Porj::Model->count('user' , 'id', {name => 'nekokak'});
+
+二つ目の引数がcountを取る対象となるカラム情報で
+三つ目の引数がcountを取る条件となります。
+
+=head2 resultset
+
+DBIx::Skinny::Manual::JA::Resultsetを参照してください。
+
+=head2 トランザクション
+
+Skinnyではトランザクションの仕組みを簡単にサポートしています。
+トランザクションを有効にした処理を書きたい場合は以下のようにします。
+
+    my $txn = Porj::Model->txn_scope;
+    
+    my $row = Proj::Model->single('user', {id => 1});
+    $row->set({name => 'nekokak'});
+    $row->update;
+    
+    $txn->commit;
+
+Skinnyのトランザクションサポートはtxn_scopeメソッドで取得したオブジェクトが有効な間、
+トランザクションの面倒をみます。
+$txn->commitを実行するまでの間にデータベースに対して複数の更新クエリを実行させます。
+$txn->commitが実行されずに$txnオブジェクトが亡くなってしまった場合、
+それまでの更新はすべてrollbackされます。
+
+txn_scopeメソッドを使わずに
+
+    Proj::Model->txn_begin;
+    
+    my $row = Proj::Model->single('user', {id => 1});
+    $row->set({name => 'nekokak'});
+    $row->update;
+    
+    Proj::Model->txn_commit;
+    Proj::Model->txn_end;
+
+自前でトランザクションを管理する事も可能です。
+
+当然ですがトランザクション機能をつかうにはRDBMSがトランザクションの機能をサポートしている必要があります。
+MySQLをお使いの場合はInnoDBを使ってください。
+
+=head2 メソッドの追加(Mixin)
+
+DBIx::Skinny::Mixinモジュールを利用すれば、
+Proj::Modelにメソッドを追加できるようになります。
+
+例えば
+
+    package Proj::Model;
+    use DBIx::Skinny;
+    use DBIx::Skinny::Mixin modules => ['+Mixin::Foo'];
+    1;
+    
+    package Mixin::Foo;
+    sub register_method {
+        +{
+            foo => sub { 'foo' },
+        };
+    }
+
+このようにMixin::Fooで定義されたregister_methodの内容に従って
+Proj::Modelにメソッドがexportされます。
+
+この例の場合fooというメソッドがexportされるので
+
+
+    Proj::Model->foo;
+
+とアクセスする事ができます。
+
+
+=head2 Rowオブジェクトへのメソッド追加
+
+Proj::Model::Row::{Table}のようなファイルを用意すること、
+SkinnyはIteratorから返されるRowオブエクト
+のベースとなるクラスでProj::Model::Row::{Table}を使う事ができます。
+
+Tableクラスが見つからない場合や、発行したクエリからどのテーブルクラスを使うべきか判断できない場合は
+発行するSQLをDigest::SHA1でハッシュした値をつかったANONクラスを作成し使用します。
+
+Tableクラスを用意することで、そのクラスにメソッドを定義できます。
+
+    package Proj::Model::Row::User;
+    use strict;
+    use warnings;
+    use utf8;
+    use base 'DBIx::Skinny::Row';
+    sub foo {
+        say 'foo';
+    }
+    1;
+
+fooメソッドを定義しておく事で
+
+    $row->foo;
+
+と呼び出す事が可能です。
+
+またこの仕組みを利用すれば、リレーションを独自に実装する事も可能です。
+
+例えば、User has_many Blogの場合
+
+    package Proj::Model::Row::User;
+    use base 'DBIx::Skinny::Row';
+    sub blogs {
+        my $self = shift;
+        $self->{skinny}->search('blog',{user_id => $self->id});
+    }
+
+このように書く事ができ、
+
+    $user->blogs;
+
+このようにアクセスさせる事が可能です。
+
