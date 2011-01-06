@@ -62,7 +62,7 @@ sub new {
         suppress_row_objects => 0,
         last_pid             => $$,
         _common_row_class    => undef,
-        on_connect_do        => delete $args{on_connect_do},
+        on_connect_do        => $args{on_connect_do},
     }, $class;
 
     $self->connect_info(\%args);
