@@ -69,7 +69,7 @@ sub new {
     if ($args{dbh}) {
         $self->set_dbh($args{dbh});
     } else {
-        $self->reconnect;
+        $self->connect();
     }
 
     return $self;
