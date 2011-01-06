@@ -51,7 +51,9 @@ sub import {
 }
 
 sub new {
-    my ($class, $connection_info) = @_;
+    my $class = shift;
+    my %args = @_==1 ? %{$_[0]} : @_;
+
     my $attr = $class->_attributes;
 
     my $self = bless +{
@@ -60,22 +62,14 @@ sub new {
         suppress_row_objects => 0,
         last_pid             => $$,
         _common_row_class    => undef,
+        on_connect_do        => delete $args{on_connect_do},
     }, $class;
 
-    if ($connection_info) {
-        if ( $connection_info->{on_connect_do} ) {
-            $self->_attributes->{on_connect_do} = $connection_info->{on_connect_do};
-        }
-
-        if ($connection_info->{dbh}) {
-            $self->connect_info($connection_info);
-            $self->set_dbh($connection_info->{dbh});
-        } else {
-            $self->connect_info($connection_info);
-            $self->reconnect;
-        }
+    $self->connect_info(\%args);
+    if ($args{dbh}) {
+        $self->set_dbh($args{dbh});
     } else {
-        Carp::croak("missing arguments");
+        $self->reconnect;
     }
 
     return $self;
