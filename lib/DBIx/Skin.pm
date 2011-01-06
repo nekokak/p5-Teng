@@ -67,7 +67,8 @@ sub new {
 
     $self->connect_info(\%args);
     if ($args{dbh}) {
-        $self->set_dbh($args{dbh});
+        $self->{dbh} = $args{dbh};
+        $self->_setup_dbd({dbh => $args{dbh}});
     } else {
         $self->connect();
     }
@@ -180,12 +181,6 @@ sub reconnect {
 sub disconnect {
     my $class = shift;
     $class->_attributes->{dbh} = undef;
-}
-
-sub set_dbh {
-    my ($class, $dbh) = @_;
-    $class->_attributes->{dbh} = $dbh;
-    $class->_setup_dbd({dbh => $dbh});
 }
 
 sub _setup_dbd {

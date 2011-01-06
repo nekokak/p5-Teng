@@ -4,7 +4,6 @@ use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
-$db->set_dbh($dbh);
 $db->setup_test_db;
 
 subtest 'insert mode' => sub {
