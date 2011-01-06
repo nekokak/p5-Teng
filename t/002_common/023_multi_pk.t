@@ -1,5 +1,6 @@
 use t::Utils;
 use Test::More;
+use MyGuard;
 
 {
     package Mock::MultiPK;
@@ -54,6 +55,7 @@ my $skinny = Mock::MultiPK->new({
     username => '',
     password => '',
 });
+my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
 {
     subtest 'init data' => sub {

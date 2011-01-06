@@ -10,6 +10,7 @@ my $db = Mock::Basic->new(
     }
 );
 $db->setup_test_db;
+my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
 subtest 'db1.db ok' => sub {
     isa_ok +$db->dbh, 'DBI::db';
@@ -36,6 +37,7 @@ $db->reconnect(
         password => '',
     }
 );
+my $guard2 = MyGuard->new(sub { unlink 'db2.db' });
 $db->setup_test_db;
 
 subtest 'db2.db ok' => sub {
@@ -99,6 +101,5 @@ subtest '(re)connect fail' => sub {
     ok $@;
 };
 
-unlink qw{./db1.db db2.db};
 done_testing;
 
