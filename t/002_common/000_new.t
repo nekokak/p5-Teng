@@ -25,10 +25,10 @@ Mock::Basic->insert('mock_basic',{
 
 subtest 'search' => sub {
     my $itr = Mock::Basic->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
@@ -37,10 +37,10 @@ subtest 'search' => sub {
 subtest 'do new' => sub {
     my $model = Mock::Basic->new;
     my $itr = $model->search('mock_basic');
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
@@ -61,10 +61,10 @@ subtest 'do new other connection' => sub {
     });
 
     my $itr = $model->search('mock_basic');
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
@@ -86,10 +86,10 @@ subtest 'do new with dbh' => sub {
     });
 
     my $itr = $model->search('mock_basic');
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';

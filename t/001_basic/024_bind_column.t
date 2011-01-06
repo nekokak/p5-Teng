@@ -16,7 +16,7 @@ subtest 'insert data' => sub {
         raw  => 'raw',
     });
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'name';
     is $row->body, 'body';
     is $row->raw,  'raw';
@@ -48,7 +48,7 @@ subtest 'insert data' => sub {
     );
 
     $row = Mock::BasicBindColumn->single('mock_basic_bind_column');
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id,   4;
     is $row->uid,  4;
     is $row->name, 'name4';
@@ -60,7 +60,7 @@ subtest 'insert data' => sub {
     );
 
     $row = Mock::BasicBindColumn->search('mock_basic_bind_column')->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id,   5;
     is $row->uid,  5;
     is $row->name, 'name5';

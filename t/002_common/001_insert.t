@@ -11,7 +11,7 @@ subtest 'insert mock_basic data/ insert method' => sub {
         id   => 1,
         name => 'perl',
     });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'perl';
 };
 
@@ -20,7 +20,7 @@ subtest 'insert mock_basic data/ create method' => sub {
         id   => 2,
         name => 'ruby',
     });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'ruby';
 };
 

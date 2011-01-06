@@ -1,11 +1,11 @@
-This is Perl module DBIx::Skinny.
+This is Perl module DBIx::Skin.
 
 INSTALLATION
 
-DBIx::Skinny installation is straightforward. If your CPAN shell is set up,
+DBIx::Skin installation is straightforward. If your CPAN shell is set up,
 you should just be able to do
 
-    % cpan DBIx::Skinny
+    % cpan DBIx::Skin
 
 Download it, unpack it, then build it as per the usual:
 
@@ -18,9 +18,9 @@ Then install it:
 
 DOCUMENTATION
 
-DBIx::Skinny documentation is available as in POD. So you can do:
+DBIx::Skin documentation is available as in POD. So you can do:
 
-    % perldoc DBIx::Skinny
+    % perldoc DBIx::Skin
 
 to read the documentation online with your favorite pager.
 

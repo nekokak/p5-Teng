@@ -1,6 +1,6 @@
 package Mock::ErrRowChild::Schema;
 use utf8;
-use DBIx::Skinny::Schema;
+use DBIx::Skin::Schema;
 
 install_table mock_err_child_row => schema {
     pk 'id';

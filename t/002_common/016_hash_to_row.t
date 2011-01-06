@@ -13,7 +13,7 @@ Mock::Basic->setup_test_db;
     };
 
     my $row = Mock::Basic->hash_to_row('mock_basic', $hash);
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 1;
     is $row->name, 'perl';
 
@@ -22,7 +22,7 @@ Mock::Basic->setup_test_db;
 
 {
     my $row = Mock::Basic->single('mock_basic',{id => 1});
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 1;
     is $row->name, 'perl';
 }

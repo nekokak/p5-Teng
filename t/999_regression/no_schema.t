@@ -3,7 +3,7 @@ use Test::More;
 
 {
     package Mock::NoSchema;
-    use DBIx::Skinny;
+    use DBIx::Skin;
     1;
 }
 

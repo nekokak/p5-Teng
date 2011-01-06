@@ -5,7 +5,7 @@ use Test::More;
 
 {
     package Mock::BasicALLINONE;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -27,7 +27,7 @@ use Test::More;
 {
     package Mock::BasicALLINONE::Schema;
     use utf8;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table mock_basic => schema {
         pk 'id';
@@ -43,7 +43,7 @@ use Test::More;
     package Mock::BasicALLINONE::Row::MockBasic;
     use strict;
     use warnings;
-    use base 'DBIx::Skinny::Row';
+    use base 'DBIx::Skin::Row';
 }
 
 Mock::BasicALLINONE->setup_test_db;
@@ -53,7 +53,7 @@ Mock::BasicALLINONE->insert('mock_basic',{
 });
 
 my $itr = Mock::BasicALLINONE->search_by_sql(q{SELECT * FROM mock_basic WHERE id = ?}, [1]);
-isa_ok $itr, 'DBIx::Skinny::Iterator';
+isa_ok $itr, 'DBIx::Skin::Iterator';
 
 my $row = $itr->first;
 isa_ok $row, 'Mock::BasicALLINONE::Row::MockBasic';

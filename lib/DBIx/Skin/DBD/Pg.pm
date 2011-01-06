@@ -1,7 +1,7 @@
-package DBIx::Skinny::DBD::Pg;
+package DBIx::Skin::DBD::Pg;
 use strict;
 use warnings;
-use base 'DBIx::Skinny::DBD::Base';
+use base 'DBIx::Skin::DBD::Base';
 
 sub sql_for_unixtime { "TRUNC(EXTRACT('epoch' from NOW()))" }
 

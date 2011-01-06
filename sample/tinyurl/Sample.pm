@@ -1,6 +1,6 @@
 package # hide from PAUSE
   Sample;
-use DBIx::Skinny setup => +{
+use DBIx::Skin setup => +{
     dsn => 'dbi:SQLite:',
 };
 

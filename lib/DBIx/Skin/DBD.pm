@@ -1,4 +1,4 @@
-package DBIx::Skinny::DBD;
+package DBIx::Skin::DBD;
 use strict;
 use warnings;
 use Carp ();

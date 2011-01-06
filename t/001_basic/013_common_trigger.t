@@ -3,7 +3,7 @@ use Test::More;
 
 {
     package Mock::CommonTrigger;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -34,7 +34,7 @@ use Test::More;
     }
 
     package Mock::CommonTrigger::Schema;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table mock_common_trigger => schema {
         pk 'id';
@@ -78,7 +78,7 @@ subtest 'common trigger' => sub {
     my $row = Mock::CommonTrigger->insert('mock_common_trigger',{
         id   => 1,
     });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->created_at, 'now_s';
 };
 
@@ -86,7 +86,7 @@ subtest 'common and table own trigger' => sub {
     my $row = Mock::CommonTrigger->insert('mock_both_triggers',{
         id   => 1,
     });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->created_at, 'now_s(custom)';
 };
 
@@ -94,7 +94,7 @@ subtest 'trigger operates not exists column' => sub {
     my $row = Mock::CommonTrigger->insert('mock_lack_column',{
         id   => 1,
     });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is_deeply [qw/id/], [sort keys %{$row->{row_data}}];
 };
 

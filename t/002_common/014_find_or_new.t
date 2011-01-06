@@ -20,13 +20,13 @@ subtest 'find_or_new' => sub {
             name => 'perl',
         }
     );
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 1;
     is $row->name, 'perl';
 
     my $real_row = $row->insert;
 
-    isa_ok $real_row, 'DBIx::Skinny::Row';
+    isa_ok $real_row, 'DBIx::Skin::Row';
     is $real_row->id, 1;
     is $real_row->name, 'perl';
 
@@ -40,13 +40,13 @@ subtest 'find_or_new/ no data' => sub {
             name => 'ruby',
         }
     );
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 2;
     is $row->name, 'ruby';
 
     my $real_row = $row->insert;
 
-    isa_ok $real_row, 'DBIx::Skinny::Row';
+    isa_ok $real_row, 'DBIx::Skin::Row';
     is $real_row->id, 2;
     is $real_row->name, 'ruby';
 

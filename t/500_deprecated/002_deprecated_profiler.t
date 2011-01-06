@@ -16,6 +16,6 @@ BEGIN {
     use_ok "Mock::DeprecatedProfiler";
     close $fh;
 
-    like $buffer, qr/use DBIx::Skinny connect_info => { profiler => \.\.\. } has been deprecated\. Please use use DBIx::Skinny profiler => \.\.\. instead/;
+    like $buffer, qr/use DBIx::Skin connect_info => { profiler => \.\.\. } has been deprecated\. Please use use DBIx::Skin profiler => \.\.\. instead/;
 }
 done_testing;

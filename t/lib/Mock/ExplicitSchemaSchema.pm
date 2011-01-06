@@ -1,5 +1,5 @@
 package Mock::ExplicitSchemaSchema;
-use DBIx::Skinny::Schema;
+use DBIx::Skin::Schema;
 
 install_table mock_explicitschema => schema {
     pk 'id';

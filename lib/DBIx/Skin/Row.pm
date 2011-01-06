@@ -1,4 +1,4 @@
-package DBIx::Skinny::Row;
+package DBIx::Skin::Row;
 use strict;
 use warnings;
 use Carp ();
@@ -174,7 +174,7 @@ sub _where_cond {
 __END__
 =head1 NAME
 
-DBIx::Skinny::Row - DBIx::Skinny's Row class
+DBIx::Skin::Row - DBIx::Skin's Row class
 
 =head1 METHODS
 

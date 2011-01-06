@@ -1,11 +1,11 @@
-package DBIx::Skinny::Mixin;
+package DBIx::Skin::Mixin;
 use strict;
 use warnings;
 use Carp ();
 
 sub import {
     my($class, %args) = @_;
-    Carp::croak "Usage: use DBIx::Skinny::Mixin modules => ['MixinModuleName', 'MixinModuleName2', .... ]"
+    Carp::croak "Usage: use DBIx::Skin::Mixin modules => ['MixinModuleName', 'MixinModuleName2', .... ]"
         unless $args{modules} && ref($args{modules}) eq 'ARRAY';
 
     my $caller = caller;
@@ -30,11 +30,11 @@ sub import {
 
 =head1 NAME
 
-DBIx::Skinny::Mixin - mixin manager for DBIx::Skinny
+DBIx::Skin::Mixin - mixin manager for DBIx::Skin
 
 =head1 SYNOPSIS
 
-  use DBIx::Skinny::Mixin modules => ['mixin_module_names'];
+  use DBIx::Skin::Mixin modules => ['mixin_module_names'];
 
 =cut
 

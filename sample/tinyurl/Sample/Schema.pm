@@ -1,6 +1,6 @@
 package # hide from PAUSE
   Sample::Schema;
-use DBIx::Skinny::Schema;
+use DBIx::Skin::Schema;
 use WWW::Shorten::TinyURL;
 
 install_table tinyurl => schema {

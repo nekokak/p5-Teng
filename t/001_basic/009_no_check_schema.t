@@ -3,7 +3,7 @@ use Test::More;
 
 {
     package Mock::NoCheckSchema;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         check_schema => 0,
     };
 }

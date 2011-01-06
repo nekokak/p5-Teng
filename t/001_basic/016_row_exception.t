@@ -13,7 +13,7 @@ Mock::Basic->insert('mock_basic',{
 subtest 'update/delete error: no table info' => sub {
     my $row = Mock::Basic->search_by_sql(q{SELECT name FROM mock_basic})->first;
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     eval {
         $row->update({name => 'python'});
@@ -31,7 +31,7 @@ subtest 'update/delete error: no table info' => sub {
 subtest 'update/delete error: table name typo' => sub {
     my $row = Mock::Basic->single('mock_basic',{id => 1});
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     eval {
         $row->update({name => 'python'}, 'mock_basick');
@@ -50,7 +50,7 @@ subtest 'update/delete error: table have no pk' => sub {
     Mock::Basic->schema->schema_info->{mock_basic}->{pk} = undef;
 
     my $row = Mock::Basic->single('mock_basic',{id => 1});
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     eval {
         $row->update({name => 'python'});
@@ -75,7 +75,7 @@ subtest 'update/delete error: select column have no pk.' => sub {
         }
     )->retrieve->first;
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     eval {
         $row->update({name => 'python'});

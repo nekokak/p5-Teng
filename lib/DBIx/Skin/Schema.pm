@@ -1,11 +1,11 @@
-package DBIx::Skinny::Schema;
+package DBIx::Skin::Schema;
 use strict;
 use warnings;
-use DBIx::Skinny::Util;
+use DBIx::Skin::Util;
 
 BEGIN {
-    *utf8_on  = DBIx::Skinny::Util::utf8_on;
-    *utf8_off = DBIx::Skinny::Util::utf8_off;
+    *utf8_on  = DBIx::Skin::Util::utf8_on;
+    *utf8_off = DBIx::Skin::Util::utf8_off;
 }
 
 sub import {
@@ -45,7 +45,7 @@ sub install_table ($$) {
     my $class = caller;
     $class->schema_info->{_installing_table} = $table;
         $install_code->();
-    $class->schema_info->{$table}->{row_class} ||= DBIx::Skinny::Util::mk_row_class($class, $table);
+    $class->schema_info->{$table}->{row_class} ||= DBIx::Skin::Util::mk_row_class($class, $table);
 
     delete $class->schema_info->{_installing_table};
 }
@@ -64,7 +64,7 @@ sub pk {
 sub row_class ($) {
     my $row_class = shift;
 
-    DBIx::Skinny::Util::load_class($row_class) or die "$row_class not found or compile error.";
+    DBIx::Skin::Util::load_class($row_class) or die "$row_class not found or compile error.";
     my $class = caller;
     $class->schema_info->{
         $class->schema_info->{_installing_table}
@@ -206,12 +206,12 @@ __END__
 
 =head1 NAME
 
-DBIx::Skinny::Schema - Schema DSL for DBIx::Skinny
+DBIx::Skin::Schema - Schema DSL for DBIx::Skin
 
 =head1 SYNOPSIS
 
     package Your::Model;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -219,7 +219,7 @@ DBIx::Skinny::Schema - Schema DSL for DBIx::Skinny
     1;
     
     package Your::Model::Schema:
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
     
     install_utf8_columns qw/name/; # for utf8 columns
     

@@ -29,7 +29,7 @@ subtest 'data2itr method' => sub {
             name => 'python',
         },
     ]);
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     is $itr->count, 3;
 
     my $rows = [map { $_->get_columns } $itr->all];

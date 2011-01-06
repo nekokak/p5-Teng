@@ -21,10 +21,10 @@ Mock::Basic->insert('mock_basic',{
 
 subtest 'search' => sub {
     my $itr = Mock::Basic->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
@@ -34,14 +34,14 @@ subtest 'search without where' => sub {
     my $itr = Mock::Basic->search('mock_basic');
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
 
     my $row2 = $itr->next;
 
-    isa_ok $row2, 'DBIx::Skinny::Row';
+    isa_ok $row2, 'DBIx::Skin::Row';
 
     is $row2->id, 2;
     is $row2->name, 'python';
@@ -49,27 +49,27 @@ subtest 'search without where' => sub {
 
 subtest 'search with order_by (originally)' => sub {
     my $itr = Mock::Basic->search('mock_basic', {}, { order_by => [ { id => 'desc' } ] });
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 3;
     is $row->name, 'java';
 };
 
 subtest 'search with order_by (as hashref)' => sub {
     my $itr = Mock::Basic->search('mock_basic', {}, { order_by => { id => 'desc' } });
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 3;
     is $row->name, 'java';
 };
 
 subtest 'search with order_by (as string)' => sub {
     my $itr = Mock::Basic->search('mock_basic', {}, { order_by => 'name' });
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 3;
     is $row->name, 'java';
 };

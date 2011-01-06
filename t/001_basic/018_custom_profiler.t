@@ -5,11 +5,11 @@ use Test::More;
     package Mock::CustomProfiler::Profiler;
     use strict;
     use warnings;
-    use base qw(DBIx::Skinny::Profiler);
+    use base qw(DBIx::Skin::Profiler);
 
     package Mock::CustomProfiler;
     use t::Utils;
-    use DBIx::Skinny
+    use DBIx::Skin
         profiler => Mock::CustomProfiler::Profiler->new,
         connect_info => +{
             dsn => 'dbi:SQLite:',
@@ -29,7 +29,7 @@ use Test::More;
 
     package Mock::CustomProfiler::Schema;
     use utf8;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table mock_custom_profiler => schema {
         pk 'id';

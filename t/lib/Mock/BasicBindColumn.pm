@@ -1,5 +1,5 @@
 package Mock::BasicBindColumn;
-use DBIx::Skinny;
+use DBIx::Skin;
 
 sub setup_test_db {
     shift->do(q{

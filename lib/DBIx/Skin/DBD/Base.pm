@@ -1,7 +1,7 @@
-package DBIx::Skinny::DBD::Base;
+package DBIx::Skin::DBD::Base;
 use strict;
 use warnings;
-use DBIx::Skinny::SQL;
+use DBIx::Skin::SQL;
 
 sub sql_for_unixtime { time() }
 
@@ -24,7 +24,7 @@ sub bulk_insert {
     return 1;
 }
 
-sub query_builder_class { 'DBIx::Skinny::SQL' }
+sub query_builder_class { 'DBIx::Skin::SQL' }
 sub bind_param_attributes {}
 
 1;

@@ -2,16 +2,16 @@
 
 =head1 NAME 
 
-DBIx::Skinny::Manual::JA - DBIx::Skinnyの設計思想など
+DBIx::Skin::Manual::JA - DBIx::Skinの設計思想など
 
 =head1 DESCRIPTION
 
-DBIx::Skinnyをなぜ作る事にしたのか、
+DBIx::Skinをなぜ作る事にしたのか、
 また作るにあたっての設計思想など。
 
 Please translate and read the person in the sphere in English. 
 
-=head1 なぜDBIx::Skinnyを書いたのか
+=head1 なぜDBIx::Skinを書いたのか
 
 PerlのORマッパーは色々あります
 
@@ -42,7 +42,7 @@ inflateもしてくれない、utf8周りの処理もしてくれない。
 また、DBICには色々な機能があるため、処理速度も重い方だと私はおもいます。
 HotSpotな部分でパフォーマンスが求められる部分にはDBICを使わずにDBIを直接使う事もしばしばありました。
 
-Skinnyの大きな目的としては
+Skinの大きな目的としては
 
 １：生のSQLを発行した時にinflateとかutf8-flagを処理してくれる
 
@@ -58,5 +58,5 @@ Skinnyの大きな目的としては
 
 =head2 feedback
 
-DBIx::Skinnyのfeedbackをしたいと思う人は
+DBIx::Skinのfeedbackをしたいと思う人は
 #perl-casual@irc.freenode.netもしくは#dbix-skinny@irc.perl.orgまたはメールでお願いします。

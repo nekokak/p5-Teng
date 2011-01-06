@@ -4,7 +4,7 @@ use Test::More;
 
 {
     package Mock::BasicRow;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -21,7 +21,7 @@ use Test::More;
 
     package Mock::BasicRow::Schema;
     use utf8;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table mock_basic_row => schema {
         pk 'id';
@@ -43,12 +43,12 @@ use Test::More;
     package Mock::BasicRow::FooRow;
     use strict;
     use warnings;
-    use base 'DBIx::Skinny::Row';
+    use base 'DBIx::Skin::Row';
 
     package Mock::BasicRow::Row::MockBasicRow;
     use strict;
     use warnings;
-    use base 'DBIx::Skinny::Row';
+    use base 'DBIx::Skin::Row';
 
     sub foo {
         'foo'
@@ -57,7 +57,7 @@ use Test::More;
 
 {
     package Mock::ExRow;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -74,7 +74,7 @@ use Test::More;
 
     package Mock::ExRow::Schema;
     use utf8;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table mock_ex_row => schema {
         pk 'id';
@@ -87,7 +87,7 @@ use Test::More;
     package Mock::ExRow::Row;
     use strict;
     use warnings;
-    use base 'DBIx::Skinny::Row';
+    use base 'DBIx::Skin::Row';
 
     sub foo {'foo'}
 }
@@ -114,7 +114,7 @@ Mock::ExRow->insert('mock_ex_row',{
 
 subtest 'no your row class' => sub {
     my $row = Mock::Basic->single('mock_basic',{id => 1});
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     done_testing;
 };
 

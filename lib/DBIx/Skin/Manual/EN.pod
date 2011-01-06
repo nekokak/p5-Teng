@@ -2,11 +2,11 @@
 
 =head1 NAME 
 
-DBIx::Skinny::Manual::EN - DBIx::Skinny Manual (English)
+DBIx::Skin::Manual::EN - DBIx::Skin Manual (English)
 
 =head1 DESCRIPTION
 
-Why I made DBIx::Skinny.
+Why I made DBIx::Skin.
 
 =head1 MOTIVATION
 
@@ -20,7 +20,7 @@ L<Class::DBI> and L<DBIx::Class> have been widely used. L<DBIx::Class> is an esp
 
 =head2 Design Objectives
 
-The main objectives of L<DBIx::Skinny> are:
+The main objectives of L<DBIx::Skin> are:
 
 =head3 Inflate when dealing with utf8 issues
 

@@ -1,4 +1,4 @@
-package DBIx::Skinny::SQL;
+package DBIx::Skin::SQL;
 use strict;
 use warnings;
 use Class::Accessor::Lite;
@@ -334,11 +334,11 @@ sub retrieve {
 __END__
 =head1 NAME
 
-DBIx::Skinny::SQL - dynamic SQL generator
+DBIx::Skin::SQL - dynamic SQL generator
 
 =head1 SYNOPSIS
 
-    my $sql = DBIx::Skinny::SQL;
+    my $sql = DBIx::Skin::SQL;
     $sql->select(['foo', 'bar', 'baz']);
     $sql->from(['table_name']);
     $sql->as_sql;
@@ -356,10 +356,10 @@ DBIx::Skinny::SQL - dynamic SQL generator
     $sql->as_sql;
         #=> "SELECT foo, bar, baz FROM table_name WHERE ( col = ? ) AND ( name LIKE ? ) AND ( bar IS NOT NULL );"
 
-    # execute SQL and return DBIx::Skinny::Iterator object.
+    # execute SQL and return DBIx::Skin::Iterator object.
     my $iter = $sql->retrieve;
 
-    my $sql2 = DBIx::Skinny::SQL->new;
+    my $sql2 = DBIx::Skin::SQL->new;
     $sql2->from([]);
     $sql2->add_join(foo => [
         { table => "bar", type => "inner", condition => "foo.bar_id = bar.id" },

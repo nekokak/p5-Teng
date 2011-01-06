@@ -1,5 +1,5 @@
 package Mock::DeprecatedSetup;
-use DBIx::Skinny setup => +{
+use DBIx::Skin setup => +{
     dsn => 'dbi:SQLite:',
     username => '',
     password => '',

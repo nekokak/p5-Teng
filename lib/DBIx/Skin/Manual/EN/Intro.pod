@@ -2,14 +2,14 @@
 
 =head1 NAME 
 
-DBIx::Skinny::Manual::EN::Intro - Intro to DBIx::Skinny
+DBIx::Skin::Manual::EN::Intro - Intro to DBIx::Skin
 
 =head1 DESCRIPTION
 
 
 =head1 Caution
 
-L<DBIx::Skinny> runs on MySQL, SQLite, PostgreSQL and Oracle.
+L<DBIx::Skin> runs on MySQL, SQLite, PostgreSQL and Oracle.
 
 However it is designed to be extensible to other databases.
 
@@ -17,11 +17,11 @@ Be aware that APIs may change - this is alpha software!
 
 =head1 Base Class Defintions
 
-Let's work with an example project called C<Proj>. Your Skinny 
+Let's work with an example project called C<Proj>. Your Skin 
 model for this project would be:
 
     package Proj::Model;
-    use DBIx::Skinny conect_info => +{
+    use DBIx::Skin conect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -34,7 +34,7 @@ model for this project would be:
 If you want to directly use DSN files then you can create your model like this:
 
     package Proj::Model;
-    use DBIx::Skinny;
+    use DBIx::Skin;
     1;
 
 
@@ -57,12 +57,12 @@ If you want to directly use DSN files then you can create your model like this:
 =head1 Schema class definition
 
 The recommended way to define your schema classes is automatically via
-L<DBIx::Skinny::Schema::Loader>. However, read on for info about
+L<DBIx::Skin::Schema::Loader>. However, read on for info about
 manual setup.
 
 
     package Proj::Model::Schema;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
     
     install_table 'user' => schema {
         pk 'id';
@@ -72,7 +72,7 @@ manual setup.
     };
     1;
 
-Unlike most OR mappers which require a class for every table, in Skinny
+Unlike most OR mappers which require a class for every table, in Skin
 you can install all your tables in a single class.
 
 =head3 Dealing with multi-byte (utf-8) values for a column
@@ -80,7 +80,7 @@ you can install all your tables in a single class.
 Automatic processing of columns is achieved via C<install_utf8_columns>:
 
     package Proj::Model::Schema;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
     
     install_utf8_columns qw/name/;
     install_table 'user' => schema {
@@ -100,7 +100,7 @@ To enable inflate/deflate processing on the columns
 C<created_at> and C<updated_at> you can do the following:
 
     package Proj::Model::Schema;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
     use DateTime;
     use DateTime::Format::Strptime;
     use DateTime::Format::MySQL;
@@ -134,10 +134,10 @@ C<created_at> and C<updated_at> you can do the following:
 =head3 Triggers
 
 
-Skinny supports insert/update/delete triggers:
+Skin supports insert/update/delete triggers:
 
     package Proj::Model::Schema;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
     use DateTime;
     
     install_table 'user' => schema {
@@ -258,7 +258,7 @@ To insert records into a table:
         mail => 'nekokak _at_ gmail.com',
     });
 
-C<< ->insert() >> returns a L<DBIx::Skinny::Row>> class, so you can access
+C<< ->insert() >> returns a L<DBIx::Skin::Row>> class, so you can access
 columns like so:
 
     print $row->name; # nekokak
@@ -373,11 +373,11 @@ Typical DBI-style placeholders:
 
 =head2 resultset
 
-Please see L<DBIx::Skinny::Manual::EN::Resultset>
+Please see L<DBIx::Skin::Manual::EN::Resultset>
 
 =head2 Transactions
 
-Transactions are easy in Skinny:
+Transactions are easy in Skin:
 
     my $txn = Proj::Model->txn_scope;
     
@@ -408,8 +408,8 @@ using the InnoDB engine.
 
 
     package Proj::Model;
-    use DBIx::Skinny;
-    use DBIx::Skinny::Mixin modules => ['+Mixin::Foo'];
+    use DBIx::Skin;
+    use DBIx::Skin::Mixin modules => ['+Mixin::Foo'];
     1;
 
     package Mixin::Foo;
@@ -433,7 +433,7 @@ is possible
     use strict;
     use warnings;
     use utf8;
-    use base 'DBIx::Skinny::Row';
+    use base 'DBIx::Skin::Row';
     sub foo {
         say 'foo';
     }
@@ -448,7 +448,7 @@ is possible.
 Here's a more practical example:
 
     package Proj::Model::Row::User;
-    use base 'DBIx::Skinny::Row';
+    use base 'DBIx::Skin::Row';
     sub blogs {
         my $self = shift;
         $self->{skinny}->search('blog',{user_id => $self->id});

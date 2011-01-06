@@ -54,11 +54,11 @@ subtest 'pre_insert/post_insert' => sub {
     my $row = Mock::Trigger->insert('mock_trigger_pre',{
         id   => 1,
     });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'pre_insert_s';
 
     my $p_row = Mock::Trigger->single('mock_trigger_post',{id => 1});
-    isa_ok $p_row, 'DBIx::Skinny::Row';
+    isa_ok $p_row, 'DBIx::Skin::Row';
     is $p_row->name, 'post_insert';
 };
 
@@ -66,7 +66,7 @@ subtest 'pre_update/post_update' => sub {
     ok +Mock::Trigger->update('mock_trigger_pre',{});
 
     my $p_row = Mock::Trigger->single('mock_trigger_post',{id => 1});
-    isa_ok $p_row, 'DBIx::Skinny::Row';
+    isa_ok $p_row, 'DBIx::Skin::Row';
     is $p_row->name, 'post_update';
 };
 
@@ -76,7 +76,7 @@ subtest "pre_update affects row object's own column" => sub {
             name => 'pre',
         });
     ok $row->update({ id => 2 });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'pre_update';
 };
 
@@ -86,7 +86,7 @@ subtest 'pre_delete/post_delete' => sub {
     is +Mock::Trigger->count('mock_trigger_post', 'id',{}), 0;
 
     my $row = Mock::Trigger->single('mock_trigger_post_delete',{id => 1});
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'post_delete';
 };
 

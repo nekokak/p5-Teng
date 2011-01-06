@@ -4,7 +4,7 @@ use Test::More;
 {
     package Mock::BasicOnConnectDo;
     our $CONNECTION_COUNTER;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -24,7 +24,7 @@ use Test::More;
 
     package Mock::BasicOnConnectDo::Schema;
     use utf8;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table mock_basic => schema {
         pk 'id';
@@ -74,8 +74,8 @@ subtest 'instance level on_connect_do / coderef' => sub {
 };
 
 subtest 'instance level on_connect_do / scalar' => sub {
-    require DBIx::Skinny::Profiler;
-    local Mock::BasicOnConnectDo->_attributes->{profiler} = DBIx::Skinny::Profiler->new;
+    require DBIx::Skin::Profiler;
+    local Mock::BasicOnConnectDo->_attributes->{profiler} = DBIx::Skin::Profiler->new;
     my $db = Mock::BasicOnConnectDo->new;
 
     $db->_attributes->{on_connect_do} = 'select * from sqlite_master';
@@ -96,8 +96,8 @@ subtest 'instance level on_connect_do / scalar' => sub {
 };
 
 subtest 'instance level on_connect_do / array' => sub {
-    require DBIx::Skinny::Profiler;
-    local Mock::BasicOnConnectDo->_attributes->{profiler} = DBIx::Skinny::Profiler->new;
+    require DBIx::Skin::Profiler;
+    local Mock::BasicOnConnectDo->_attributes->{profiler} = DBIx::Skin::Profiler->new;
     my $db = Mock::BasicOnConnectDo->new;
 
     $db->_attributes->{on_connect_do} = ['select * from sqlite_master', 'select * from sqlite_master'];

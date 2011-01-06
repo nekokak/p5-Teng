@@ -1,5 +1,5 @@
 package Mock::ExplicitSchema;
-use DBIx::Skinny 
+use DBIx::Skin 
     schema => 'Mock::ExplicitSchemaSchema';
 
 sub setup_test_db {

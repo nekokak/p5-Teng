@@ -30,7 +30,7 @@ subtest 'data2itr method' => sub {
     ]);
     $itr = Mock::Inflate->data2itr('mock_inflate', [$itr->all]);
 
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     is $itr->count, 3;
 
     my $rows = [map { $_->get_columns } $itr->all];

@@ -1,7 +1,7 @@
-package DBIx::Skinny::Profiler::Trace;
+package DBIx::Skin::Profiler::Trace;
 use strict;
 use warnings;
-use base 'DBIx::Skinny::Profiler';
+use base 'DBIx::Skin::Profiler';
 use IO::Handle;
  
 sub new {
@@ -48,7 +48,7 @@ sub query_log {}
 __END__
 =head1 NAME
 
-DBIx::Skinny::Profiler::Trace - support query profile.
+DBIx::Skin::Profiler::Trace - support query profile.
 
 =head1 SYNOPSIS
 

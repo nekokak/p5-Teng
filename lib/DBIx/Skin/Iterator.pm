@@ -1,4 +1,4 @@
-package DBIx::Skinny::Iterator;
+package DBIx::Skin::Iterator;
 use strict;
 use warnings;
 use Scalar::Util qw(blessed);
@@ -123,7 +123,7 @@ sub position { $_[0]->{_position} }
 __END__
 =head1 NAME
 
-DBIx::Skinny::Iterator
+DBIx::Skin::Iterator
 
 =head1 DESCRIPTION
 
@@ -177,7 +177,7 @@ The number of lines that iterator has are returned.
 
 =item $itr->cache($mode)
 
-DBIx::Skinny::Itarator is default row data cache.
+DBIx::Skin::Itarator is default row data cache.
 this method specified that it doesn't cache row data or not. 
 
 if $mode is false, it doesn't cache row data.

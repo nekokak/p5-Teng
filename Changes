@@ -1,4 +1,4 @@
-Revision history for Perl extension DBIx::Skinny
+Revision history for Perl extension DBIx::Skin
 
 0.0732
    2010-12-22
@@ -13,11 +13,11 @@ Revision history for Perl extension DBIx::Skinny
 0.0730
    2010-12-14
         - MOD : add load_class method.
-        - ADD : add_where_raw method for Skinny::SQL (thanks nihen)
+        - ADD : add_where_raw method for Skin::SQL (thanks nihen)
         - MOD : Iterator's no_cache method has been deprecated. use cache method instead.
         - ADD : add find_or_create's knowun bug notice message.
-        - ADD : refetch method for DBIx::Skinny::Row.
-        - MOD : remove Skinny::Transaction. use DBIx::TransactionManager.
+        - ADD : refetch method for DBIx::Skin::Row.
+        - MOD : remove Skin::Transaction. use DBIx::TransactionManager.
         - MOD : refactoring tests.
 
 0.0729
@@ -26,7 +26,7 @@ Revision history for Perl extension DBIx::Skinny
 
 0.0728
    2010-11-30
-        - MOD   : remove DBIx::Skinny::Accessor. use Class::Accessor::Lite.
+        - MOD   : remove DBIx::Skin::Accessor. use Class::Accessor::Lite.
         - MOD   : DEPRECATED update_by_sql/delete_by_sql methods.
         - MOD   : no create anon row class.
         - MOD   : specific row class name for Schema.pm
@@ -35,7 +35,7 @@ Revision history for Perl extension DBIx::Skinny
 0.0727
    2010-11-09
         - ADD   : hash_to_row class.
-        - MOD   : DBIx::Skinny::attribute method rename DBIx::Skinny::_attributes. [INCOMPATIBLE CHANGE]
+        - MOD   : DBIx::Skin::attribute method rename DBIx::Skin::_attributes. [INCOMPATIBLE CHANGE]
         - ADD   : auto create Row class mode.
         - MOD   : no eval for txn_*. (thanks tokuhirom)
 
@@ -46,10 +46,10 @@ Revision history for Perl extension DBIx::Skinny
 
 0.0725
    2010-10-28
-        - ADD   : add handle method for DBIx::Skinny::Row.
-        - MOD   : DBIx::Skinny did inherits without doing export.
+        - ADD   : add handle method for DBIx::Skin::Row.
+        - MOD   : DBIx::Skin did inherits without doing export.
         - FIXED : don't warn on pk-less tables.(thanks lestrrat)
-        - MOD   : allow setting the name of the schema at use DBIx::Skinny time (thanks lestrrat)
+        - MOD   : allow setting the name of the schema at use DBIx::Skin time (thanks lestrrat)
         - MOD   : change setup to connect_info. setup now warns, and is aliased to connect_info (thanks lestrrat)
         - MOD   : change where profiler is set, also now respect SKINNY_PROFILE env var (thanks lestrrat)
         - ADD   : add ARCHITECTURE document.(thanks lestrrat)
@@ -109,11 +109,11 @@ Revision history for Perl extension DBIx::Skinny
 
 0.0712
    2010-06-29
-        - MOD : added method search_rs. Return DBIx::Skinny::SQL's object. (thanks walf443)
+        - MOD : added method search_rs. Return DBIx::Skin::SQL's object. (thanks walf443)
         - MOD : add fork safe dbh handling (thanks nihen)
-        - ADD : DBIx::Skinny::SQL's docs (thanks walf443)
+        - ADD : DBIx::Skin::SQL's docs (thanks walf443)
         - ADD : add_complex_where's test (thanks walf443)
-        - ADD : DBIx::Skinny::Manual::EN (thanks metaperl)
+        - ADD : DBIx::Skin::Manual::EN (thanks metaperl)
         - FIXED : t/218_transaction_mysql.t's typo (thanks nihen)
 
 0.0711
@@ -148,7 +148,7 @@ Revision history for Perl extension DBIx::Skinny
 
 0.0706
    2010-03-23
-        - MOD: accept $dbh for DBIx::Skinny->new() (tokuhirom)
+        - MOD: accept $dbh for DBIx::Skin->new() (tokuhirom)
         - FIXED: utf8_(on|off) should mention is_utf8_column (tokuhirom)
 
 0.0705
@@ -205,7 +205,7 @@ Revision history for Perl extension DBIx::Skinny
         - ADD: Oracle support (thanks Tomoyuki Misonou)
         - FIXED: set_dbh method bug. (report thanks walf443)
         - FIXED: Row::set method using deflate data. (thanks nekoya)
-        - ADD: install_common_trigger method for DBIx::Skinny::Schema (thanks nekoya)
+        - ADD: install_common_trigger method for DBIx::Skin::Schema (thanks nekoya)
 
 0.04
    2009-10-01

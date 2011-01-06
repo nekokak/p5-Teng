@@ -1,7 +1,7 @@
-package DBIx::Skinny::DBD::SQLite;
+package DBIx::Skin::DBD::SQLite;
 use strict;
 use warnings;
-use base 'DBIx::Skinny::DBD::Base';
+use base 'DBIx::Skin::DBD::Base';
 
 sub bind_param_attributes {
     my($self, $data_type) = @_;

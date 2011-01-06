@@ -16,6 +16,6 @@ BEGIN {
     use_ok "Mock::DeprecatedSetup";
     close $fh;
 
-    like $buffer, qr/use DBIx::Skinny setup => { \.\.\. } has been deprecated\. Please use connect_info instead/;
+    like $buffer, qr/use DBIx::Skin setup => { \.\.\. } has been deprecated\. Please use connect_info instead/;
 }
 done_testing;

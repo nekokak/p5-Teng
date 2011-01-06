@@ -13,7 +13,7 @@ Mock::Basic->insert('mock_basic',{
 
 subtest 'resultset' => sub {
     my $rs = Mock::Basic->resultset;
-    isa_ok $rs, 'DBIx::Skinny::SQL';
+    isa_ok $rs, 'DBIx::Skin::SQL';
 
     $rs->add_select('name');
     $rs->from(['mock_basic']);
@@ -21,10 +21,10 @@ subtest 'resultset' => sub {
 
     my $itr = $rs->retrieve;
     
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->name, 'perl';
 };

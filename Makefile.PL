@@ -1,6 +1,6 @@
 use inc::Module::Install;
-name 'DBIx-Skinny';
-all_from 'lib/DBIx/Skinny.pm';
+name 'DBIx-Skin';
+all_from 'lib/DBIx/Skin.pm';
 
 requires 'UNIVERSAL::require';
 requires 'Carp';

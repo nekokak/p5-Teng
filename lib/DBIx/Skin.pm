@@ -1,14 +1,14 @@
-package DBIx::Skinny;
+package DBIx::Skin;
 use strict;
 use warnings;
 
 our $VERSION = '0.0732';
 
 use DBI;
-use DBIx::Skinny::Iterator;
-use DBIx::Skinny::DBD;
-use DBIx::Skinny::Row;
-use DBIx::Skinny::Util;
+use DBIx::Skin::Iterator;
+use DBIx::Skin::DBD;
+use DBIx::Skin::Row;
+use DBIx::Skin::Util;
 use DBIx::TransactionManager 1.02;
 use Carp ();
 use Storable ();
@@ -16,13 +16,13 @@ use Storable ();
 sub import {
     my ($class, %opt) = @_;
 
-    return if $class ne 'DBIx::Skinny';
+    return if $class ne 'DBIx::Skin';
 
     my $caller = caller;
     my $connect_info = $opt{connect_info};
     if (! $connect_info ) {
         if ( $connect_info = $opt{setup} ) {
-            Carp::carp( "use DBIx::Skinny setup => { ... } has been deprecated. Please use connect_info instead" );
+            Carp::carp( "use DBIx::Skin setup => { ... } has been deprecated. Please use connect_info instead" );
         } else {
             $connect_info = {};
         }
@@ -31,13 +31,13 @@ sub import {
     my $profiler = $opt{profiler};
     if (! $profiler ) {
         if ( $profiler = $connect_info->{profiler} ) {
-            Carp::carp( "use DBIx::Skinny connect_info => { profiler => ... } has been deprecated. Please use use DBIx::Skinny profiler => ... instead" );
+            Carp::carp( "use DBIx::Skin connect_info => { profiler => ... } has been deprecated. Please use use DBIx::Skin profiler => ... instead" );
         } elsif ($ENV{SKINNY_TRACE}) {
-            require DBIx::Skinny::Profiler::Trace;
-            $profiler = DBIx::Skinny::Profiler::Trace->new;
+            require DBIx::Skin::Profiler::Trace;
+            $profiler = DBIx::Skin::Profiler::Trace->new;
         } elsif ($ENV{SKINNY_PROFILE}) {
-            require DBIx::Skinny::Profiler;
-            $profiler = DBIx::Skinny::Profiler->new;
+            require DBIx::Skin::Profiler;
+            $profiler = DBIx::Skin::Profiler->new;
         }
     }
                 
@@ -70,7 +70,7 @@ sub import {
     }
     $caller->_setup_dbd;
 
-    DBIx::Skinny::Util::load_class($schema);
+    DBIx::Skin::Util::load_class($schema);
 
     strict->import;
     warnings->import;
@@ -258,7 +258,7 @@ sub _setup_dbd {
     my ($class, $args) = @_;
     my $driver_name = $args ? _guess_driver_name($args) : $class->_attributes->{driver_name};
     $class->_attributes->{driver_name} = $driver_name;
-    $class->_attributes->{dbd} = $driver_name ? DBIx::Skinny::DBD->new($driver_name) : undef;
+    $class->_attributes->{dbd} = $driver_name ? DBIx::Skin::DBD->new($driver_name) : undef;
 }
 
 sub _guess_driver_name {
@@ -451,7 +451,7 @@ sub hash_to_row {
 sub _get_sth_iterator {
     my ($class, $sql, $sth, $opt_table_info) = @_;
 
-    return DBIx::Skinny::Iterator->new(
+    return DBIx::Skin::Iterator->new(
         skinny         => $class,
         sth            => $sth,
         sql            => $sql,
@@ -464,7 +464,7 @@ sub _get_sth_iterator {
 sub data2itr {
     my ($class, $table, $data) = @_;
 
-    return DBIx::Skinny::Iterator->new(
+    return DBIx::Skin::Iterator->new(
         skinny         => $class,
         data           => $data,
         row_class      => $class->_get_row_class($table, $table),
@@ -491,8 +491,8 @@ sub _get_row_class {
     } else {
         return $class->_attributes->{_common_row_class} ||= do {
             my $row_class = join '::', $class->_attributes->{klass}, 'Row';
-            DBIx::Skinny::Util::load_class($row_class) or do {
-                no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skinny::Row');
+            DBIx::Skin::Util::load_class($row_class) or do {
+                no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
             };
             $row_class;
         };
@@ -768,7 +768,7 @@ sub _stack_trace {
     $stmt =~ s/\n/\n          /gm;
     Carp::croak sprintf <<"TRACE", $reason, $stmt, Data::Dumper::Dumper($bind);
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@ DBIx::Skinny 's Exception @@@@@
+@@@@@ DBIx::Skin 's Exception @@@@@
 Reason  : %s
 SQL     : %s
 BIND    : %s
@@ -787,14 +787,14 @@ sub _close_sth {
 __END__
 =head1 NAME
 
-DBIx::Skinny - simple DBI wrapper/ORMapper
+DBIx::Skin - simple DBI wrapper/ORMapper
 
 =head1 SYNOPSIS
 
 create your db model base class.
 
     package Your::Model;
-    use DBIx::Skinny connect_info => {
+    use DBIx::Skin connect_info => {
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -802,10 +802,10 @@ create your db model base class.
     1;
     
 create your db schema class.
-See DBIx::Skinny::Schema for docs on defining schema class.
+See DBIx::Skin::Schema for docs on defining schema class.
 
     package Your::Model::Schema;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
     
     install_table user => schema {
         pk 'id';
@@ -834,30 +834,30 @@ in your script.
 
 =head1 DESCRIPTION
 
-DBIx::Skinny is simple DBI wrapper and simple O/R Mapper.
+DBIx::Skin is simple DBI wrapper and simple O/R Mapper.
 It aims to be lightweight, with minimal dependencies so it's easier to install. 
 
 =head1 ARCHITECTURE
 
-DBIx::Skinny classes are comprised of three distinct components:
+DBIx::Skin classes are comprised of three distinct components:
 
 =head2 MODEL
 
 The C<model> is where you say 
 
     package MyApp::Model;
-    use DBIx::Skinny;
+    use DBIx::Skin;
 
-This is the entry point to using DBIx::Skinny. You connect, insert, update, delete, select stuff using this object.
+This is the entry point to using DBIx::Skin. You connect, insert, update, delete, select stuff using this object.
 
 =head2 SCHEMA
 
-The C<schema> is a simple class that describes your table definitions. Note that this is different from DBIx::Class terms. DBIC's schema is equivalent to DBIx::Skinny's model + schema, where the actual schema information is scattered across the result classes.
+The C<schema> is a simple class that describes your table definitions. Note that this is different from DBIx::Class terms. DBIC's schema is equivalent to DBIx::Skin's model + schema, where the actual schema information is scattered across the result classes.
 
-In DBIx::Skinny, you simply use DBIx::Skinny::Schema's domain specific languaage to define a set of tables
+In DBIx::Skin, you simply use DBIx::Skin::Schema's domain specific languaage to define a set of tables
 
     package MyApp::Model::Schema;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table $table_name => schema {
         pk $primary_key_column;
@@ -872,18 +872,18 @@ In DBIx::Skinny, you simply use DBIx::Skinny::Schema's domain specific languaage
 
 =head2 ROW
 
-Unlike DBIx::Class, you don't need to have a set of classes that represent a row type (i.e. "result" classes in DBIC terms). In DBIx::Skinny, the row objects are blessed into anonymous classes that inherit from DBIx::Skinny::Row, so you don't have to create these classes if you just want to use some simple queries.
+Unlike DBIx::Class, you don't need to have a set of classes that represent a row type (i.e. "result" classes in DBIC terms). In DBIx::Skin, the row objects are blessed into anonymous classes that inherit from DBIx::Skin::Row, so you don't have to create these classes if you just want to use some simple queries.
 
 If you want to define methods to be performed by your row objects, simply create a row class like so:
 
     package MyApp::Model::Row::CamelizedTableName;
-    use base qw(DBIx::Skinny::Row);
+    use base qw(DBIx::Skin::Row);
 
 Note that your table name will be camelized using String::CamelCase.
 
 =head1 METHODS
 
-DBIx::Skinny provides a number of methods to all your classes, 
+DBIx::Skin provides a number of methods to all your classes, 
 
 =over
 
@@ -1005,7 +1005,7 @@ example:
 
 or 
 
-    # see) DBIx::Skinny::Row's POD
+    # see) DBIx::Skin::Row's POD
     my $row = Your::Model->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
@@ -1032,7 +1032,7 @@ example:
 
 or
 
-    # see) DBIx::Skinny::Row's POD
+    # see) DBIx::Skin::Row's POD
     my $row = Your::Model->single('user', {id => 1});
     $row->delete
 
@@ -1051,7 +1051,7 @@ example:
 
 create record if not exsists record.
 
-return DBIx::Skinny::Row's instance object.
+return DBIx::Skin::Row's instance object.
 
 example:
 
@@ -1092,9 +1092,9 @@ find_or_create method alias.
 =item $skinny->search($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
-search method get DBIx::Skinny::Iterator's instance object.
+search method get DBIx::Skin::Iterator's instance object.
 
-see L<DBIx::Skinny::Iterator>
+see L<DBIx::Skin::Iterator>
 
 get iterator:
 
@@ -1109,7 +1109,7 @@ See L</ATTRIBUTES> for more information for \%search_attr.
 =item $skinny->search_rs($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
-search_rs method always get DBIx::Skinny::Iterator's instance object.
+search_rs method always get DBIx::Skin::Iterator's instance object.
 
 This method does the same exact thing as search() except it will always return a iterator, even in list context.
 
@@ -1161,7 +1161,7 @@ If you give \@sql_parts,
     # bind [1,2,3]
     my $itr = Your::Model->search_named(q{SELECT * FROM user WHERE id IN :ids %s}, {id => [1, 2, 3]}, ['AND unsubscribed_at IS NOT NULL']);
 
-If you give table_name. It is assumed the hint that makes DBIx::Skinny::Row's Object.
+If you give table_name. It is assumed the hint that makes DBIx::Skin::Row's Object.
 
 =item $skinny->search_by_sql($sql, [\@bind_vlues, [$table_name]])
 
@@ -1192,7 +1192,7 @@ get transaction scope object.
     }
 
 An alternative way of transaction handling based on
-L<DBIx::Skinny::Transaction>.
+L<DBIx::Skin::Transaction>.
 
 If an exception occurs, or the guard object otherwise leaves the scope
 before C<< $txn->commit >> is called, the transaction will be rolled
@@ -1204,7 +1204,7 @@ database disconnection.
 
 =item $skinny->hash_to_row($table_name, $row_data_hash_ref)
 
-make DBIx::Skinny::Row's class from hash_ref.
+make DBIx::Skin::Row's class from hash_ref.
 
     my $row = Your::Model->hash_to_row('user',
         {
@@ -1215,7 +1215,7 @@ make DBIx::Skinny::Row's class from hash_ref.
 
 =item $skinny->data2itr($table_name, \@rows_data)
 
-DBIx::Skinny::Iterator is made based on \@rows_data.
+DBIx::Skin::Iterator is made based on \@rows_data.
 
     my $itr = Your::Model->data2itr('user',[
         {
@@ -1241,7 +1241,7 @@ Find an existing record from database.
 
 If none exists, instantiate a new row object and return it.
 
-The object will not be saved into your storage until you call "insert" in DBIx::Skinny::Row on it.
+The object will not be saved into your storage until you call "insert" in DBIx::Skin::Row on it.
 
     my $row = Your::Model->find_or_new('user',{name => 'nekokak'});
 
@@ -1301,7 +1301,7 @@ set row object creation mode.
 
 for debugging sql.
 
-see L<DBIx::Skinny::Profile>
+see L<DBIx::Skin::Profile>
 
         $ SKINNY_PROFILE=1 perl ./your_script.pl
 
@@ -1309,7 +1309,7 @@ see L<DBIx::Skinny::Profile>
 
 for debugging sql.
 
-see L<DBIx::Skinny::Profiler::Trace>
+see L<DBIx::Skin::Profiler::Trace>
 
     $ SKINNY_TRACE=1 perl ./your_script.pl
 

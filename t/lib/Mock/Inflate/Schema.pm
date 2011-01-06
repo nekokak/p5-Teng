@@ -1,5 +1,5 @@
 package Mock::Inflate::Schema;
-use DBIx::Skinny::Schema;
+use DBIx::Skin::Schema;
 use Mock::Inflate::Name;
 
 install_table mock_inflate => schema {

@@ -11,8 +11,8 @@ Mock::Basic->insert('mock_basic',{
     name => 'perl',
 });
 
-use DBIx::Skinny::Profiler;
-Mock::Basic->_attributes->{profiler} = DBIx::Skinny::Profiler->new;
+use DBIx::Skin::Profiler;
+Mock::Basic->_attributes->{profiler} = DBIx::Skin::Profiler->new;
 
 subtest 'where condition in' => sub {
     Mock::Basic->search('mock_basic',{

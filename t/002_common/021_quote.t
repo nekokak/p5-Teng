@@ -8,8 +8,8 @@ Mock::Basic->setup_test_db;
 Mock::Basic->_attributes->{profile} = 1;
 
 subtest 'quote sql by sqlite' => sub {
-    require DBIx::Skinny::Profiler;
-    local Mock::Basic->_attributes->{profiler} = DBIx::Skinny::Profiler->new;
+    require DBIx::Skin::Profiler;
+    local Mock::Basic->_attributes->{profiler} = DBIx::Skin::Profiler->new;
     my $row = Mock::Basic->insert('mock_basic',{
         id   => 1,
         name => 'perl',

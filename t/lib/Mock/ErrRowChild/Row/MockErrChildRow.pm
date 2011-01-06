@@ -1,7 +1,7 @@
 package Mock::ErrRowChild::Row::MockErrChildRow;
 use strict;
 use warnings;
-use base 'DBIx::Skinny::Row';
+use base 'DBIx::Skin::Row';
 
 # syntax error
 sub foo {'foo

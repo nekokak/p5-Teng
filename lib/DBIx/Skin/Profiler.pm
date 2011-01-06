@@ -1,4 +1,4 @@
-package DBIx::Skinny::Profiler;
+package DBIx::Skin::Profiler;
 use strict;
 use warnings;
 
@@ -44,7 +44,7 @@ sub query_log { $_[0]->{_query_log} }
 __END__
 =head1 NAME
 
-DBIx::Skinny::Profiler - support query profile.
+DBIx::Skin::Profiler - support query profile.
 
 =head1 SYNOPSIS
 

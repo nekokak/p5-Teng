@@ -1,5 +1,5 @@
 package Mock::ErrRowChild;
-use DBIx::Skinny connect_info => +{
+use DBIx::Skin connect_info => +{
     dsn => 'dbi:SQLite:',
     username => '',
     password => '',

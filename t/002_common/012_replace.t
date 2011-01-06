@@ -11,14 +11,14 @@ subtest 'replace mock_basic data' => sub {
         id   => 1,
         name => 'perl',
     });
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'perl';
 
     my $replaced_row = Mock::Basic->replace('mock_basic',{
         id   => 1,
         name => 'ruby',
     });
-    isa_ok $replaced_row, 'DBIx::Skinny::Row';
+    isa_ok $replaced_row, 'DBIx::Skin::Row';
     is $replaced_row->name, 'ruby';
 };
 

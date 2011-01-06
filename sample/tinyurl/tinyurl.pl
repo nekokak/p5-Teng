@@ -21,7 +21,7 @@ sub class_method {
         },
         {
             id  => 3,
-            url => 'http://search.cpan.org/dist/DBIx-Skinny/',
+            url => 'http://search.cpan.org/dist/DBIx-Skin/',
         },
     ]);
 
@@ -72,7 +72,7 @@ sub instance_method {
         },
         {
             id  => 3,
-            url => 'http://search.cpan.org/dist/DBIx-Skinny/',
+            url => 'http://search.cpan.org/dist/DBIx-Skin/',
         },
     ]);
 

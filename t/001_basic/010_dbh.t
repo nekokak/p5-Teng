@@ -4,7 +4,7 @@ use Test::More;
 {
     package Mock::DBH;
     use DBI;
-    use DBIx::Skinny connect_info => +{
+    use DBIx::Skin connect_info => +{
         dbh => DBI->connect('dbi:SQLite:', '', ''),
     };
 
@@ -19,7 +19,7 @@ use Test::More;
 
     package Mock::DBH::Schema;
     use utf8;
-    use DBIx::Skinny::Schema;
+    use DBIx::Skin::Schema;
 
     install_table mock_dbh => schema {
         pk 'id';

@@ -23,7 +23,7 @@ subtest 'all' => sub {
 
 subtest 'iterator with cache' => sub {
     my $itr = Mock::Basic->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     is $itr->position, 0, 'initial position';
 
     is $itr->count, 2, "rows count";
@@ -34,22 +34,22 @@ subtest 'iterator with cache' => sub {
     is $itr->position, 0, 'reset position';
 
     my $row1 = $itr->next;
-    isa_ok $row1, 'DBIx::Skinny::Row';
+    isa_ok $row1, 'DBIx::Skin::Row';
     is $itr->position, 1, 'one next position';
     my $row2 = $itr->next;
-    isa_ok $row2, 'DBIx::Skinny::Row';
+    isa_ok $row2, 'DBIx::Skin::Row';
     is $itr->position, 2, 'two next position';
     ok !$itr->next, 'no more row';
     is $itr->position, 2, 'next-last position';
 
     ok $itr->reset, "reset ok";
     $row1 = $itr->first;
-    isa_ok $row1, 'DBIx::Skinny::Row';
+    isa_ok $row1, 'DBIx::Skin::Row';
 };
 
 subtest 'iterator with no cache all/count' => sub {
     my $itr = Mock::Basic->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     $itr->cache(0);
 
     is $itr->count, 2, "rows count";
@@ -62,15 +62,15 @@ subtest 'iterator with no cache all/count' => sub {
 
 subtest 'iterator with no cache' => sub {
     my $itr = Mock::Basic->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     is $itr->position, 0, 'initial position';
     $itr->cache(0);
 
     my $row1 = $itr->next;
-    isa_ok $row1, 'DBIx::Skinny::Row';
+    isa_ok $row1, 'DBIx::Skin::Row';
     is $itr->position, 1, 'one next position';
     my $row2 = $itr->next;
-    isa_ok $row2, 'DBIx::Skinny::Row';
+    isa_ok $row2, 'DBIx::Skin::Row';
     is $itr->position, 2, 'two next position';
 
     ok !$itr->next, 'no more row';
@@ -82,7 +82,7 @@ subtest 'iterator with no cache' => sub {
 
 subtest 'iterator with suppress_objects on to off' => sub {
     my $itr = Mock::Basic->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     $itr->suppress_objects(1);
 
     my $row = $itr->next;
@@ -95,7 +95,7 @@ subtest 'iterator with suppress_objects on to off' => sub {
 
     $itr->suppress_objects(0);
     $row = $itr->next;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     my $dat = $row->get_columns;
     is_deeply $dat, {
           id        => 2,
@@ -107,7 +107,7 @@ subtest 'iterator with suppress_objects on to off' => sub {
 subtest 'iterator with suppress_row_objects on to off' => sub {
     Mock::Basic->suppress_row_objects(1);
     my $itr = Mock::Basic->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->next;
     is ref($row), 'HASH';
@@ -119,9 +119,9 @@ subtest 'iterator with suppress_row_objects on to off' => sub {
 
     Mock::Basic->suppress_row_objects(0);
     $itr = Mock::Basic->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
     $row = $itr->next;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     my $dat = $row->get_columns;
     is_deeply $dat, {
           id        => 1,
@@ -133,7 +133,7 @@ subtest 'iterator with suppress_row_objects on to off' => sub {
 subtest 'iterator with suppress_row_objects on with cache' => sub {
     Mock::Basic->suppress_row_objects(1);
     my $itr = Mock::Basic->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->next;
     is ref($row), 'HASH';

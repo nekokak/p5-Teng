@@ -3,7 +3,7 @@ use Test::More;
 
 BEGIN { use_ok( 'Mock::Basic' ); }
 
-isa_ok 'Mock::Basic', 'DBIx::Skinny';
+isa_ok 'Mock::Basic', 'DBIx::Skin';
 
 use DBD::SQLite;
 diag('DBD::SQLite versin is '.$DBD::SQLite::VERSION);

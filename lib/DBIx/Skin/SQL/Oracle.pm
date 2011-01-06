@@ -1,7 +1,7 @@
-package DBIx::Skinny::SQL::Oracle;
+package DBIx::Skin::SQL::Oracle;
 use strict;
 use warnings;
-use base qw(DBIx::Skinny::SQL);
+use base qw(DBIx::Skin::SQL);
 
 ## Oracle doesn't have the LIMIT clause.
 sub as_limit {

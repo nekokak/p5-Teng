@@ -1,5 +1,5 @@
 package Mock::BasicBindColumn::Schema;
-use DBIx::Skinny::Schema;
+use DBIx::Skin::Schema;
 
 install_table mock_basic_bind_column => schema {
     pk 'id';

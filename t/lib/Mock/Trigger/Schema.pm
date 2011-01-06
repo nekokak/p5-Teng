@@ -1,5 +1,5 @@
 package Mock::Trigger::Schema;
-use DBIx::Skinny::Schema;
+use DBIx::Skin::Schema;
 
 install_table mock_trigger_pre => schema {
     pk 'id';

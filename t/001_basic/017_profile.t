@@ -1,9 +1,9 @@
 use t::Utils;
 use Test::More;
 
-use DBIx::Skinny::Profiler;
+use DBIx::Skin::Profiler;
 
-my $profiler = DBIx::Skinny::Profiler->new;
+my $profiler = DBIx::Skin::Profiler->new;
 
 subtest 'record query' => sub {
     $profiler->record_query(q{SELECT * FROM user});

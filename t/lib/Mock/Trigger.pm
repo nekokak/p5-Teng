@@ -1,5 +1,5 @@
 package Mock::Trigger;
-use DBIx::Skinny;
+use DBIx::Skin;
 
 sub setup_test_db {
     my $skinny = shift;

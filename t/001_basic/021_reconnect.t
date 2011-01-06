@@ -21,10 +21,10 @@ subtest 'db1.db ok' => sub {
     );
     
     my $itr = Mock::Basic->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id , 1;
     is $row->name, 'perl';
 };
@@ -48,10 +48,10 @@ subtest 'db2.db ok' => sub {
     );
 
     my $itr = Mock::Basic->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id , 1;
     is $row->name, 'ruby';
 };
@@ -66,10 +66,10 @@ Mock::Basic->reconnect(
 
 subtest 'db1.db ok' => sub {
     my $itr = Mock::Basic->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id , 1;
     is $row->name, 'perl';
 };
@@ -78,10 +78,10 @@ Mock::Basic->reconnect();
 
 subtest 'db1.db ok' => sub {
     my $itr = Mock::Basic->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skinny::Iterator';
+    isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->id , 1;
     is $row->name, 'perl';
 };

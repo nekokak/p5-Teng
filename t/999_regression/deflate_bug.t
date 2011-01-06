@@ -15,7 +15,7 @@ subtest 'scalar data bug case' => sub {
         name => 'azumakuniyuki',
     });
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     isa_ok $row->name, 'Mock::Inflate::Name';
     is $row->name->name, 'azumakuniyuki_deflate';
 };

@@ -15,7 +15,7 @@ subtest 'insert mock_inflate data' => sub {
         name => $name,
     });
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     isa_ok $row->name, 'Mock::Inflate::Name';
     is $row->name->name, 'perl';
 };
@@ -26,7 +26,7 @@ subtest 'update mock_inflate data' => sub {
     ok +Mock::Inflate->update('mock_inflate',{name => $name},{id => 1});
     my $row = Mock::Inflate->single('mock_inflate',{id => 1});
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     isa_ok $row->name, 'Mock::Inflate::Name';
     is $row->name->name, 'ruby';
 };

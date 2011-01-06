@@ -15,7 +15,7 @@ subtest 'update mock_basic data' => sub {
     ok +Mock::Basic->update('mock_basic',{name => 'python'},{id => 1});
     my $row = Mock::Basic->single('mock_basic',{id => 1});
 
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'python';
 };
 

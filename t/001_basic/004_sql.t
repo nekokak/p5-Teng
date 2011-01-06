@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use DBIx::Skinny::SQL;
+use DBIx::Skin::SQL;
 use Test::More;
 
 my $stmt = ns();
@@ -330,6 +330,6 @@ subtest join_with_using => sub {
     done_testing;
 };
 
-sub ns { DBIx::Skinny::SQL->new }
+sub ns { DBIx::Skin::SQL->new }
 
 done_testing;

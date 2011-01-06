@@ -17,7 +17,7 @@ subtest 'deflate scalarref' => sub {
             name => $ref_val,
         }
     );
-    isa_ok $row, 'DBIx::Skinny::Row';
+    isa_ok $row, 'DBIx::Skin::Row';
 };
 
 done_testing;

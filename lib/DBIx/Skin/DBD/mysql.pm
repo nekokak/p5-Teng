@@ -1,7 +1,7 @@
-package DBIx::Skinny::DBD::mysql;
+package DBIx::Skin::DBD::mysql;
 use strict;
 use warnings;
-use base 'DBIx::Skinny::DBD::Base';
+use base 'DBIx::Skin::DBD::Base';
 
 sub sql_for_unixtime { "UNIX_TIMESTAMP()" }
 
