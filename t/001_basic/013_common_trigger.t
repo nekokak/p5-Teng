@@ -3,11 +3,7 @@ use Test::More;
 
 {
     package Mock::CommonTrigger;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         my $db = shift;
@@ -72,10 +68,18 @@ use Test::More;
     };
 }
 
-Mock::CommonTrigger->setup_test_db;
+my $db = Mock::CommonTrigger->new(
+    +{
+        dsn => 'dbi:SQLite:',
+        username => '',
+        password => '',
+    }
+);
+
+$db->setup_test_db;
 
 subtest 'common trigger' => sub {
-    my $row = Mock::CommonTrigger->insert('mock_common_trigger',{
+    my $row = $db->insert('mock_common_trigger',{
         id   => 1,
     });
     isa_ok $row, 'DBIx::Skin::Row';
@@ -83,7 +87,7 @@ subtest 'common trigger' => sub {
 };
 
 subtest 'common and table own trigger' => sub {
-    my $row = Mock::CommonTrigger->insert('mock_both_triggers',{
+    my $row = $db->insert('mock_both_triggers',{
         id   => 1,
     });
     isa_ok $row, 'DBIx::Skin::Row';
@@ -91,7 +95,7 @@ subtest 'common and table own trigger' => sub {
 };
 
 subtest 'trigger operates not exists column' => sub {
-    my $row = Mock::CommonTrigger->insert('mock_lack_column',{
+    my $row = $db->insert('mock_lack_column',{
         id   => 1,
     });
     isa_ok $row, 'DBIx::Skin::Row';

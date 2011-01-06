@@ -3,19 +3,19 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'do raise error' => sub {
     eval {
-        Mock::Basic->do(q{select * from hoge});
+        $db->do(q{select * from hoge});
     };
     ok $@;
 };
 
 subtest 'do with bind' => sub {
     eval {
-        Mock::Basic->do(q{SELECT * from mock_basic WHERE name = ?}, undef, "hoge")
+        $db->do(q{SELECT * from mock_basic WHERE name = ?}, undef, "hoge")
     };
     ok not $@;
 };

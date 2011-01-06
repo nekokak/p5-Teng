@@ -3,11 +3,7 @@ use Test::More;
 
 {
     package Mock::Mixin;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use DBIx::Skin;
     use DBIx::Skin::Mixin modules => ['+Mixin::Foo'];
 
     sub setup_test_db {
@@ -32,9 +28,17 @@ use Test::More;
     };
 }
 
+my $db = Mock::Mixin->new(
+    +{
+        dsn => 'dbi:SQLite:',
+        username => '',
+        password => '',
+    }
+);
+
 subtest 'mixin Mixin::Foo module' => sub {
     can_ok 'Mock::Mixin', 'foo';
-    is +Mock::Mixin->foo, 'foo';
+    is +$db->foo, 'foo';
 };
 
 done_testing;

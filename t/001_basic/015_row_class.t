@@ -4,11 +4,7 @@ use Test::More;
 
 {
     package Mock::BasicRow;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         shift->do(q{
@@ -57,11 +53,7 @@ use Test::More;
 
 {
     package Mock::ExRow;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         shift->do(q{
@@ -93,33 +85,43 @@ use Test::More;
 }
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
-Mock::Basic->insert('mock_basic',{
+my $db_basic = Mock::Basic->new({dbh => $dbh});
+   $db_basic->setup_test_db;
+   $db_basic->insert('mock_basic',{
+        id   => 1,
+        name => 'perl',
+   });
+
+my $db_basic_row = Mock::BasicRow->new({
+    dsn => 'dbi:SQLite:',
+    username => '',
+    password => '',
+});
+$db_basic_row->setup_test_db;
+$db_basic_row->insert('mock_basic_row',{
     id   => 1,
     name => 'perl',
 });
 
-Mock::BasicRow->setup_test_db;
-Mock::BasicRow->insert('mock_basic_row',{
-    id   => 1,
-    name => 'perl',
+my $db_ex_row = Mock::ExRow->new({
+    dsn => 'dbi:SQLite:',
+    username => '',
+    password => '',
 });
-
-Mock::ExRow->setup_test_db;
-Mock::ExRow->insert('mock_ex_row',{
+$db_ex_row->setup_test_db;
+$db_ex_row->insert('mock_ex_row',{
     id   => 1,
     name => 'perl',
 });
 
 subtest 'no your row class' => sub {
-    my $row = Mock::Basic->single('mock_basic',{id => 1});
+    my $row = $db_basic->single('mock_basic',{id => 1});
     isa_ok $row, 'DBIx::Skin::Row';
     done_testing;
 };
 
 subtest 'your row class' => sub {
-    my $row = Mock::BasicRow->single('mock_basic_row',{id => 1});
+    my $row = $db_basic_row->single('mock_basic_row',{id => 1});
     isa_ok $row, 'Mock::BasicRow::Row::MockBasicRow';
     is $row->foo, 'foo';
     is $row->id, 1;
@@ -128,19 +130,19 @@ subtest 'your row class' => sub {
 };
 
 subtest 'ex row class' => sub {
-    my $row = Mock::ExRow->single('mock_ex_row',{id => 1});
+    my $row = $db_ex_row->single('mock_ex_row',{id => 1});
     isa_ok $row, 'Mock::ExRow::Row';
     is $row->foo, 'foo';
     done_testing;
 };
 
 subtest 'row_class specific Schema.pm' => sub {
-    is +Mock::BasicRow->_get_row_class('key', 'mock_basic_row_foo'), 'Mock::BasicRow::FooRow';
+    is +$db_basic_row->_get_row_class('key', 'mock_basic_row_foo'), 'Mock::BasicRow::FooRow';
     done_testing;
 };
 
 subtest 'handle' => sub {
-    my $row = Mock::Basic->single('mock_basic',{id => 1});
+    my $row = $db_basic->single('mock_basic',{id => 1});
     isa_ok $row->handle, 'Mock::Basic';
     can_ok $row->handle, 'single';
     done_testing;

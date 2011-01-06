@@ -5,11 +5,7 @@ use Encode ();
 
 {
     package Mock::UTF8;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         shift->do(q{
@@ -33,13 +29,21 @@ use Encode ();
     install_utf8_columns qw/name/;
 }
 
-Mock::UTF8->setup_test_db;
+my $utf8_db = Mock::UTF8->new(
+    +{
+        dsn => 'dbi:SQLite:',
+        username => '',
+        password => '',
+    }
+);
+$utf8_db->setup_test_db;
+
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $basic_db = Mock::Basic->new(+{dbh => $dbh});
+   $basic_db->setup_test_db;
 
 subtest 'insert mock_utf8 data' => sub {
-    my $row = Mock::UTF8->insert('mock_utf8',{
+    my $row = $utf8_db->insert('mock_utf8',{
         id   => 1,
         name => 'ぱーる',
     });
@@ -50,8 +54,8 @@ subtest 'insert mock_utf8 data' => sub {
 };
 
 subtest 'update mock_utf8 data' => sub {
-    ok +Mock::UTF8->update('mock_utf8',{name => 'るびー'},{id => 1});
-    my $row = Mock::UTF8->single('mock_utf8',{id => 1});
+    ok +$utf8_db->update('mock_utf8',{name => 'るびー'},{id => 1});
+    my $row = $utf8_db->single('mock_utf8',{id => 1});
 
     isa_ok $row, 'DBIx::Skin::Row';
     ok utf8::is_utf8($row->name);
@@ -59,8 +63,8 @@ subtest 'update mock_utf8 data' => sub {
 };
 
 subtest 'mock_basic data should not enable utf8 flag' => sub {
-    ok +Mock::Basic->insert('mock_basic',{name => 'るびー'},{id => 1});
-    my $row = Mock::Basic->single('mock_basic',{id => 1});
+    ok +$basic_db->insert('mock_basic',{name => 'るびー'},{id => 1});
+    my $row = $basic_db->single('mock_basic',{id => 1});
 
     isa_ok $row, 'DBIx::Skin::Row';
     ok !utf8::is_utf8($row->name);

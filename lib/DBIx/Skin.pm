@@ -20,6 +20,7 @@ sub import {
 
     my $caller = caller;
     my $connect_info = $opt{connect_info};
+    die "Do not use connect_info" if $connect_info;
     if (! $connect_info ) {
         if ( $connect_info = $opt{setup} ) {
             Carp::carp( "use DBIx::Skin setup => { ... } has been deprecated. Please use connect_info instead" );
@@ -271,6 +272,8 @@ sub _guess_driver_name {
 }
 
 sub dbd {
+    Carp::croak("$_[0]->dbh is a instance method.") unless ref $_[0]; # this is a temoprary croak to refactoring. I should remove this method later. -- tokuhirom
+
     $_[0]->_attributes->{dbd} or do {
         require Data::Dumper;
         Carp::croak("Attribute 'dbd' is not defined. Either we failed to connect, or the connection has gone away. Current attribute dump: @{[ Data::Dumper::Dumper($_[0]->_attributes) ]}");

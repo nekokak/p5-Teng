@@ -4,9 +4,7 @@ use Test::More;
 {
     package Mock::DBH;
     use DBI;
-    use DBIx::Skin connect_info => +{
-        dbh => DBI->connect('dbi:SQLite:', '', ''),
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         shift->do(q{
@@ -30,12 +28,13 @@ use Test::More;
     };
 }
 
-Mock::DBH->setup_test_db;
+my $db = Mock::DBH->new(+{dbh => DBI->connect('dbi:SQLite:', '', '')});
+$db->setup_test_db;
 
 subtest 'schema info' => sub {
     is +Mock::DBH->schema, 'Mock::DBH::Schema';
 
-    my $info = Mock::DBH->schema->schema_info;
+    my $info = $db->schema->schema_info;
     is_deeply $info,{
         mock_dbh => {
             pk      => 'id',
@@ -48,13 +47,13 @@ subtest 'schema info' => sub {
         }
     };
 
-    isa_ok +Mock::DBH->dbh, 'DBI::db';
+    isa_ok +$db->dbh, 'DBI::db';
     done_testing;
 };
 
 subtest 'insert' => sub {
-    Mock::DBH->insert('mock_dbh',{id => 1 ,name => 'nekokak'});
-    is +Mock::DBH->count('mock_dbh','id',{name => 'nekokak'}), 1;
+    $db->insert('mock_dbh',{id => 1 ,name => 'nekokak'});
+    is +$db->count('mock_dbh','id',{name => 'nekokak'}), 1;
     done_testing;
 };
 

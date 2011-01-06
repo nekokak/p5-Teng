@@ -5,12 +5,7 @@ use Test::More;
 
 {
     package Mock::BasicALLINONE;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-        connect_options => { AutoCommit => 1 },
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         shift->do(q{
@@ -46,13 +41,20 @@ use Test::More;
     use base 'DBIx::Skin::Row';
 }
 
-Mock::BasicALLINONE->setup_test_db;
-Mock::BasicALLINONE->insert('mock_basic',{
+my $db = Mock::BasicALLINONE->new({
+    dsn => 'dbi:SQLite:',
+    username => '',
+    password => '',
+    connect_options => { AutoCommit => 1 },
+});
+
+$db->setup_test_db;
+$db->insert('mock_basic',{
     id   => 1,
     name => 'perl',
 });
 
-my $itr = Mock::BasicALLINONE->search_by_sql(q{SELECT * FROM mock_basic WHERE id = ?}, [1]);
+my $itr = $db->search_by_sql(q{SELECT * FROM mock_basic WHERE id = ?}, [1]);
 isa_ok $itr, 'DBIx::Skin::Iterator';
 
 my $row = $itr->first;

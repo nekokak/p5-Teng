@@ -3,11 +3,11 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'refetch' => sub {
-    my $row = Mock::Basic->insert('mock_basic',{
+    my $row = $db->insert('mock_basic',{
         id   => 1,
         name => 'perl',
     });

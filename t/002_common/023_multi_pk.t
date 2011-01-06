@@ -3,11 +3,7 @@ use Test::More;
 
 {
     package Mock::MultiPK;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         my $self = shift;
@@ -53,7 +49,11 @@ use Test::More;
     };
 }
 
-my $skinny = Mock::MultiPK->new;
+my $skinny = Mock::MultiPK->new({
+    dsn => 'dbi:SQLite:./db1.db',
+    username => '',
+    password => '',
+});
 
 {
     subtest 'init data' => sub {

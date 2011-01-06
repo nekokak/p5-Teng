@@ -6,25 +6,25 @@ for (qw/other main/) {
     unlink "./t/$_.db" if -f "./t/$_.db";
 }
 
-Mock::Basic->reconnect(
+my $db = Mock::Basic->new(
     {
         dsn => 'dbi:SQLite:./t/main.db',
         username => '',
         password => '',
     }
 );
-Mock::Basic->setup_test_db;
-Mock::Basic->insert('mock_basic',{
+$db->setup_test_db;
+$db->insert('mock_basic',{
     id   => 1,
     name => 'perl',
 });
-Mock::Basic->insert('mock_basic',{
+$db->insert('mock_basic',{
     id   => 2,
     name => 'python',
 });
 
 subtest 'search' => sub {
-    my $itr = Mock::Basic->search('mock_basic',{id => 1});
+    my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
@@ -35,7 +35,13 @@ subtest 'search' => sub {
 };
 
 subtest 'do new' => sub {
-    my $model = Mock::Basic->new;
+    my $model = Mock::Basic->new(
+        {
+            dsn => 'dbi:SQLite:./t/main.db',
+            username => '',
+            password => '',
+        }
+    );
     my $itr = $model->search('mock_basic');
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
@@ -69,7 +75,7 @@ subtest 'do new other connection' => sub {
     is $row->id, 1;
     is $row->name, 'perl';
 
-    is +Mock::Basic->count('mock_basic', 'id'), 2;
+    is +$db->count('mock_basic', 'id'), 2;
     is $model->count('mock_basic', 'id'), 1;
 };
 

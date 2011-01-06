@@ -3,11 +3,11 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'get_columns' => sub {
-    my $row = Mock::Basic->insert('mock_basic',{
+    my $row = $db->insert('mock_basic',{
         id   => 1,
         name => 'perl',
     });
@@ -20,13 +20,13 @@ subtest 'get_columns' => sub {
 };
 
 subtest 'get_columns multi line' => sub {
-    my $row = Mock::Basic->insert('mock_basic',{
+    my $row = $db->insert('mock_basic',{
         id   => 2,
         name => 'ruby',
     });
     isa_ok $row, 'DBIx::Skin::Row';
 
-    my $data = [map {$_->get_columns} Mock::Basic->search('mock_basic')->all];
+    my $data = [map {$_->get_columns} $db->search('mock_basic')->all];
     is_deeply $data, [
         {
             name => 'perl',

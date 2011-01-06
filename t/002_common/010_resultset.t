@@ -3,16 +3,16 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
-Mock::Basic->insert('mock_basic',{
+$db->insert('mock_basic',{
     id   => 1,
     name => 'perl',
 });
 
 subtest 'resultset' => sub {
-    my $rs = Mock::Basic->resultset;
+    my $rs = $db->resultset;
     isa_ok $rs, 'DBIx::Skin::SQL';
 
     $rs->add_select('name');
@@ -31,8 +31,8 @@ subtest 'resultset' => sub {
 
 subtest 'no connection test' => sub {
     eval {
-        Mock::Basic->_attributes->{dbd} = '';
-        Mock::Basic->resultset;
+        $db->_attributes->{dbd} = '';
+        $db->resultset;
     };
     ok $@;
     like $@, qr/Attribute 'dbd' is not defined. Either we failed to connect, or the connection has gone away./;

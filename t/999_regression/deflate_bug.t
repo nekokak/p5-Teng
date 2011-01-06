@@ -4,13 +4,13 @@ use Mock::Inflate::Name;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Inflate->set_dbh($dbh);
-Mock::Inflate->setup_test_db;
+my $db = Mock::Inflate->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'scalar data bug case' => sub {
     my $name = Mock::Inflate::Name->new(name => 'perl');
 
-    my $row = Mock::Inflate->insert('mock_inflate',{
+    my $row = $db->insert('mock_inflate',{
         id   => 1,
         name => 'azumakuniyuki',
     });
