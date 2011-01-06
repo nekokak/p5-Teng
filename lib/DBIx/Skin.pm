@@ -12,6 +12,7 @@ use DBIx::Skin::Util;
 use DBIx::TransactionManager 1.02;
 use Carp ();
 use Storable ();
+use Class::Load ();
 
 sub import {
     my ($class, %opt) = @_;
@@ -32,6 +33,7 @@ sub import {
     }
                 
     my $schema = $opt{schema} || "$caller\::Schema";
+    Class::Load::load_class($schema);
 
     my $_attributes = +{
         schema          => $schema,
@@ -43,8 +45,6 @@ sub import {
         push @{"${caller}::ISA"}, $class;
         *{"$caller\::_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes };
     }
-
-    DBIx::Skin::Util::load_class($schema);
 
     strict->import;
     warnings->import;
