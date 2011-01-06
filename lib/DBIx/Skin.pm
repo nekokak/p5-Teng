@@ -110,11 +110,11 @@ sub suppress_row_objects {
 # for transaction
 
 sub txn_manager  {
-    my $class = shift;
+    my $self = shift;
 
-    $class->_attributes->{txn_manager} ||= do {
-        my $dbh = $class->dbh;
-        unless ($dbh) {
+    $self->{txn_manager} ||= do {
+        my $dbh = $self->dbh;
+        unless ($dbh) { # XXX this assertion is maybe trash. -- tokuhirom@20110107
             Carp::croak("dbh is not found.");
         }
         DBIx::TransactionManager->new($dbh);
@@ -130,71 +130,51 @@ sub txn_end      { $_[0]->txn_manager->txn_end      }
 #--------------------------------------------------------------------------------
 # db handling
 sub connect_info {
-    my ($class, $connect_info) = @_;
+    my ($self, $connect_info) = @_;
 
-    my $attr = $class->_attributes;
-
-    if ($connect_info) {
-        $attr->{dsn} = $connect_info->{dsn};
-        $attr->{username} = $connect_info->{username};
-        $attr->{password} = $connect_info->{password};
-        $attr->{connect_options} = $connect_info->{connect_options};
-
-        $class->_setup_dbd($connect_info);
-        return;
+    if (@_==2) {
+        # setter
+        $_[0]->{connect_info} = $_[1];
+        $_[0]->_setup_dbd($_[1]);
     } else {
-        return +{
-            dsn             => $attr->{dsn},
-            username        => $attr->{username},
-            password        => $attr->{password},
-            connect_options => $attr->{connect_options},
-        };
+        return $_[0]->{connect_info};
     }
 }
 
 sub connect {
-    my $class = shift;
+    my $self = shift;
 
-    $class->connect_info(@_) if scalar @_ >= 1;
+    $self->connect_info(@_) if scalar @_ >= 1;
+    my $connect_info = $self->connect_info;
 
-    my $attr = $class->_attributes;
-    my $do_connected=0;
-    if ( !$attr->{dbh} ) {
-        $do_connected=1;
+    if (!$self->{dbh} ) {
+        $self->{dbh} ||= DBI->connect(
+            $connect_info->{dsn},
+            $connect_info->{username},
+            $connect_info->{password},
+            { RaiseError => 1, PrintError => 0, AutoCommit => 1, %{ $connect_info->{connect_options} || {} } }
+        ) or Carp::croak("Connection error: " . $DBI::errstr);
+
+        if ( my $on_connect_do = $connect_info->{on_connect_do} ) {
+            if (not ref($on_connect_do)) {
+                $self->do($on_connect_do);
+            } elsif (ref($on_connect_do) eq 'CODE') {
+                $on_connect_do->($self);
+            } elsif (ref($on_connect_do) eq 'ARRAY') {
+                $self->do($_) for @$on_connect_do;
+            } else {
+                Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
+            }
+        }
     }
-    $attr->{dbh} ||= DBI->connect(
-        $attr->{dsn},
-        $attr->{username},
-        $attr->{password},
-        { RaiseError => 1, PrintError => 0, AutoCommit => 1, %{ $attr->{connect_options} || {} } }
-    ) or Carp::croak("Connection error: " . $DBI::errstr);
 
-    if ( $do_connected && $attr->{on_connect_do} ) {
-        $class->do_on_connect;
-    }
-
-    $attr->{dbh};
+    $self->{dbh};
 }
 
 sub reconnect {
     my $class = shift;
     $class->disconnect();
     $class->connect(@_);
-}
-
-sub do_on_connect {
-    my $class = shift;
-
-    my $on_connect_do = $class->_attributes->{on_connect_do};
-    if (not ref($on_connect_do)) {
-        $class->do($on_connect_do);
-    } elsif (ref($on_connect_do) eq 'CODE') {
-        $on_connect_do->($class);
-    } elsif (ref($on_connect_do) eq 'ARRAY') {
-        $class->do($_) for @$on_connect_do;
-    } else {
-        Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
-    }
 }
 
 sub disconnect {
