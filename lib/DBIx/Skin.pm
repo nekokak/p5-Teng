@@ -134,7 +134,7 @@ sub connect {
     my $connect_info = $self->connect_info;
 
     if (!$self->{dbh} ) {
-        $self->{dbh} ||= DBI->connect(
+        $self->{dbh} = DBI->connect(
             $connect_info->{dsn},
             $connect_info->{username},
             $connect_info->{password},
