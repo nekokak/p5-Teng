@@ -43,7 +43,6 @@ sub import {
         push @{"${caller}::ISA"}, $class;
         *{"$caller\::_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes };
     }
-    $caller->_setup_dbd;
 
     DBIx::Skin::Util::load_class($schema);
 
