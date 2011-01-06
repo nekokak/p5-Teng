@@ -543,7 +543,7 @@ sub _set_columns {
             push @columns, ($insert ? ${ $args->{$col} } :"$quoted_col = " . ${ $args->{$col} });
         } else {
             push @columns, ($insert ? '?' : "$quoted_col = ?");
-            push @bind_columns, [$col, $schema->utf8_off($col, $args->{$col})];
+            push @bind_columns, [$col, $args->{$col}];
         }
         push @quoted_columns, $quoted_col;
     }
