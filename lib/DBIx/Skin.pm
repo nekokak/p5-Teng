@@ -66,7 +66,6 @@ sub import {
         no strict 'refs';
         push @{"${caller}::ISA"}, $class;
         *{"$caller\::_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes };
-        *{"$caller\::attribute"} = sub { Carp::carp("attribute has been deprecated."); $_[0]->_attributes };
     }
     $caller->_setup_dbd;
 
