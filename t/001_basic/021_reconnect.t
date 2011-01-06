@@ -1,7 +1,9 @@
 use t::Utils;
 use Mock::Basic;
 use Test::More;
+use MyGuard;
 
+unlink './db1.db' if -f './db1.db';
 my $db = Mock::Basic->new(
     {
         dsn => 'dbi:SQLite:./db1.db',

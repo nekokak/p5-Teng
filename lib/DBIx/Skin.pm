@@ -36,11 +36,6 @@ sub import {
     my $_attributes = +{
         schema          => $schema,
         profiler        => $profiler,
-        klass           => $caller,
-        _common_row_class    => '',
-        active_transaction   => 0,
-        suppress_row_objects => 0,
-        last_pid => $$,
     };
 
     {
@@ -60,28 +55,17 @@ sub new {
     my ($class, $connection_info) = @_;
     my $attr = $class->_attributes;
 
-    $attr->{last_pid} = $$;
-
-    my %unstorable_attribute;
-    for my $key ( qw/dbd profiler dbh connect_options on_connect_do / ) {
-        $unstorable_attribute{$key} = delete $attr->{$key};
-    }
-
-    my $self = bless Storable::dclone($attr), $class;
-
-    # restore.
-    for my $key ( keys %unstorable_attribute ) {
-        $attr->{$key} = $unstorable_attribute{$key};
-    }
+    my $self = bless +{
+        profiler             => $attr->{profiler},
+        schema               => $attr->{schema},
+        suppress_row_objects => 0,
+        last_pid             => $$,
+        _common_row_class    => undef,
+    }, $class;
 
     if ($connection_info) {
-
-        $self->_attributes->{profiler} = $unstorable_attribute{profiler};
-
         if ( $connection_info->{on_connect_do} ) {
             $self->_attributes->{on_connect_do} = $connection_info->{on_connect_do};
-        } else {
-            $self->_attributes->{on_connect_do} = $unstorable_attribute{on_connect_do};
         }
 
         if ($connection_info->{dbh}) {
@@ -91,11 +75,8 @@ sub new {
             $self->connect_info($connection_info);
             $self->reconnect;
         }
-
     } else {
-        for my $key ( keys %unstorable_attribute ) {
-            $self->_attributes->{$key} = $unstorable_attribute{$key};
-        }
+        Carp::croak("missing arguments");
     }
 
     return $self;
@@ -472,7 +453,7 @@ sub _get_row_class {
         return $class->schema->schema_info->{$table}->{row_class};
     } else {
         return $class->_attributes->{_common_row_class} ||= do {
-            my $row_class = join '::', $class->_attributes->{klass}, 'Row';
+            my $row_class = join '::', $class, 'Row';
             DBIx::Skin::Util::load_class($row_class) or do {
                 no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
             };
