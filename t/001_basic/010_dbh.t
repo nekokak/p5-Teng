@@ -32,7 +32,7 @@ my $db = Mock::DBH->new(+{dbh => DBI->connect('dbi:SQLite:', '', '')});
 $db->setup_test_db;
 
 subtest 'schema info' => sub {
-    is +Mock::DBH->schema, 'Mock::DBH::Schema';
+    is +$db->schema, 'Mock::DBH::Schema';
 
     my $info = $db->schema->schema_info;
     is_deeply $info,{
