@@ -87,12 +87,6 @@ sub set_columns {
     }
 }
 
-sub set {
-    my $self = shift;
-    Carp::carp( "set method has been deprecated. Please use set_columns or set_column method instead" );
-    $self->set_columns(@_);
-}
-
 sub get_dirty_columns {
     my $self = shift;
 
@@ -191,12 +185,6 @@ get a column value from a row object.
     my %data = $row->get_columns;
 
 Does C<get_column>, for all column values.
-
-=item $row->set(\%new_row_data)  # has been deprecated
-
-    $row->set({$col => $val});
-
-set columns data.
 
 =item $row->set_columns(\%new_row_data)
 
