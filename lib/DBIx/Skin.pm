@@ -19,21 +19,10 @@ sub import {
     return if $class ne 'DBIx::Skin';
 
     my $caller = caller;
-    my $connect_info = $opt{connect_info};
-    die "Do not use connect_info" if $connect_info;
-    if (! $connect_info ) {
-        if ( $connect_info = $opt{setup} ) {
-            Carp::carp( "use DBIx::Skin setup => { ... } has been deprecated. Please use connect_info instead" );
-        } else {
-            $connect_info = {};
-        }
-    }
 
     my $profiler = $opt{profiler};
     if (! $profiler ) {
-        if ( $profiler = $connect_info->{profiler} ) {
-            Carp::carp( "use DBIx::Skin connect_info => { profiler => ... } has been deprecated. Please use use DBIx::Skin profiler => ... instead" );
-        } elsif ($ENV{SKINNY_TRACE}) {
+        if ($ENV{SKINNY_TRACE}) {
             require DBIx::Skin::Profiler::Trace;
             $profiler = DBIx::Skin::Profiler::Trace->new;
         } elsif ($ENV{SKINNY_PROFILE}) {
@@ -44,16 +33,7 @@ sub import {
                 
     my $schema = $opt{schema} || "$caller\::Schema";
 
-    my $driver_name = _guess_driver_name($connect_info);
     my $_attributes = +{
-        check_schema    => defined $connect_info->{check_schema} ? $connect_info->{check_schema} : 1,
-        dsn             => $connect_info->{dsn},
-        username        => $connect_info->{username},
-        password        => $connect_info->{password},
-        connect_options => $connect_info->{connect_options},
-        on_connect_do   => $connect_info->{on_connect_do},
-        dbh             => $connect_info->{dbh}||undef,
-        driver_name     => $driver_name,
         schema          => $schema,
         profiler        => $profiler,
         klass           => $caller,
@@ -125,7 +105,7 @@ my $schema_checked = 0;
 sub schema { 
     my $attribute = $_[0]->_attributes;
     my $schema = $attribute->{schema};
-    if ( $attribute->{check_schema} && !$schema_checked ) {
+    if ( !$schema_checked ) {
         {
             no strict 'refs'; ## no critic..
             unless ( defined *{"@{[ $schema ]}::schema_info"} ) {
