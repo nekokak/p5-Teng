@@ -1,6 +1,9 @@
 use t::Utils;
 use Test::More;
 
+TODO: {
+    todo_skip "XXX nekokak", 1;
+
 {
     package Mock::NoCheckSchema;
     use DBIx::Skin;
@@ -21,5 +24,6 @@ eval {
 };
 
 unlike($@, qr/is it realy loaded/);
+};
 
 done_testing();
