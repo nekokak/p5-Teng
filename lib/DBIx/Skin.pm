@@ -77,12 +77,13 @@ sub new {
 
 sub schema { $_[0]->{schema} }
 
-sub profiler {
+sub profiler { $_[0]->{profiler} }
+
+sub _profiler_record_query {
     my ($self, $sql, $bind) = @_;
-    if ($self->{profiler} && $sql) { # XXX I think this is bad interface... -- tokuhirom@20110107
+    if ($self->{profiler}) {
         $self->{profiler}->record_query($sql, $bind);
     }
-    return $self->{profiler};
 }
 
 sub suppress_row_objects {
@@ -218,7 +219,7 @@ sub call_schema_trigger {
 #--------------------------------------------------------------------------------
 sub do {
     my ($self, $sql, $attr, @bind_vars) = @_;
-    $self->profiler($sql, @bind_vars ? \@bind_vars : undef);
+    $self->_profiler_record_query($sql, @bind_vars ? \@bind_vars : undef);
     my $ret;
     eval { $ret = $self->dbh->do($sql, $attr, @bind_vars) };
     if ($@) {
@@ -637,7 +638,7 @@ sub _execute {
     my ($sth, $bind);
     if ($table) {
         $bind = [map {(ref $_->[1]) eq 'ARRAY' ? @{$_->[1]} : $_->[1]} @$args];
-        $self->profiler($stmt, $bind);
+        $self->_profiler_record_query($stmt, $bind);
         eval {
             $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
             $self->bind_params($table, $args, $sth);
@@ -645,7 +646,7 @@ sub _execute {
         };
     } else {
         $bind = $args;
-        $self->profiler($stmt, $bind);
+        $self->_profiler_record_query($stmt, $bind);
         eval {
             $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
             $sth->execute(@{$args});
