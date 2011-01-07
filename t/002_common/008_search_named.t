@@ -19,7 +19,7 @@ subtest 'search_named' => sub {
     my $itr = $db->search_named(q{SELECT * FROM mock_basic WHERE id = :id}, {id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id , 1;
     is $row->name, 'perl';
@@ -45,7 +45,7 @@ subtest 'search_named' => sub {
     my $itr = $db->search_named(q{SELECT * FROM mock_basic WHERE id = :id limit %d}, {id => 1},[100]);
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id , 1;
     is $row->name, 'perl';
@@ -67,7 +67,7 @@ subtest 'search_named with arrayref' => sub {
 
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id , 1;
     is $row->name, 'perl';

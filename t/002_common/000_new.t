@@ -27,7 +27,7 @@ subtest 'search' => sub {
     my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
@@ -45,7 +45,7 @@ subtest 'do new' => sub {
     my $itr = $model->search('mock_basic');
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
@@ -69,7 +69,7 @@ subtest 'do new other connection' => sub {
     my $itr = $model->search('mock_basic');
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
@@ -94,7 +94,7 @@ subtest 'do new with dbh' => sub {
     my $itr = $model->search('mock_basic');
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;

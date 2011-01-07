@@ -23,7 +23,7 @@ subtest 'resultset' => sub {
     
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->name, 'perl';

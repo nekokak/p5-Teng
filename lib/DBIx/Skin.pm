@@ -240,7 +240,7 @@ sub count {
     $rs->add_select("COUNT($column)" =>  'cnt');
     $self->_add_where($rs, $where);
 
-    $rs->retrieve->first->cnt;
+    $rs->retrieve->next->cnt;
 }
 
 sub resultset {
@@ -252,7 +252,8 @@ sub resultset {
 sub search {
     my ($self, $table, $where, $opt) = @_;
 
-    $self->search_rs($table, $where, $opt)->retrieve;
+    my $iter = $self->search_rs($table, $where, $opt)->retrieve;
+    return wantarray ? $iter->all : $iter;
 }
 
 sub search_rs {
@@ -310,7 +311,7 @@ sub search_rs {
 sub single {
     my ($self, $table, $where, $opt) = @_;
     $opt->{limit} = 1;
-    $self->search_rs($table, $where, $opt)->retrieve->first;
+    $self->search_rs($table, $where, $opt)->retrieve->next;
 }
 
 sub search_named {
@@ -338,7 +339,8 @@ sub search_by_sql {
     my ($self, $sql, $bind, $opt_table_info) = @_;
 
     my $sth = $self->_execute($sql, $bind);
-    return $self->_get_sth_iterator($sql, $sth, $opt_table_info);
+    my $itr = $self->_get_sth_iterator($sql, $sth, $opt_table_info);
+    return wantarray ? $itr->all : $itr;
 }
 
 sub find_or_new {
@@ -373,18 +375,6 @@ sub _get_sth_iterator {
         sql            => $sql,
         row_class      => $self->_get_row_class($sql, $opt_table_info),
         opt_table_info => $opt_table_info,
-        suppress_objects => $self->suppress_row_objects,
-    );
-}
-
-sub data2itr {
-    my ($self, $table, $data) = @_;
-
-    return DBIx::Skin::Iterator->new(
-        skinny         => $self,
-        data           => $data,
-        row_class      => $self->_get_row_class($table, $table),
-        opt_table_info => $table,
         suppress_objects => $self->suppress_row_objects,
     );
 }
@@ -1086,28 +1076,6 @@ make DBIx::Skin::Row's class from hash_ref.
             name => 'lestrrat',
         }
     );
-
-=item $skinny->data2itr($table_name, \@rows_data)
-
-DBIx::Skin::Iterator is made based on \@rows_data.
-
-    my $itr = Your::Model->data2itr('user',[
-        {
-            id   => 1,
-            name => 'nekokak',
-        },
-        {
-            id   => 2,
-            name => 'yappo',
-        },
-        {
-            id   => 3,
-            name => 'walf43',
-        },
-    ]);
-
-    my $row = $itr->first;
-    $row->insert; # inser data.
 
 =item $skinny->find_or_new($table_name, \%row_data)
 

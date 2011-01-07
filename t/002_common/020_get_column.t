@@ -31,7 +31,7 @@ subtest 'get_column' => sub {
 subtest 'get_column' => sub {
     my $row = $db->search_by_sql(
         q{SELECT id FROM mock_basic LIMIT 1}
-    )->first;
+    )->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     eval {
