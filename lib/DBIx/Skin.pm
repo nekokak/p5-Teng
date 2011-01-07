@@ -26,31 +26,6 @@ use Class::Accessor::Lite
 
 our $VERSION = '0.0732';
 
-# tokuhirom's constructor
-#sub new {
-#    my $class = shift;
-#    my %args = @_==1 ? %{$_[0]} : @_;
-#
-#    my $attr = $class->_new_attributes;
-#
-#    my $self = bless +{
-#        schema               => $attr->{schema},
-#        suppress_row_objects => 0,
-#        last_pid             => $$,
-#        _common_row_class    => undef,
-#    }, $class;
-#
-#    $self->connect_info(\%args);
-#    if ($args{dbh}) {
-#        $self->{dbh} = $args{dbh};
-#        $self->_setup_dbd({dbh => $args{dbh}});
-#    } else {
-#        $self->connect();
-#    }
-#
-#    return $self;
-#}
-
 sub new {
     my ($class, %args) = @_;
 
@@ -69,6 +44,11 @@ sub new {
         }
         $self->schema( $schema );
     }
+
+    if ( ! $self->dbh ) {
+        $self->connect;
+    }
+
     return $self;
 }
 
@@ -93,15 +73,6 @@ sub connect {
 
     $self->dbh( $dbh );
 
-    return $self;
-}
-
-sub ensure_connected {
-    my $self = shift;
-    if (! $self->dbh) {
-        $self->connect();
-    }
-
 # copied from old ->connect.
 #    if ( $self->{owner_pid} != $$ ) {
 #        $self->{owner_pid} = $$;
@@ -112,8 +83,6 @@ sub ensure_connected {
 #        $dbh = $self->reconnect;
 #    }
 
-    my $dbh = $self->dbh or
-        Carp::croak("ensure_connected: failed to connect to database");
     my $driver_name = $dbh->{Driver}->{Name};
     my $builder = $self->sql_builder;
     if (! $builder ) {
@@ -128,6 +97,7 @@ sub ensure_connected {
         $dbd = DBIx::Skin::DBD->new( $driver_name );
         $self->dbd( $dbd );
     }
+    return $self;
 }
 
 sub _guess_table_name {
@@ -158,7 +128,7 @@ sub _get_row_class {
 
 sub _execute {
     my ($self, $sql, $binds, $table) = @_;
-    my $dbh = $self->dbh; # XXX ensure_connected
+    my $dbh = $self->dbh;
     my $sth = $dbh->prepare($sql);
     $sth->execute(@{$binds || []});
 
@@ -172,7 +142,6 @@ sub _execute {
 sub _insert_or_replace {
     my ($self, $is_replace, $tablename, $args) = @_;
 
-    $self->ensure_connected;
     my $schema = $self->schema;
 
     # deflate
@@ -303,8 +272,6 @@ sub _get_sth_iterator {
 sub search_by_sql {
     my ($self, $sql, $bind, $opt_table_info) = @_;
 
-    $self->ensure_connected;
-
     my $sth = $self->_execute($sql, $bind);
     my $itr = $self->_get_sth_iterator($sql, $sth, $opt_table_info);
     return wantarray ? $itr->all : $itr;
@@ -312,8 +279,6 @@ sub search_by_sql {
 
 sub update {
     my ($self, $table, $args, $where) = @_;
-
-    $self->ensure_connected;
 
     my $schema = $self->schema;
     $schema->call_trigger('pre_update', $self, $table, $args);
@@ -337,8 +302,6 @@ sub update {
 
 sub delete {
     my ($self, $table, $where) = @_;
-
-    $self->ensure_connected;
 
     my $schema = $self->schema;
     $schema->call_trigger('pre_delete', $self, $table, $where);
