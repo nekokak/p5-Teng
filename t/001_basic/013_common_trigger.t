@@ -3,7 +3,7 @@ use Test::More;
 
 {
     package Mock::CommonTrigger;
-    use DBIx::Skin;
+    use base qw(DBIx::Skin);
 
     sub setup_test_db {
         my $db = shift;
@@ -30,17 +30,19 @@ use Test::More;
     }
 
     package Mock::CommonTrigger::Schema;
-    use DBIx::Skin::Schema;
+    use DBIx::Skin::Schema::Declare;
 
-    install_table mock_common_trigger => schema {
+    table {
+        name 'mock_common_trigger';
         pk 'id';
         columns qw/id created_at updated_at/;
     };
 
-    install_table mock_both_triggers => schema {
+    table {
+        name 'mock_both_triggers';
         pk 'id';
         columns qw/id created_at updated_at/;
-        trigger pre_insert => callback {
+        trigger pre_insert => sub {
             my ($self, $args, $table) = @_;
             my $columns = $self->schema->schema_info->{$table}->{columns};
             $args->{ created_at } .= '(custom)'
@@ -48,19 +50,20 @@ use Test::More;
         };
     };
 
-    install_table mock_lack_column => schema {
+    table {
+        name 'mock_lack_column';
         pk 'id';
         columns qw/id updated_at/;
     };
 
-    install_common_trigger pre_insert => sub {
+    trigger pre_insert => sub {
         my ($self, $args, $table) = @_;
         my $columns = $self->schema->schema_info->{$table}->{columns};
         $args->{created_at} ||= 'now'
             if grep {/^created_at$/} @$columns;
     };
 
-    install_common_trigger pre_insert => sub {
+    trigger pre_insert => sub {
         my ($self, $args, $table) = @_;
         my $columns = $self->schema->schema_info->{$table}->{columns};
         $args->{created_at} .= '_s'

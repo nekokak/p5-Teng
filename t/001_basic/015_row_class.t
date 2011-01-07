@@ -4,7 +4,7 @@ use Test::More;
 
 {
     package Mock::BasicRow;
-    use DBIx::Skin;
+    use base qw(DBIx::Skin);
 
     sub setup_test_db {
         shift->do(q{
@@ -17,9 +17,10 @@ use Test::More;
 
     package Mock::BasicRow::Schema;
     use utf8;
-    use DBIx::Skin::Schema;
+    use DBIx::Skin::Schema::Declare;
 
-    install_table mock_basic_row => schema {
+    table {
+        name 'mock_basic_row';
         pk 'id';
         columns qw/
             id
@@ -27,7 +28,8 @@ use Test::More;
         /;
     };
 
-    install_table mock_basic_row_foo => schema {
+    tall_table {
+        name 'mock_basic_row_foo';
         pk 'id';
         columns qw/
             id
