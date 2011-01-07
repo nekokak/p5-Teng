@@ -1,53 +1,58 @@
-use t::Utils;
-use Mock::Trigger;
+use strict;
 use Test::More;
+use t::Utils;
 
-my $dbh = t::Utils->setup_dbh;
-my $db = Mock::Trigger->new({dbh => $dbh});
-$db->setup_test_db;
+use_ok "Mock::Trigger";
+
+
+my $dbh = t::Utils::setup_dbh();
+t::Utils::prepare_db( "Mock::Trigger", $dbh );
+my $db = Mock::Trigger->new(dbh => $dbh);
 
 subtest 'schema info' => sub {
-    is +$db->schema, 'Mock::Trigger::Schema';
+    my $schema = $db->schema;
+    isa_ok $schema, 'Mock::Trigger::Schema';
 
-    my $info = $db->schema->schema_info;
-    is_deeply $info,{
+    my $triggers = $schema->triggers();
+    is_deeply $triggers, {}, "schema trigger list is empty";
+
+    my %data = (
+        # tablename => { trigger_name => count }
         mock_trigger_pre => {
-            pk      => 'id',
-            columns => [
-                'id',
-                'name',
-            ],
-            column_types => +{},
-            trigger => {
-                pre_insert  => $info->{mock_trigger_pre}->{trigger}->{pre_insert},
-                post_insert => $info->{mock_trigger_pre}->{trigger}->{post_insert},
-                pre_update  => $info->{mock_trigger_pre}->{trigger}->{pre_update},
-                post_update => $info->{mock_trigger_pre}->{trigger}->{post_update},
-                pre_delete  => $info->{mock_trigger_pre}->{trigger}->{pre_delete},
-                post_delete => $info->{mock_trigger_pre}->{trigger}->{post_delete},
-            },
-            row_class => 'Mock::Trigger::Row::MockTriggerPre',
+            pre_insert => 2,
+            post_insert => 1,
+            pre_update => 1,
+            post_update => 1,
+            pre_delete => 1,
+            post_delete => 1,
         },
         mock_trigger_post => {
-            pk      => 'id',
-            columns => [
-                'id',
-                'name',
-            ],
-            column_types => +{},
-            row_class => 'Mock::Trigger::Row::MockTriggerPost',
+            pre_insert => 0,
+            post_insert => 0,
+            pre_update => 0,
+            post_update => 0,
+            pre_delete => 0,
+            post_delete => 0,
         },
         mock_trigger_post_delete => {
-            pk      => 'id',
-            columns => [
-                'id',
-                'name',
-            ],
-            column_types => +{},
-            row_class => 'Mock::Trigger::Row::MockTriggerPostDelete',
+            pre_insert => 0,
+            post_insert => 0,
+            pre_update => 0,
+            post_update => 0,
+            pre_delete => 0,
+            post_delete => 0,
         },
-    };
-    isa_ok +$db->dbh, 'DBI::db';
+            
+    );
+
+    while ( my ($tablename, $trigcounts) = each %data ) {
+        my $table = $schema->get_table( $tablename );
+        my $table_triggers = $table->triggers;
+        while( my ($trigger_name, $count) = each %$trigcounts) {
+            is scalar @{ $table_triggers->{$trigger_name} || [] }, $count,
+                "$tablename.$trigger_name count should be $count";
+        }
+    }
 };
 
 subtest 'pre_insert/post_insert' => sub {
@@ -83,7 +88,10 @@ subtest "pre_update affects row object's own column" => sub {
 subtest 'pre_delete/post_delete' => sub {
     $db->delete('mock_trigger_pre',{});
 
-    is +$db->count('mock_trigger_post', 'id',{}), 0;
+    TODO: {
+        todo_skip "count() is not unimplemented", 1;
+        is +$db->count('mock_trigger_post', 'id',{}), 0;
+    };
 
     my $row = $db->single('mock_trigger_post_delete',{id => 1});
     isa_ok $row, 'DBIx::Skin::Row';
@@ -91,5 +99,6 @@ subtest 'pre_delete/post_delete' => sub {
 };
 
 done_testing;
+
 
 
