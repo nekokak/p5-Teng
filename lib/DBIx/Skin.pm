@@ -219,13 +219,12 @@ sub single {
     $self->search_rs($table, $where, $opt)->next;
 }
 
-sub _get_sth_iterator {
-    my ($self, $sql, $sth, $opt_table_info) = @_;
+sub search_by_sql {
+    my ($self, $sql, $bind, $tablename) = @_;
 
-    if (! $opt_table_info) {
-        $opt_table_info = $self->_guess_table_name( $sql );
-    }
-    return DBIx::Skin::Iterator->new(
+    $tablename ||= $self->_guess_table_name( $sql );
+    my $sth = $self->_execute($sql, $bind);
+    my $itr = DBIx::Skin::Iterator->new(
         skinny         => $self,
         sth            => $sth,
         sql            => $sql,
@@ -233,13 +232,6 @@ sub _get_sth_iterator {
         opt_table_info => $opt_table_info,
         suppress_objects => $self->suppress_row_objects,
     );
-}
-
-sub search_by_sql {
-    my ($self, $sql, $bind, $opt_table_info) = @_;
-
-    my $sth = $self->_execute($sql, $bind);
-    my $itr = $self->_get_sth_iterator($sql, $sth, $opt_table_info);
     return wantarray ? $itr->all : $itr;
 }
 
