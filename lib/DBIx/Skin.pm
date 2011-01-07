@@ -175,6 +175,17 @@ sub insert {
     $obj;
 }
 
+sub replace {
+    my ($self, $table, $args) = @_;
+
+    my $schema = $self->schema;
+    $schema->call_trigger('pre_insert', $self, $table, $args);
+    my $obj = $self->_insert_or_replace(1, $table, $args);
+    $schema->call_trigger('post_insert', $self, $table, $obj);
+
+    $obj;
+}
+
 sub resultset {
     my ($self, $args) = @_;
     $args->{skinny} = $self;
@@ -414,19 +425,6 @@ sub _last_insert_id {
     } else {
         Carp::croak "Don't know how to get last insert id for $driver";
     }
-}
-
-sub replace {
-    my ($self, $table, $args) = @_;
-
-    my $schema = $self->schema;
-    $self->call_schema_trigger('pre_insert', $schema, $table, $args);
-
-    my $obj = $self->_insert_or_replace(1, $table, $args);
-
-    $self->call_schema_trigger('post_insert', $schema, $table, $obj);
-
-    $obj;
 }
 
 sub bulk_insert {
