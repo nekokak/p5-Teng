@@ -3,8 +3,6 @@ use strict;
 use warnings;
 use base 'DBIx::Skin::DBD::Base';
 
-sub sql_for_unixtime { "UNIX_TIMESTAMP()" }
-
 sub bulk_insert {
     my ($skinny, $table, $args) = @_;
 

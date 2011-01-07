@@ -3,8 +3,6 @@ use strict;
 use warnings;
 use DBIx::Skin::SQL;
 
-sub sql_for_unixtime { time() }
-
 sub quote    { '`' }
 sub name_sep { '.' }
 
