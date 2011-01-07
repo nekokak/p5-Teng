@@ -13,13 +13,13 @@ sub bulk_insert {
 
     return unless @$args;
 
-    my $txn; $txn = $skinny->txn_scope unless $skinny->_attributes->{active_transaction} != 0;
+    my $txn = $skinny->txn_scope;
 
         for my $arg ( @{$args} ) {
             $skinny->_insert_or_replace(0, $table, $arg);
         }
 
-    $txn->commit if $txn;
+    $txn->commit;
 
     return 1;
 }
