@@ -1,14 +1,17 @@
 package Mock::Basic::Schema;
 use utf8;
-use DBIx::Skin::Schema;
+use DBIx::Skin::Schema::Declare;
 
-install_table mock_basic => schema {
-    pk 'id';
-    columns qw/
-        id
-        name
-        delete_fg
-    /;
+schema {
+    table {
+        name 'mock_basic';
+        pk 'id';
+        columns qw/
+            id
+            name
+            delete_fg
+        /;
+    };
 };
 
 1;

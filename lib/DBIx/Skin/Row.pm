@@ -35,11 +35,15 @@ sub _lazy_get_data {
         if ($self->{_untrusted_row_data}->{$col}) {
             Carp::carp("${col}'s row data is untrusted. by your update query.");
         }
-        unless ( $self->{_get_column_cached}->{$col} ) {
-          my $data = $self->get_column($col);
-          $self->{_get_column_cached}->{$col} = $self->{skinny}->schema->call_inflate($col, $data);
+        my $cache = $self->{_get_column_cached};
+        my $data = $cache->{$col};
+        if (! $data) { 
+            $data = $self->get_column($col);
+            $cache->{$col} = $data;
+            # XXX Inflate / Deflate is handled later
+#          $self->{_get_column_cached}->{$col} = $self->{skinny}->schema->call_inflate($col, $data);
         }
-        $self->{_get_column_cached}->{$col};
+        return $data;
     };
 }
 
@@ -54,7 +58,8 @@ sub get_column {
 
     my $data = exists $self->{row_data}->{$col} ? $self->{row_data}->{$col} : Carp::croak("$col no selected column. SQL: " . ($self->{sql}||'unknown'));
 
-    return $self->{skinny}->schema->utf8_on($col, $data);
+#    return $self->{skinny}->schema->utf8_on($col, $data);
+    $data;
 }
 
 sub get_columns {

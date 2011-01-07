@@ -1,8 +1,185 @@
 package DBIx::Skin;
 use strict;
 use warnings;
+use Carp ();
+use DBI;
+use DBIx::Skin::Row;
+use DBIx::Skin::Schema;
+use Class::Accessor::Lite
+   rw => [ qw(
+        dsn
+        username
+        password
+        connect_options
+        dbh
+        schema
+        schema_class
+        suppress_row_objects
+        sql_builder
+        parent_pid
+    )]
+;
 
 our $VERSION = '0.0732';
+
+sub new {
+    my ($class, %args) = @_;
+    my $self = bless {
+        schema_class => "$class\::Schema",
+        %args,
+        parent_pid => $$,
+    }, $class;
+
+    if (! $self->schema) {
+        my $schema_class = $self->schema_class;
+        my $schema = $schema_class->instance;
+        if (! $schema) {
+            Carp::croak("schema object was not passed, and could not get schema instance from $schema_class");
+        }
+        $self->schema( $schema );
+    }
+    return $self;
+}
+
+# forcefully connect
+sub connect {
+    my ($self, %args) = @_;
+
+    my $schema = $self->schema;
+    my %attrs = (
+        # basic defaults
+        AutoCommit => 1,
+        PrintError => 0,
+        RaiseError => 1,
+        # defaults from schema
+        %{ $schema->connect_options || {} },
+        # any values in the instance
+        %{ $self->connect_options || {} },
+        # any values in the arguments!
+        %{ $args{connect_options} || {} },
+    );
+
+    my $dsn      = $args{dsn}      || $self->dsn      || $schema->dsn;
+    my $username = $args{username} || $self->username || $schema->username;
+    my $password = $args{password} || $self->password || $schema->password;
+
+    my $dbh = DBI->connect(
+        $dsn,
+        $username,
+        $password,
+        \%attrs,
+    ) or Carp::croak("Connection error: " . $DBI::errstr);
+
+    $self->dbh( $dbh );
+
+    if (! $self->sql_builder) {
+        # XXX Hackish
+        require SQL::Maker;
+        my $builder = SQL::Maker->new(driver => (split /:/, $dsn)[1]);
+        $self->sql_builder( $builder );
+    }
+
+    return $self;
+}
+
+sub _guess_table_name {
+    my ($class, $sql) = @_;
+
+    if ($sql =~ /\sfrom\s+([\w]+)\s*/si) {
+        return $1;
+    }
+    return;
+}
+
+sub _get_row_class {
+    my ($class, $sql, $table) = @_;
+
+    $table ||= $class->_guess_table_name($sql)||'';
+    if ($table) {
+        return $class->schema->schema_info->{$table}->{row_class};
+    } else {
+        return $class->_attributes->{_common_row_class} ||= do {
+            my $row_class = join '::', $class->_attributes->{klass}, 'Row';
+            DBIx::Skin::Util::load_class($row_class) or do {
+                no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
+            };
+            $row_class;
+        };
+    }
+}
+
+sub _execute {
+    my ($self, $sql, $binds, $table) = @_;
+    my $dbh = $self->dbh; # XXX ensure_connected
+    my $sth = $dbh->prepare($sql);
+    $sth->execute(@{$binds || []});
+
+    if (! defined wantarray ) {
+        $sth->finish;
+        return;
+    }
+    return $sth;
+}
+
+sub _insert_or_replace {
+    my ($self, $is_replace, $tablename, $args) = @_;
+
+    my $schema = $self->schema;
+
+    # deflate
+#    for my $col (keys %{$args}) {
+#        $args->{$col} = $schema->call_deflate($col, $args->{$col});
+#    }
+
+#    my ($columns, $bind_columns, $quoted_columns) = $class->_set_columns($args, 1);
+
+    my ($sql, @binds) = $self->sql_builder->insert( $tablename, $args );
+    if ($is_replace) {
+        $sql =~ s/^\s*INSERT\b/REPLACE/;
+    }
+
+    $self->_execute($sql, \@binds, $tablename);
+
+    my $table = $schema->get_table($tablename);
+    my $pk = $table->primary_keys();
+
+    if (not ref $pk && not defined $args->{$pk}) {
+        $args->{$pk} = $self->_last_insert_id($tablename);
+    }
+
+    my $row_class = $schema->get_row_class($self, $tablename);
+    return $args if $self->suppress_row_objects;
+
+    my $obj = $row_class->new(
+        {
+            row_data       => $args,
+            skinny         => $self,
+            opt_table_info => $table,
+        }
+    );
+    $obj->setup;
+
+    $obj;
+}
+
+*create = \*insert;
+sub insert {
+    my ($self, $table, $args) = @_;
+
+    my $schema = $self->schema;
+#    $self->call_schema_trigger('pre_insert', $schema, $table, $args);
+
+    my $obj = $self->_insert_or_replace(0, $table, $args);
+
+#    $self->call_schema_trigger('post_insert', $schema, $table, $obj);
+
+    $obj;
+}
+
+1;
+
+__END__
+
 
 use DBI;
 use DBIx::Skin::Iterator;

@@ -1,5 +1,6 @@
 package Mock::Basic;
-use DBIx::Skin;
+use base qw(DBIx::Skin);
+use Mock::Basic::Schema;
 
 sub setup_test_db {
     my $skinny = shift;

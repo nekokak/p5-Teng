@@ -1,6 +1,60 @@
 package DBIx::Skin::Schema;
 use strict;
 use warnings;
+use Scalar::Util ();
+use DBIx::Skin::Util ();
+use Class::Accessor::Lite
+    new => 1,
+    rw => [ qw(
+        dsn
+        username
+        password
+        connect_options
+        tables
+    ) ]
+;
+
+sub set_default_instance {
+    my ($class, $instance) = @_;
+    no strict 'refs';
+    ${"$class\::DEFAULT_INSTANCE"} = $instance;
+}
+
+sub instance {
+    my $class = shift;
+    no strict 'refs';
+    ${"$class\::DEFAULT_INSTANCE"};
+}
+
+sub get_table {
+    my ($self, $name) = @_;
+    $self->tables->{$name};
+}
+
+sub get_row_class {
+    my ($self, $db, $tablename) = @_;
+
+    my $table = $self->get_table($tablename);
+    my $row_class = $table->row_class;
+
+    if ( $row_class !~ s/^\+// ) {
+        $row_class = join '::',
+            Scalar::Util::blessed($db),
+            'Row',
+            $row_class
+        ;
+    }
+
+    DBIx::Skin::Util::load_class($row_class) or do {
+        no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
+    };
+
+    return $row_class;
+}
+
+1;
+
+__END__
 use DBIx::Skin::Util;
 
 BEGIN {
