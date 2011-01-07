@@ -222,6 +222,9 @@ sub single {
 sub _get_sth_iterator {
     my ($self, $sql, $sth, $opt_table_info) = @_;
 
+    if (! $opt_table_info) {
+        $opt_table_info = $self->_guess_table_name( $sql );
+    }
     return DBIx::Skin::Iterator->new(
         skinny         => $self,
         sth            => $sth,

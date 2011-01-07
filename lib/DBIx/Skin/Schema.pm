@@ -41,6 +41,9 @@ sub add_table {
 
 sub get_table {
     my ($self, $name) = @_;
+    if ( ! $name ) {
+        Carp::confess( "No name provided for get_table()" );
+    }
     $self->tables->{$name};
 }
 
