@@ -6,10 +6,6 @@ use DBIx::Skin::Util ();
 use Class::Accessor::Lite
     new => 1,
     rw => [ qw(
-        dsn
-        username
-        password
-        connect_options
         tables
     ) ]
 ;

@@ -7,14 +7,12 @@ use base qw(Exporter);
 our @EXPORT = qw(
     schema
     name
-    connection
     table
     pk
     columns
 );
 
 sub name($);
-sub connection(@);
 sub table(&);
 sub pk(@);
 sub columns(@);
@@ -25,13 +23,11 @@ sub schema (&) {
         %tables,
         $schema_class,
         $schema_options,
-        @schema_connection,
     );
 
     $schema_class = caller();
 
     local *name       = sub ($) { $schema_class = shift };
-    local *connection = sub (@) { @schema_connection = @_ };
     local *options  = sub ($) { $schema_options = shift };
     local *table    = sub (&) {
         my $code = shift;
@@ -59,11 +55,7 @@ sub schema (&) {
         push @{ "$schema_class\::ISA" }, 'DBIx::Skin::Schema';
     }
     my $schema = $schema_class->new(
-        dsn             => $schema_connection[0],
-        username        => $schema_connection[1],
-        password        => $schema_connection[2],
-        connect_options => $schema_connection[3],
-        tables          => \%tables,
+        tables => \%tables,
     );
     $schema_class->set_default_instance( $schema );
     

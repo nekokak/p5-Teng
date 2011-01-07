@@ -52,16 +52,15 @@ sub connect {
         PrintError => 0,
         RaiseError => 1,
         # defaults from schema
-        %{ $schema->connect_options || {} },
         # any values in the instance
         %{ $self->connect_options || {} },
         # any values in the arguments!
         %{ $args{connect_options} || {} },
     );
 
-    my $dsn      = $args{dsn}      || $self->dsn      || $schema->dsn;
-    my $username = $args{username} || $self->username || $schema->username;
-    my $password = $args{password} || $self->password || $schema->password;
+    my $dsn      = $args{dsn}      || $self->dsn;
+    my $username = $args{username} || $self->username;
+    my $password = $args{password} || $self->password;
 
     my $dbh = DBI->connect(
         $dsn,
