@@ -3,7 +3,7 @@ use Test::More;
 
 {
     package Mock::Mixin;
-    use DBIx::Skin;
+    use base qw( DBIx::Skin );
     use DBIx::Skin::Mixin modules => ['+Mixin::Foo'];
 
     sub setup_test_db {
@@ -17,9 +17,10 @@ use Test::More;
 
     package Mock::Mixin::Schema;
     use utf8;
-    use DBIx::Skin::Schema;
+    use DBIx::Skin::Schema::Declare;
 
-    install_table mock_mixin => schema {
+    table {
+        name 'mock_mixin';
         pk 'id';
         columns qw/
             id
@@ -29,11 +30,7 @@ use Test::More;
 }
 
 my $db = Mock::Mixin->new(
-    +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    }
+    connect_info => [ 'dbi:SQLite:' ]
 );
 
 subtest 'mixin Mixin::Foo module' => sub {
