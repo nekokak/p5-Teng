@@ -346,6 +346,7 @@ sub find_or_new {
     };
 }
 
+# XXX bad name? -- tokuhirom@20110107
 sub hash_to_row {
     my ($self, $table, $hash) = @_;
 
