@@ -111,23 +111,6 @@ sub _guess_table_name {
     return;
 }
 
-sub _get_row_class {
-    my ($class, $sql, $table) = @_;
-
-    $table ||= $class->_guess_table_name($sql)||'';
-    if ($table) {
-        return $class->schema->schema_info->{$table}->{row_class};
-    } else {
-        return $class->_attributes->{_common_row_class} ||= do {
-            my $row_class = join '::', $class->_attributes->{klass}, 'Row';
-            DBIx::Skin::Util::load_class($row_class) or do {
-                no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
-            };
-            $row_class;
-        };
-    }
-}
-
 sub _execute {
     my ($self, $sql, $binds, $table) = @_;
     my $dbh = $self->dbh;
@@ -228,8 +211,8 @@ sub search_by_sql {
         skinny         => $self,
         sth            => $sth,
         sql            => $sql,
-        row_class      => $self->schema->get_row_class($self, $opt_table_info),
-        opt_table_info => $opt_table_info,
+        row_class      => $self->schema->get_row_class($self, $tablename),
+        opt_table_info => $tablename,
         suppress_objects => $self->suppress_row_objects,
     );
     return wantarray ? $itr->all : $itr;
@@ -393,7 +376,8 @@ sub find_or_new {
 sub hash_to_row {
     my ($self, $table, $hash) = @_;
 
-    my $row_class = $self->_get_row_class($table, $table);
+    my $schema = $self->schema;
+    my $row_class = $schema->get_row_class($self, $table);
     my $row = $row_class->new(
         {
             sql            => undef,
