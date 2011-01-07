@@ -199,61 +199,24 @@ sub resultset {
 }
 
 sub search_rs {
-    my ($self, $table, $where, $opt) = @_;
+    my ($self, $tablename, $where, $opt) = @_;
 
-    my $cols = $opt->{select} || do {
-        my $table = $self->schema->get_table( $table );
-        unless ( $table ) {
-            Carp::croak("Table object does not exist for table '$table'");
-        }
-        $table->columns;
-    };
-
-    my $rs = $self->resultset(
-        {
-            select => $cols,
-            from   => [$table],
-        }
+    my $builder = $self->sql_builder;
+    my $table = $self->schema->get_table( $tablename );
+    my ($sql, @binds) = $builder->select(
+        $tablename,
+        $table->columns,
+        $where,
+        $opt
     );
 
-    if ( $where ) {
-        $rs->add_where(%$where);
-    }
-
-    $rs->limit(  $opt->{limit}  ) if $opt->{limit};
-    $rs->offset( $opt->{offset} ) if $opt->{offset};
-
-    if (my $terms = $opt->{order_by}) {
-        $terms = [$terms] unless ref($terms) eq 'ARRAY';
-        my @orders;
-        for my $term (@{$terms}) {
-            my ($col, $case);
-            if (ref($term) eq 'HASH') {
-                ($col, $case) = each %$term;
-            } else {
-                $col  = $term;
-                $case = 'ASC';
-            }
-            push @orders, { column => $col, desc => $case };
-        }
-        $rs->order(\@orders);
-    }
-
-    if (my $terms = $opt->{having}) {
-        for my $col (keys %$terms) {
-            $rs->add_having($col => $terms->{$col});
-        }
-    }
-
-    $rs->for_update(1) if $opt->{for_update};
-
-    return $rs;
+    return $self->search_by_sql($sql, \@binds, $tablename);
 }
 
 sub single {
     my ($self, $table, $where, $opt) = @_;
     $opt->{limit} = 1;
-    $self->search_rs($table, $where, $opt)->retrieve->next;
+    $self->search_rs($table, $where, $opt)->next;
 }
 
 sub _get_sth_iterator {

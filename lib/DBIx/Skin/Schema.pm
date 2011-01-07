@@ -48,6 +48,9 @@ sub get_row_class {
     my ($self, $db, $tablename) = @_;
 
     my $table = $self->get_table($tablename);
+    if (! $table) {
+        Carp::croak( "No table object associated with $tablename" );
+    }
     my $row_class = $table->row_class;
 
     if ( $row_class !~ s/^\+// ) {
