@@ -47,6 +47,8 @@ sub new {
 
     if ( ! $self->dbh ) {
         $self->connect;
+    } else {
+        $self->_prepare_from_dbh( $self->dbh );
     }
 
     return $self;
@@ -72,6 +74,12 @@ sub connect {
         or Carp::croak("Connection error: " . $DBI::errstr);
 
     $self->dbh( $dbh );
+    $self->_prepare_from_dbh( $dbh );
+    return $self;
+}
+
+sub _prepare_from_dbh {
+    my ($self, $dbh) = @_;
 
 # copied from old ->connect.
 #    if ( $self->{owner_pid} != $$ ) {
