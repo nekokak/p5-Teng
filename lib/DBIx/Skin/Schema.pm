@@ -77,37 +77,7 @@ sub call_trigger {
     $table->call_trigger( $db, $trigger_name, $args );
 }
 
-1;
-
-__END__
-use DBIx::Skin::Util;
-
-sub import {
-    my $caller = caller;
-
-    my @functions = qw/
-        install_table
-          schema pk columns schema_info column_type row_class
-        install_inflate_rule
-          inflate deflate call_inflate call_deflate
-          callback _do_inflate
-        install_common_trigger trigger call_trigger
-    /;
-    no strict 'refs';
-    for my $func (@functions) {
-        *{"$caller\::$func"} = \&$func;
-    }
-
-    my $_schema_info = {};
-    *{"$caller\::schema_info"} = sub { $_schema_info };
-    my $_schema_inflate_rule = {};
-    *{"$caller\::inflate_rules"} = sub { $_schema_inflate_rule };
-    my $_schema_common_triggers = {};
-    *{"$caller\::common_triggers"} = sub { $_schema_common_triggers };
-
-    strict->import;
-    warnings->import;
-}
+# old Schema.pm
 
 sub install_table ($$) {
     my ($table, $install_code) = @_;
@@ -179,20 +149,6 @@ sub trigger ($$) {
     push @{$class->schema_info->{
         $class->schema_info->{_installing_table}
     }->{trigger}->{$trigger_name}}, $code;
-}
-
-sub call_trigger {
-    my ($class, $skinny, $table, $trigger_name, $args) = @_;
-
-    my $common_triggers = $class->common_triggers->{$trigger_name};
-    for my $code (@$common_triggers) {
-        $code->($skinny, $args, $table);
-    }
-
-    my $triggers = $class->schema_info->{$table}->{trigger}->{$trigger_name};
-    for my $code (@$triggers) {
-        $code->($skinny, $args, $table);
-    }
 }
 
 sub install_inflate_rule ($$) {

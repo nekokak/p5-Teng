@@ -8,6 +8,8 @@ use DBIx::Skin::DBD;
 use DBIx::Skin::Iterator;
 use DBIx::Skin::Row;
 use DBIx::Skin::Schema;
+use DBIx::Skin::Util;
+use DBIx::TransactionManager 1.02;
 use Class::Accessor::Lite
    rw => [ qw(
         connect_info
@@ -16,7 +18,7 @@ use Class::Accessor::Lite
         schema_class
         suppress_row_objects
         sql_builder
-        parent_pid
+        owner_pid
 
         dbd
     )]
@@ -24,13 +26,38 @@ use Class::Accessor::Lite
 
 our $VERSION = '0.0732';
 
+# tokuhirom's constructor
+#sub new {
+#    my $class = shift;
+#    my %args = @_==1 ? %{$_[0]} : @_;
+#
+#    my $attr = $class->_new_attributes;
+#
+#    my $self = bless +{
+#        schema               => $attr->{schema},
+#        suppress_row_objects => 0,
+#        last_pid             => $$,
+#        _common_row_class    => undef,
+#    }, $class;
+#
+#    $self->connect_info(\%args);
+#    if ($args{dbh}) {
+#        $self->{dbh} = $args{dbh};
+#        $self->_setup_dbd({dbh => $args{dbh}});
+#    } else {
+#        $self->connect();
+#    }
+#
+#    return $self;
+#}
+
 sub new {
     my ($class, %args) = @_;
 
     my $self = bless {
         schema_class => "$class\::Schema",
         %args,
-        parent_pid => $$,
+        owner_pid => $$,
     }, $class;
 
     if (! $self->schema) {
@@ -74,6 +101,16 @@ sub ensure_connected {
     if (! $self->dbh) {
         $self->connect();
     }
+
+# copied from old ->connect.
+#    if ( $self->{owner_pid} != $$ ) {
+#        $self->{owner_pid} = $$;
+#        $dbh->{InactiveDestroy} = 1;
+#        $dbh = $self->reconnect;
+#    }
+#    unless ($dbh && $dbh->FETCH('Active') && $dbh->ping) {
+#        $dbh = $self->reconnect;
+#    }
 
     my $dbh = $self->dbh or
         Carp::croak("ensure_connected: failed to connect to database");
@@ -317,74 +354,6 @@ sub delete {
     $rows;
 }
 
-1;
-
-__END__
-
-
-use DBI;
-use DBIx::Skin::Iterator;
-use DBIx::Skin::DBD;
-use DBIx::Skin::Row;
-use DBIx::Skin::Util;
-use DBIx::TransactionManager 1.02;
-use Carp ();
-use Storable ();
-use Class::Load ();
-
-use Class::Accessor::Lite (
-    ro => [qw/schema/],
-    rw => [qw/suppress_row_objects/],
-);
-
-sub import {
-    my ($class, %opt) = @_;
-
-    return if $class ne 'DBIx::Skin';
-
-    my $caller = caller;
-
-    my $schema = $opt{schema} || "$caller\::Schema";
-    Class::Load::try_load_class($schema); # XXX Why is it optional? -- tokuhirom@20110107
-
-    my $_attributes = +{
-        schema          => $schema,
-    };
-
-    {
-        no strict 'refs';
-        push @{"${caller}::ISA"}, $class;
-        *{"$caller\::_new_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes }; # TODO: rename or remove? -- tokuhirom@20110107
-    }
-
-    strict->import;
-    warnings->import;
-}
-
-sub new {
-    my $class = shift;
-    my %args = @_==1 ? %{$_[0]} : @_;
-
-    my $attr = $class->_new_attributes;
-
-    my $self = bless +{
-        schema               => $attr->{schema},
-        suppress_row_objects => 0,
-        last_pid             => $$,
-        _common_row_class    => undef,
-    }, $class;
-
-    $self->connect_info(\%args);
-    if ($args{dbh}) {
-        $self->{dbh} = $args{dbh};
-        $self->_setup_dbd({dbh => $args{dbh}});
-    } else {
-        $self->connect();
-    }
-
-    return $self;
-}
-
 #--------------------------------------------------------------------------------
 # for transaction
 
@@ -408,47 +377,6 @@ sub txn_end      { $_[0]->txn_manager->txn_end      }
 
 #--------------------------------------------------------------------------------
 # db handling
-sub connect_info {
-    my ($self, $connect_info) = @_;
-
-    if (@_==2) {
-        # setter
-        $_[0]->{connect_info} = $_[1];
-        $_[0]->_setup_dbd($_[1]);
-    } else {
-        return $_[0]->{connect_info};
-    }
-}
-
-sub connect {
-    my $self = shift;
-
-    $self->connect_info(@_) if scalar @_ >= 1;
-    my $connect_info = $self->connect_info;
-
-    if (!$self->{dbh} ) {
-        $self->{dbh} = DBI->connect(
-            $connect_info->{dsn},
-            $connect_info->{username},
-            $connect_info->{password},
-            { RaiseError => 1, PrintError => 0, AutoCommit => 1, %{ $connect_info->{connect_options} || {} } }
-        ) or Carp::croak("Connection error: " . $DBI::errstr);
-
-        if ( my $on_connect_do = $connect_info->{on_connect_do} ) {
-            if (not ref($on_connect_do)) {
-                $self->do($on_connect_do);
-            } elsif (ref($on_connect_do) eq 'CODE') {
-                $on_connect_do->($self);
-            } elsif (ref($on_connect_do) eq 'ARRAY') {
-                $self->do($_) for @$on_connect_do;
-            } else {
-                Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
-            }
-        }
-    }
-
-    $self->{dbh};
-}
 
 sub reconnect {
     my $self = shift;
@@ -478,29 +406,6 @@ sub _guess_driver_name {
     }
 }
 
-sub dbd {
-    Carp::croak("$_[0]->dbh is a instance method.") unless ref $_[0]; # this is a temoprary croak to refactoring. I should remove this method later. -- tokuhirom
-
-    $_[0]->{dbd} or do {
-        require Data::Dumper;
-        Carp::croak("Attribute 'dbd' is not defined. Either we failed to connect, or the connection has gone away.");
-    };
-}
-
-sub dbh {
-    my $self = shift;
-
-    my $dbh = $self->connect;
-    if ( $self->{last_pid} != $$ ) {
-        $self->{last_pid} = $$;
-        $dbh->{InactiveDestroy} = 1;
-        $dbh = $self->reconnect;
-    }
-    unless ($dbh && $dbh->FETCH('Active') && $dbh->ping) {
-        $dbh = $self->reconnect;
-    }
-    $dbh;
-}
 
 #--------------------------------------------------------------------------------
 # schema trigger call
@@ -587,33 +492,6 @@ sub hash_to_row {
     $row;
 }
 
-sub _guess_table_name {
-    my ($self, $sql) = @_;
-
-    if ($sql =~ /\sfrom\s+([\w]+)\s*/si) {
-        return $1;
-    }
-    return;
-}
-
-sub _get_row_class {
-    my ($self, $sql, $table) = @_;
-
-    $table ||= $self->_guess_table_name($sql)||'';
-    if ($table) {
-        return $self->schema->schema_info->{$table}->{row_class};
-    } else {
-        return $self->{_common_row_class} ||= do {
-            my $klass = ref $self || $self;
-            my $row_class = join '::', $klass, 'Row';
-            DBIx::Skin::Util::load_class($row_class) or do {
-                no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
-            };
-            $row_class;
-        };
-    }
-}
-
 sub _quote {
     my ($label, $quote, $name_sep) = @_;
 
@@ -667,47 +545,6 @@ sub _set_columns {
     return (\@columns, \@bind_columns, \@quoted_columns);
 }
 
-sub _insert_or_replace {
-    my ($self, $is_replace, $table, $args) = @_;
-
-    my $schema = $self->schema;
-
-    # deflate
-    for my $col (keys %{$args}) {
-        $args->{$col} = $schema->call_deflate($col, $args->{$col});
-    }
-
-    my ($columns, $bind_columns, $quoted_columns) = $self->_set_columns($args, 1);
-
-    my $sql = $is_replace ? 'REPLACE' : 'INSERT';
-    $sql .= " INTO $table\n";
-    $sql .= '(' . join(', ', @$quoted_columns) .')' . "\n" .
-            'VALUES (' . join(', ', @$columns) . ')' . "\n";
-
-    my $sth = $self->_execute($sql, $bind_columns, $table);
-    $self->_close_sth($sth);
-
-    my $pk = $self->schema->schema_info->{$table}->{pk};
-
-    if (not ref $pk && not defined $args->{$pk}) {
-        $args->{$pk} = $self->_last_insert_id($table);
-    }
-
-    my $row_class = $self->_get_row_class($sql, $table);
-    return $args if $self->suppress_row_objects;
-
-    my $obj = $row_class->new(
-        {
-            row_data       => $args,
-            skinny         => $self,
-            opt_table_info => $table,
-        }
-    );
-    $obj->setup;
-
-    $obj;
-}
-
 sub _last_insert_id {
     my ($self, $table) = @_;
 
@@ -724,20 +561,6 @@ sub _last_insert_id {
     } else {
         Carp::croak "Don't know how to get last insert id for $driver";
     }
-}
-
-*create = \*insert;
-sub insert {
-    my ($self, $table, $args) = @_;
-
-    my $schema = $self->schema;
-    $self->call_schema_trigger('pre_insert', $schema, $table, $args);
-
-    my $obj = $self->_insert_or_replace(0, $table, $args);
-
-    $self->call_schema_trigger('post_insert', $schema, $table, $obj);
-
-    $obj;
 }
 
 sub replace {
@@ -773,30 +596,6 @@ sub _add_where {
     for my $col (keys %{$where}) {
         $stmt->add_where($col => $where->{$col});
     }
-}
-
-sub _execute {
-    my ($self, $stmt, $args, $table) = @_;
-
-    my ($sth, $bind);
-    if ($table) {
-        eval {
-            $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
-            $self->bind_params($table, $args, $sth);
-            $sth->execute;
-        };
-    } else {
-        $bind = $args;
-        eval {
-            $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
-            $sth->execute(@{$args});
-        };
-    }
-
-    if ($@) {
-        $self->_stack_trace($sth, $stmt, $bind, $@);
-    }
-    return $sth;
 }
 
 # stack trace
