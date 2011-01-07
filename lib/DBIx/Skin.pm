@@ -33,7 +33,7 @@ sub import {
     }
                 
     my $schema = $opt{schema} || "$caller\::Schema";
-    Class::Load::load_class($schema);
+    Class::Load::try_load_class($schema); # XXX Why is it optional? -- tokuhirom@20110107
 
     my $_attributes = +{
         schema          => $schema,
