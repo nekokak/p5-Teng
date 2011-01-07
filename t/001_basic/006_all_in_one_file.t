@@ -5,7 +5,7 @@ use Test::More;
 
 {
     package Mock::BasicALLINONE;
-    use DBIx::Skin;
+    use parent 'DBIx::Skin';
 
     sub setup_test_db {
         shift->do(q{
@@ -22,15 +22,17 @@ use Test::More;
 {
     package Mock::BasicALLINONE::Schema;
     use utf8;
-    use DBIx::Skin::Schema;
-
-    install_table mock_basic => schema {
-        pk 'id';
-        columns qw/
-            id
-            name
-            delete_fg
-        /;
+    use DBIx::Skin::Schema::Declare;
+    schema {
+        table {
+            name 'mock_basic';
+            pk 'id';
+            columns qw/
+                id
+                name
+                delete_fg
+            /;
+        };
     };
 }
 
@@ -41,12 +43,7 @@ use Test::More;
     use base 'DBIx::Skin::Row';
 }
 
-my $db = Mock::BasicALLINONE->new({
-    dsn => 'dbi:SQLite:',
-    username => '',
-    password => '',
-    connect_options => { AutoCommit => 1 },
-});
+my $db = Mock::BasicALLINONE->new(connect_info => ['dbi:SQLite:', '','']);
 
 $db->setup_test_db;
 $db->insert('mock_basic',{

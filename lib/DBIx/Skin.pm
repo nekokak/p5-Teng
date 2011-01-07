@@ -4,7 +4,6 @@ use warnings;
 use Carp ();
 use Class::Load ();
 use DBI;
-use DBIx::Skin::DBD;
 use DBIx::Skin::Iterator;
 use DBIx::Skin::Row;
 use DBIx::Skin::Schema;
@@ -19,15 +18,15 @@ use Class::Accessor::Lite
         suppress_row_objects
         sql_builder
         owner_pid
-
-        dbd
     )]
 ;
 
 our $VERSION = '0.0732';
 
 sub new {
-    my ($class, %args) = @_;
+#    my ($class, %args) = @_;
+    my $class = shift;
+    my %args = @_ == 1 ? %{$_[0]} : @_;
 
     my $self = bless {
         schema_class => "$class\::Schema",
@@ -100,11 +99,6 @@ sub _prepare_from_dbh {
         $self->sql_builder( $builder );
     }
 
-    my $dbd = $self->dbd;
-    if (! $dbd) {
-        $dbd = DBIx::Skin::DBD->new( $driver_name );
-        $self->dbd( $dbd );
-    }
     return $self;
 }
 
@@ -157,8 +151,6 @@ sub _insert_or_replace {
 #        $args->{$col} = $schema->call_deflate($col, $args->{$col});
 #    }
 
-#    my ($columns, $bind_columns, $quoted_columns) = $class->_set_columns($args, 1);
-
     my ($sql, @binds) = $self->sql_builder->insert( $tablename, $args );
     if ($is_replace) {
         $sql =~ s/^\s*INSERT\b/REPLACE/;
@@ -203,7 +195,7 @@ sub insert {
 sub resultset {
     my ($self, $args) = @_;
     $args->{skinny} = $self;
-    $self->dbd->query_builder_class->new($args);
+    $self->sql_builder->new_select($args);
 }
 
 sub search_rs {
@@ -360,13 +352,6 @@ sub disconnect {
     $self->{dbh} = undef;
 }
 
-sub _setup_dbd {
-    my ($self, $args) = @_;
-    my $driver_name = $args ? _guess_driver_name($args) : $self->{driver_name};
-    $self->{driver_name} = $driver_name;
-    $self->{dbd} = $driver_name ? DBIx::Skin::DBD->new($driver_name) : undef;
-}
-
 sub _guess_driver_name {
     my $args = shift;
     if ($args->{dbh}) {
@@ -471,51 +456,6 @@ sub _quote {
     return join $name_sep, map { $quote . $_ . $quote } split /\Q$name_sep\E/, $label;
 }
 
-sub bind_params {
-    my($self, $table, $columns, $sth) = @_;
-
-    my $schema = $self->schema;
-    my $dbd    = $self->dbd;
-    my $i = 1;
-    for my $column (@{ $columns }) {
-        my($col, $val) = @{ $column };
-        my $type = $schema->column_type($table, $col);
-        my $attr = $type ? $dbd->bind_param_attributes($type) : undef;
-
-        my $ref = ref $val;
-        if ($ref eq 'ARRAY') {
-            $sth->bind_param($i++, $_, $attr) for @$val;
-        } elsif (not $ref) {
-            $sth->bind_param($i++, $val, $attr);
-        } else {
-            die "you can't set bind value, arrayref or scalar. you set $ref ref value.";
-        }
-    }
-}
-
-sub _set_columns {
-    my ($self, $args, $insert) = @_;
-
-    my $schema = $self->schema;
-    my $dbd = $self->dbd;
-    my $quote = $dbd->quote;
-    my $name_sep = $dbd->name_sep;
-
-    my (@columns, @bind_columns, @quoted_columns);
-    for my $col (keys %{ $args }) {
-        my $quoted_col = _quote($col, $quote, $name_sep);
-        if (ref($args->{$col}) eq 'SCALAR') {
-            push @columns, ($insert ? ${ $args->{$col} } :"$quoted_col = " . ${ $args->{$col} });
-        } else {
-            push @columns, ($insert ? '?' : "$quoted_col = ?");
-            push @bind_columns, [$col, $args->{$col}];
-        }
-        push @quoted_columns, $quoted_col;
-    }
-
-    return (\@columns, \@bind_columns, \@quoted_columns);
-}
-
 sub _last_insert_id {
     my ($self, $table) = @_;
 
@@ -550,8 +490,8 @@ sub replace {
 sub bulk_insert {
     my ($self, $table, $args) = @_;
 
-    my $code = $self->{dbd}->can('bulk_insert') or Carp::croak "dbd don't provide bulk_insert method";
-    $code->($self, $table, $args);
+#    my $code = $self->{dbd}->can('bulk_insert') or Carp::croak "dbd don't provide bulk_insert method";
+#    $code->($self, $table, $args);
 }
 
 *find_or_insert = \*find_or_create;
