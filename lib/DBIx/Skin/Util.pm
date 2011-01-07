@@ -37,50 +37,5 @@ sub mk_row_class {
     };
 }
 
-sub utf8_on {
-    if ($] <= 5.008000) {
-        require Encode;
-        return sub {
-            my ($class, $col, $data) = @_;
-            if ($class->is_utf8_column($col)) {
-                Encode::_utf8_on($data) unless Encode::is_utf8($data);
-            }
-            $data;
-        };
-    } else {
-        require utf8;
-        return sub {
-            my ($class, $col, $data) = @_;
-            if ($class->is_utf8_column($col)) {
-                utf8::decode($data) unless utf8::is_utf8($data);
-            }
-            $data;
-        };
-    }
-}
-
-sub utf8_off {
-    if ($] <= 5.008000) {
-        require Encode;
-        return sub {
-            my ($class, $col, $data) = @_;
-            if ($class->is_utf8_column($col)) {
-                Encode::_utf8_off($data) if Encode::is_utf8($data);
-            }
-            $data;
-        };
-    } else {
-        require utf8;
-        return sub {
-            my ($class, $col, $data) = @_;
-            if ($class->is_utf8_column($col)) {
-                utf8::encode($data) if utf8::is_utf8($data);
-            }
-            $data;
-        };
-    }
-}
-
-
 1;
 

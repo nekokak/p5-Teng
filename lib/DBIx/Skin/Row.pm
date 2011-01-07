@@ -52,9 +52,11 @@ sub get_column {
         Carp::croak('please specify $col for first argument');
     }
 
-    my $data = exists $self->{row_data}->{$col} ? $self->{row_data}->{$col} : Carp::croak("$col no selected column. SQL: " . ($self->{sql}||'unknown'));
-
-    return $self->{skinny}->schema->utf8_on($col, $data);
+    if ( exists $self->{row_data}->{$col} ) {
+        return $self->{row_data}->{$col};
+    } else {
+        Carp::croak("$col no selected column. SQL: " . ( $self->{sql} || 'unknown' ) );
+    }
 }
 
 sub get_columns {
