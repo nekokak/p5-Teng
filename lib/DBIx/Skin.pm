@@ -14,6 +14,11 @@ use Carp ();
 use Storable ();
 use Class::Load ();
 
+use Class::Accessor::Lite (
+    ro => [qw/profiler schema/],
+    rw => [qw/suppress_row_objects/],
+);
+
 sub import {
     my ($class, %opt) = @_;
 
@@ -75,10 +80,6 @@ sub new {
     return $self;
 }
 
-sub schema { $_[0]->{schema} }
-
-sub profiler { $_[0]->{profiler} }
-
 sub _profiler_record_query {
     my ($self, $sql, $bind) = @_;
     if ($self->{profiler}) {
@@ -86,11 +87,6 @@ sub _profiler_record_query {
     }
 }
 
-sub suppress_row_objects {
-    my ($self, $mode) = @_;
-    return $self->{suppress_row_objects} unless defined $mode;
-    $self->{suppress_row_objects} = $mode;
-}
 
 #--------------------------------------------------------------------------------
 # for transaction
