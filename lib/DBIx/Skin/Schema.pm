@@ -82,11 +82,6 @@ sub call_trigger {
 __END__
 use DBIx::Skin::Util;
 
-BEGIN {
-    *utf8_on  = DBIx::Skin::Util::utf8_on;
-    *utf8_off = DBIx::Skin::Util::utf8_off;
-}
-
 sub import {
     my $caller = caller;
 
@@ -97,8 +92,6 @@ sub import {
           inflate deflate call_inflate call_deflate
           callback _do_inflate
         install_common_trigger trigger call_trigger
-        install_utf8_columns
-          is_utf8_column utf8_on utf8_off
     /;
     no strict 'refs';
     for my $func (@functions) {
@@ -111,8 +104,6 @@ sub import {
     *{"$caller\::inflate_rules"} = sub { $_schema_inflate_rule };
     my $_schema_common_triggers = {};
     *{"$caller\::common_triggers"} = sub { $_schema_common_triggers };
-    my $_utf8_columns = {};
-    *{"$caller\::utf8_columns"} = sub { $_utf8_columns };
 
     strict->import;
     warnings->import;
@@ -265,20 +256,6 @@ sub install_common_trigger ($$) {
     push @{$class->common_triggers->{$trigger_name}}, $code;
 }
 
-sub install_utf8_columns (@) {
-    my @columns = @_;
-
-    my $class = caller;
-    for my $col (@columns) {
-        $class->utf8_columns->{$col} = 1;
-    }
-}
-
-sub is_utf8_column {
-    my ($class, $col) = @_;
-    return $class->utf8_columns->{$col} ? 1 : 0;
-}
-
 1;
 
 __END__
@@ -299,8 +276,6 @@ DBIx::Skin::Schema - Schema DSL for DBIx::Skin
     
     package Your::Model::Schema:
     use DBIx::Skin::Schema;
-    
-    install_utf8_columns qw/name/; # for utf8 columns
     
     # set user table schema settings
     install_table user => schema {

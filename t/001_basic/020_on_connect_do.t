@@ -69,8 +69,11 @@ subtest 'instance level on_connect_do / coderef' => sub {
 };
 
 subtest 'instance level on_connect_do / scalar' => sub {
-    require DBIx::Skin::Profiler;
-    local Mock::BasicOnConnectDo->_new_attributes->{profiler} = DBIx::Skin::Profiler->new;
+    my $query;
+    local *Mock::BasicOnConnectDo::do = sub {
+        my ($self, $sql, ) = @_;
+        $query = $sql;
+    };
     my $db = Mock::BasicOnConnectDo->new(
         +{
             dsn => 'dbi:SQLite:',
@@ -80,25 +83,19 @@ subtest 'instance level on_connect_do / scalar' => sub {
         }
     );
 
-    $db->{profile} = 1;
-
     $db->connect;
-    is_deeply $db->profiler->query_log, [
-        q{select * from sqlite_master},
-    ];
-
+    is $query, 'select * from sqlite_master';
+    $query='';
     $db->reconnect;
-    is_deeply $db->profiler->query_log, [
-        q{select * from sqlite_master},
-        q{select * from sqlite_master},
-    ];
-
-    $db->profiler->reset;
+    is $query, 'select * from sqlite_master';
 };
 
 subtest 'instance level on_connect_do / array' => sub {
-    require DBIx::Skin::Profiler;
-    local Mock::BasicOnConnectDo->_new_attributes->{profiler} = DBIx::Skin::Profiler->new;
+    my @query;
+    local *Mock::BasicOnConnectDo::do = sub {
+        my ($self, $sql, ) = @_;
+        push @query, $sql;
+    };
     my $db = Mock::BasicOnConnectDo->new({
         dsn => 'dbi:SQLite:',
         username => '',
@@ -106,23 +103,11 @@ subtest 'instance level on_connect_do / array' => sub {
         on_connect_do => ['select * from sqlite_master', 'select * from sqlite_master'],
     });
 
-    $db->{profile} = 1;
-
     $db->connect; 
-    is_deeply $db->profiler->query_log, [
-        q{select * from sqlite_master},
-        q{select * from sqlite_master},
-    ];
-
+    is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
+    @query = ();
     $db->reconnect;
-    is_deeply $db->profiler->query_log, [
-        q{select * from sqlite_master},
-        q{select * from sqlite_master},
-        q{select * from sqlite_master},
-        q{select * from sqlite_master},
-    ];
-
-    $db->profiler->reset;
+    is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
 };
 
 unlink './t/main.db';

@@ -348,7 +348,7 @@ use Storable ();
 use Class::Load ();
 
 use Class::Accessor::Lite (
-    ro => [qw/profiler schema/],
+    ro => [qw/schema/],
     rw => [qw/suppress_row_objects/],
 );
 
@@ -359,23 +359,11 @@ sub import {
 
     my $caller = caller;
 
-    my $profiler = $opt{profiler};
-    if (! $profiler ) {
-        if ($ENV{SKINNY_TRACE}) {
-            require DBIx::Skin::Profiler::Trace;
-            $profiler = DBIx::Skin::Profiler::Trace->new;
-        } elsif ($ENV{SKINNY_PROFILE}) {
-            require DBIx::Skin::Profiler;
-            $profiler = DBIx::Skin::Profiler->new;
-        }
-    }
-                
     my $schema = $opt{schema} || "$caller\::Schema";
     Class::Load::try_load_class($schema); # XXX Why is it optional? -- tokuhirom@20110107
 
     my $_attributes = +{
         schema          => $schema,
-        profiler        => $profiler,
     };
 
     {
@@ -395,7 +383,6 @@ sub new {
     my $attr = $class->_new_attributes;
 
     my $self = bless +{
-        profiler             => $attr->{profiler},
         schema               => $attr->{schema},
         suppress_row_objects => 0,
         last_pid             => $$,
@@ -412,14 +399,6 @@ sub new {
 
     return $self;
 }
-
-sub _profiler_record_query {
-    my ($self, $sql, $bind) = @_;
-    if ($self->{profiler}) {
-        $self->{profiler}->record_query($sql, $bind);
-    }
-}
-
 
 #--------------------------------------------------------------------------------
 # for transaction
@@ -548,7 +527,6 @@ sub call_schema_trigger {
 #--------------------------------------------------------------------------------
 sub do {
     my ($self, $sql, $attr, @bind_vars) = @_;
-    $self->_profiler_record_query($sql, @bind_vars ? \@bind_vars : undef);
     my $ret;
     eval { $ret = $self->dbh->do($sql, $attr, @bind_vars) };
     if ($@) {
@@ -696,7 +674,7 @@ sub _set_columns {
             push @columns, ($insert ? ${ $args->{$col} } :"$quoted_col = " . ${ $args->{$col} });
         } else {
             push @columns, ($insert ? '?' : "$quoted_col = ?");
-            push @bind_columns, [$col, $schema->utf8_off($col, $args->{$col})];
+            push @bind_columns, [$col, $args->{$col}];
         }
         push @quoted_columns, $quoted_col;
     }
@@ -817,8 +795,6 @@ sub _execute {
 
     my ($sth, $bind);
     if ($table) {
-        $bind = [map {(ref $_->[1]) eq 'ARRAY' ? @{$_->[1]} : $_->[1]} @$args];
-        $self->_profiler_record_query($stmt, $bind);
         eval {
             $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
             $self->bind_params($table, $args, $sth);
@@ -826,7 +802,6 @@ sub _execute {
         };
     } else {
         $bind = $args;
-        $self->_profiler_record_query($stmt, $bind);
         eval {
             $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
             $sth->execute(@{$args});
@@ -1327,23 +1302,9 @@ set row object creation mode.
 
 =back
 
-=head1 ENVIRONMENT VARIABLES
+=item How do you use display the profiling result?
 
-=head2 SKINNY_PROFILE
-
-for debugging sql.
-
-see L<DBIx::Skin::Profile>
-
-        $ SKINNY_PROFILE=1 perl ./your_script.pl
-
-=head2 SKINNY_TRACE
-
-for debugging sql.
-
-see L<DBIx::Skin::Profiler::Trace>
-
-    $ SKINNY_TRACE=1 perl ./your_script.pl
+use L<Devel::KYTProf>.
 
 =head2 TRIGGER
 
