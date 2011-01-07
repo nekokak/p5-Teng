@@ -4,22 +4,14 @@ use t::Utils;
 
 use_ok "Mock::Basic";
 
-t::Utils::prepare_db( "Mock::Basic" );
-
 subtest 'basic' => sub {
-    my $db = Mock::Basic->new();
-    $db->connect( dsn => "dbi:SQLite:dbname=");
-    ok $db->dbh, "dbh is now defined";
+    my $db = Mock::Basic->new(
+        connect_info => [ "dbi:SQLite::memory:" ],
+    );
+    $db->ensure_connected;
 
-    my $dbh = $db->dbh;
-    $dbh->do( <<EOSQL );
-        CREATE TABLE mock_basic (
-            id   integer,
-            name text,
-            delete_fg int(1) default 0,
-            primary key ( id )
-        )
-EOSQL
+    ok $db->dbh, "dbh is now defined";
+    t::Utils::prepare_db( "Mock::Basic", $db->dbh );
 
     my $name = join '.', time(), rand(), $$, {};
     my $row = $db->insert( mock_basic => {
@@ -31,7 +23,7 @@ EOSQL
     isa_ok $row, "Mock::Basic::Row::MockBasic";
     isa_ok $row, "DBIx::Skin::Row";
 
-    my $sth = $dbh->prepare( "SELECT * FROM mock_basic WHERE id = ?" );
+    my $sth = $db->dbh->prepare( "SELECT * FROM mock_basic WHERE id = ?" );
     $sth->execute(1);
     my $hash = $sth->fetchrow_hashref;
     is $hash->{id}, $row->id, "id matches";

@@ -10,10 +10,7 @@ use DBIx::Skin::Row;
 use DBIx::Skin::Schema;
 use Class::Accessor::Lite
    rw => [ qw(
-        dsn
-        username
-        password
-        connect_options
+        connect_info
         dbh
         schema
         schema_class
@@ -50,36 +47,24 @@ sub new {
 
 # forcefully connect
 sub connect {
-    my ($self, %args) = @_;
+    my ($self, @args) = @_;
 
-    my $schema = $self->schema;
-    my %attrs = (
+    if (@args) {
+        $self->connect_info( \@args );
+    }
+    my $connect_info = $self->connect_info;
+    $connect_info->[3] = {
         # basic defaults
         AutoCommit => 1,
         PrintError => 0,
         RaiseError => 1,
-        # defaults from schema
-        # any values in the instance
-        %{ $self->connect_options || {} },
-        # any values in the arguments!
-        %{ $args{connect_options} || {} },
-    );
+        %{ $connect_info->[3] || {} },
+    };
 
-    my $dsn      = $args{dsn}      || $self->dsn;
-    my $username = $args{username} || $self->username;
-    my $password = $args{password} || $self->password;
-
-    my $dbh = DBI->connect(
-        $dsn,
-        $username,
-        $password,
-        \%attrs,
-    ) or Carp::croak("Connection error: " . $DBI::errstr);
+    my $dbh = DBI->connect(@$connect_info)
+        or Carp::croak("Connection error: " . $DBI::errstr);
 
     $self->dbh( $dbh );
-
-    if (! $self->sql_builder) {
-    }
 
     return $self;
 }

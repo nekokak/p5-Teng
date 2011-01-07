@@ -7,7 +7,6 @@ BEGIN {
 subtest 'basic declare' => sub {
     my $schema = schema {
         name 'DBIx::Skin::TestSchema';
-        dsn  'dbi:SQLite:dbname=';
         table {
             pk 'id';
             name "foo_table";
@@ -17,8 +16,6 @@ subtest 'basic declare' => sub {
 
     ok $schema, "schema is defined";
     isa_ok $schema, "DBIx::Skin::Schema";
-
-    is $schema->dsn, "dbi:SQLite:dbname=", "dsn matches";
 
     my $tables = $schema->tables;
     ok $tables, "tables are defined";
