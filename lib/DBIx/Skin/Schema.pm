@@ -64,6 +64,12 @@ sub get_row_class {
     return $row_class;
 }
 
+sub add_trigger {
+    my ($self, $trigger_name, $callback) = @_;
+    my $triggers = $self->triggers->{ $trigger_name } || [];
+    push @$triggers, $callback;
+}
+
 sub call_trigger {
     my ($self, $trigger_name, $db, $tablename, $args) = @_;
 

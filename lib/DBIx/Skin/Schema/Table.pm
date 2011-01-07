@@ -18,6 +18,7 @@ sub new {
     }, $class;
 
     if (! $self->row_class) {
+        # camelize the table name
         $self->row_class( 
             join('',
                 map{ ucfirst $_ }
@@ -26,6 +27,12 @@ sub new {
         );
     }
     return $self;
+}
+
+sub add_trigger {
+    my ($self, $trigger_name, $callback) = @_;
+    my $triggers = $self->triggers->{ $trigger_name } || [];
+    push @$triggers, $callback;
 }
 
 sub call_trigger {
