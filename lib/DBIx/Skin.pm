@@ -697,11 +697,7 @@ DBIx::Skin - simple DBI wrapper/ORMapper
 create your db model base class.
 
     package Your::Model;
-    use DBIx::Skin connect_info => {
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use parent 'DBIx::Skin';
     1;
     
 create your db schema class.
@@ -709,13 +705,10 @@ See DBIx::Skin::Schema for docs on defining schema class.
 
     package Your::Model::Schema;
     use DBIx::Skin::Schema;
-    
-    install_table user => schema {
+    table {
+        name 'user';
         pk 'id';
-        columns qw/
-            id
-            name
-        /;
+        columns qw( foo bar baz );
     };
     1;
     
@@ -723,7 +716,7 @@ in your script.
 
     use Your::Model;
     
-    my $skinny = Your::Model->new;
+    my $skinny = Your::Model->new(\%args);
     # insert new record.
     my $row = $skinny->insert('user',
         {
