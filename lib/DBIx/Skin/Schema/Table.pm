@@ -1,7 +1,6 @@
 package DBIx::Skin::Schema::Table;
 use strict;
 use Class::Accessor::Lite
-    new => 1,
     rw => [ qw(
         name
         primary_keys
