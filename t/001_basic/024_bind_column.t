@@ -59,7 +59,7 @@ subtest 'insert data' => sub {
         'update mock_basic_bind_column set id = ?, uid = ?, name = ?, body = ? , raw = ?', {}, 5, 5, 'name5', 'body5', 'raw5'
     );
 
-    $row = $db->search('mock_basic_bind_column')->first;
+    $row = $db->search('mock_basic_bind_column')->next;
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id,   5;
     is $row->uid,  5;
@@ -73,7 +73,7 @@ subtest 'insert data' => sub {
         }
     );
  
-    ok not +$db->search_by_sql('select * from mock_basic_bind_column where id = ?',[5])->first;
+    ok not +$db->search_by_sql('select * from mock_basic_bind_column where id = ?',[5])->next;
 
     ok +$db->insert('mock_basic_bind_column',{
         id   => 6,
@@ -85,7 +85,7 @@ subtest 'insert data' => sub {
 
     ok +$db->do('delete from mock_basic_bind_column where id = ?',{}, 6);
 
-    ok not +$db->search_by_sql('select * from mock_basic_bind_column where id = ?',[4])->first;
+    ok not +$db->search_by_sql('select * from mock_basic_bind_column where id = ?',[4])->next;
 };
 
 done_testing;

@@ -11,7 +11,7 @@ $db->insert('mock_basic',{
 });
 
 subtest 'update/delete error: no table info' => sub {
-    my $row = $db->search_by_sql(q{SELECT name FROM mock_basic})->first;
+    my $row = $db->search_by_sql(q{SELECT name FROM mock_basic})->next;
 
     isa_ok $row, 'DBIx::Skin::Row';
 
@@ -73,7 +73,7 @@ subtest 'update/delete error: select column have no pk.' => sub {
             select => [qw/name/],
             from   => [qw/mock_basic/],
         }
-    )->retrieve->first;
+    )->retrieve->next;
 
     isa_ok $row, 'DBIx::Skin::Row';
 

@@ -78,8 +78,8 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
     my ( $itr, $a_multi_pk_table );
 
     subtest 'multi pk search' => sub {
-        $itr = $skinny->search( 'a_multi_pk_table', { id_a => 1 } );
-        is( $itr->count, 3, 'first - user has 3 books' );
+        my @rows = $skinny->search( 'a_multi_pk_table', { id_a => 1 } );
+        is( scalar(@rows), 3, 'first - user has 3 books' );
 
         $a_multi_pk_table = $skinny->single( 'a_multi_pk_table', { id_a => 1, id_b => 3 } );
         ok( $a_multi_pk_table );
@@ -91,11 +91,13 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         $a_multi_pk_table->delete;
 
-        $itr = $skinny->search( 'a_multi_pk_table', { id_a => 1 } );
-        is( $itr->count, 2, 'delete and user has 2 books' );
-        ok ( not $skinny->single( 'a_multi_pk_table', { id_a => 1, id_b => 3 } ) );
+        {
+            my @rows = $skinny->search( 'a_multi_pk_table', { id_a => 1 } );
+            is( scalar(@rows), 2, 'delete and user has 2 books' );
+            ok ( not $skinny->single( 'a_multi_pk_table', { id_a => 1, id_b => 3 } ) );
+        }
 
-        $a_multi_pk_table = $skinny->search( 'a_multi_pk_table', { id_a => 1 } )->first;
+        $a_multi_pk_table = $skinny->search( 'a_multi_pk_table', { id_a => 1 } )->next;
         ok( $a_multi_pk_table );
 
         my ( $id_a, $id_b ) = ( $a_multi_pk_table->id_a, $a_multi_pk_table->id_b );
@@ -108,21 +110,21 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
     subtest 'multi pk search_by_sql' => sub {
         my ( $itr, $row );
 
-        $itr = $skinny->search_by_sql(q{SELECT * FROM a_multi_pk_table WHERE id_a = ? AND id_b = ?}, [3, 10], 'a_multi_pk_table');
+        my @rows = $skinny->search_by_sql(q{SELECT * FROM a_multi_pk_table WHERE id_a = ? AND id_b = ?}, [3, 10], 'a_multi_pk_table');
 
-        is( $itr->count, 1 );
+        is( 0+@rows, 1 );
 
-        $row = $itr->first;
+        $row = shift @rows;
         is( $row->memo, 'foobar' );
         $row->update( { memo => 'hoge' } );
 
-        $row = $skinny->search_by_sql(q{SELECT * FROM a_multi_pk_table WHERE id_a = ? AND id_b = ?}, [3, 10])->first;
+        $row = $skinny->search_by_sql(q{SELECT * FROM a_multi_pk_table WHERE id_a = ? AND id_b = ?}, [3, 10])->next;
 
         is( $row->memo, 'hoge' );
     };
 
     subtest 'multi pk row insert' => sub {
-        my ( $rs, $itr, $row );
+        my ( $rs, @rows, $row );
 
         $row = $skinny->insert( 'a_multi_pk_table', { id_a => 3, id_b => 40 } );
 
@@ -130,13 +132,13 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         $row->insert(); # find_or_create => find
 
-        $itr = $skinny->search( 'a_multi_pk_table', { id_a => 3 } );
-        is( $itr->count, 4 );
+        @rows = $skinny->search( 'a_multi_pk_table', { id_a => 3 } );
+        is( 0+@rows, 4 );
 
         $row->delete();
 
-        $itr = $skinny->search( 'a_multi_pk_table', { id_a => 3 } );
-        is( $itr->count, 3 );
+        @rows = $skinny->search( 'a_multi_pk_table', { id_a => 3 } );
+        is( 0+@rows, 3 );
     };
 }
 
@@ -158,11 +160,11 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
         $skinny->insert( 'c_multi_pk_table', { id_c => 3, id_d => 30 } );
     };
 
-    my ( $itr, $a_multi_pk_table );
+    my ( @rows, $a_multi_pk_table );
 
     subtest 'multi pk search' => sub {
-        $itr = $skinny->search( 'c_multi_pk_table', { id_c => 1 } );
-        is( $itr->count, 3, 'first - user has 3 books' );
+        @rows = $skinny->search( 'c_multi_pk_table', { id_c => 1 } );
+        is( 0+@rows, 3, 'first - user has 3 books' );
 
         $a_multi_pk_table = $skinny->single( 'c_multi_pk_table', { id_c => 1, id_d => 3 } );
         ok( $a_multi_pk_table );
@@ -174,11 +176,11 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         $a_multi_pk_table->delete;
 
-        $itr = $skinny->search( 'c_multi_pk_table', { id_c => 1 } );
-        is( $itr->count, 2, 'delete and user has 2 books' );
+        @rows = $skinny->search( 'c_multi_pk_table', { id_c => 1 } );
+        is( 0+@rows, 2, 'delete and user has 2 books' );
         ok ( not $skinny->single( 'c_multi_pk_table', { id_c => 1, id_d => 3 } ) );
 
-        $a_multi_pk_table = $skinny->search( 'c_multi_pk_table', { id_c => 1 } )->first;
+        $a_multi_pk_table = $skinny->search( 'c_multi_pk_table', { id_c => 1 } )->next;
         ok( $a_multi_pk_table );
 
         my ( $id_c, $id_d ) = ( $a_multi_pk_table->id_c, $a_multi_pk_table->id_d );
@@ -189,23 +191,23 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
     };
 
     subtest 'multi pk search_by_sql' => sub {
-        my ( $itr, $row );
+        my ( @rows, $row );
 
-        $itr = $skinny->search_by_sql(q{SELECT * FROM c_multi_pk_table WHERE id_c = ? AND id_d = ?}, [3, 10], 'c_multi_pk_table');
+        @rows = $skinny->search_by_sql(q{SELECT * FROM c_multi_pk_table WHERE id_c = ? AND id_d = ?}, [3, 10], 'c_multi_pk_table');
 
-        is( $itr->count, 1 );
+        is( 0+@rows, 1 );
 
-        $row = $itr->first;
+        $row = shift @rows;
         is( $row->memo, 'foobar' );
         $row->update( { memo => 'hoge' } );
 
-        $row = $skinny->search_by_sql(q{SELECT * FROM c_multi_pk_table WHERE id_c = ? AND id_d = ?}, [3, 10])->first;
+        $row = $skinny->search_by_sql(q{SELECT * FROM c_multi_pk_table WHERE id_c = ? AND id_d = ?}, [3, 10])->next;
 
         is( $row->memo, 'hoge' );
     };
 
     subtest 'multi pk row insert' => sub {
-        my ( $rs, $itr, $row );
+        my ( $rs, @rows, $row );
 
         $row = $skinny->insert( 'c_multi_pk_table', { id_c => 3, id_d => 40 } );
 
@@ -213,13 +215,13 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         $row->insert(); # find_or_create => find
 
-        $itr = $skinny->search( 'c_multi_pk_table', { id_c => 3 } );
-        is( $itr->count, 4 );
+        @rows = $skinny->search( 'c_multi_pk_table', { id_c => 3 } );
+        is( 0+@rows, 4 );
 
         $row->delete();
 
-        $itr = $skinny->search( 'c_multi_pk_table', { id_c => 3 } );
-        is( $itr->count, 3 );
+        @rows = $skinny->search( 'c_multi_pk_table', { id_c => 3 } );
+        is( 0+@rows, 3 );
     };
 
     subtest 'multi pk find_or_create' => sub {

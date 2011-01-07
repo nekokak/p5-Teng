@@ -23,7 +23,7 @@ subtest 'search' => sub {
     my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     is $row->id, 1;
@@ -50,7 +50,7 @@ subtest 'search without where' => sub {
 subtest 'search with order_by (originally)' => sub {
     my $itr = $db->search('mock_basic', {}, { order_by => [ { id => 'desc' } ] });
     isa_ok $itr, 'DBIx::Skin::Iterator';
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 3;
     is $row->name, 'java';
@@ -59,7 +59,7 @@ subtest 'search with order_by (originally)' => sub {
 subtest 'search with order_by (as hashref)' => sub {
     my $itr = $db->search('mock_basic', {}, { order_by => { id => 'desc' } });
     isa_ok $itr, 'DBIx::Skin::Iterator';
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 3;
     is $row->name, 'java';
@@ -68,7 +68,7 @@ subtest 'search with order_by (as hashref)' => sub {
 subtest 'search with order_by (as string)' => sub {
     my $itr = $db->search('mock_basic', {}, { order_by => 'name' });
     isa_ok $itr, 'DBIx::Skin::Iterator';
-    my $row = $itr->first;
+    my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 3;
     is $row->name, 'java';

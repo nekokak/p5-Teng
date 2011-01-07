@@ -23,8 +23,4 @@ subtest 'count' => sub {
     is +$db->count('mock_basic' => 'id',{name => 'perl'}), 1;
 };
 
-subtest 'iterator count' => sub {
-    is +$db->search('mock_basic',{  })->count, 2;
-};
-
 done_testing;

@@ -57,7 +57,7 @@ $db->insert('mock_basic',{
 my $itr = $db->search_by_sql(q{SELECT * FROM mock_basic WHERE id = ?}, [1]);
 isa_ok $itr, 'DBIx::Skin::Iterator';
 
-my $row = $itr->first;
+my $row = $itr->next;
 isa_ok $row, 'Mock::BasicALLINONE::Row::MockBasic';
 is $row->id , 1;
 is $row->name, 'perl';

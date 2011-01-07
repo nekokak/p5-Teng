@@ -22,63 +22,26 @@ subtest 'all' => sub {
     is $rows->[0]->id, 1;
 };
 
-subtest 'iterator with cache' => sub {
-    my $itr = $db->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skin::Iterator';
-    is $itr->position, 0, 'initial position';
-
-    is $itr->count, 2, "rows count";
-    my @rows = $itr->all;
-    is scalar(@rows), 2, "all rows";
-    is $itr->position, 2, 'all-last position';
-    $itr->reset;
-    is $itr->position, 0, 'reset position';
-
-    my $row1 = $itr->next;
-    isa_ok $row1, 'DBIx::Skin::Row';
-    is $itr->position, 1, 'one next position';
-    my $row2 = $itr->next;
-    isa_ok $row2, 'DBIx::Skin::Row';
-    is $itr->position, 2, 'two next position';
-    ok !$itr->next, 'no more row';
-    is $itr->position, 2, 'next-last position';
-
-    ok $itr->reset, "reset ok";
-    $row1 = $itr->first;
-    isa_ok $row1, 'DBIx::Skin::Row';
-};
-
 subtest 'iterator with no cache all/count' => sub {
     my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
-    $itr->cache(0);
 
-    is $itr->count, 2, "rows count";
     my @rows = $itr->all;
-    is scalar(@rows), 0, "cannot retrieve all rows after count";
+    is scalar(@rows), 2, "rows count";
 
-    ok $itr->reset, "reset ok";
-    ok !$itr->first, "cannot retrieve first row after count";
+    ok !$itr->next, "cannot retrieve first row after count";
 };
 
 subtest 'iterator with no cache' => sub {
     my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
-    is $itr->position, 0, 'initial position';
-    $itr->cache(0);
 
     my $row1 = $itr->next;
     isa_ok $row1, 'DBIx::Skin::Row';
-    is $itr->position, 1, 'one next position';
     my $row2 = $itr->next;
     isa_ok $row2, 'DBIx::Skin::Row';
-    is $itr->position, 2, 'two next position';
 
     ok !$itr->next, 'no more row';
-    is $itr->position, 2, 'next-last position';
-    ok $itr->reset, 'reset ok';
-    is $itr->position, 0, 'reset position';
-    ok !$itr->first, "cannot retrieve first row";
 };
 
 subtest 'iterator with suppress_objects on to off' => sub {
@@ -150,16 +113,6 @@ subtest 'iterator with suppress_row_objects on with cache' => sub {
           id        => 2,
           delete_fg => 0,
           name      => 'ruby',
-    };
-
-    $itr->reset;
-
-    $row = $itr->next;
-    is ref($row), 'HASH';
-    is_deeply $row,  {
-        id        => 1,
-        delete_fg => 0,
-        name      => 'perl',
     };
 };
 
