@@ -55,8 +55,8 @@ subtest 'insert data' => sub {
     is $row->body, 'body4';
     is $row->raw,  'raw4';
 
-    $db->update_by_sql(
-        'update mock_basic_bind_column set id = ?, uid = ?, name = ?, body = ? , raw = ?', [5, 5, 'name5', 'body5', 'raw5']
+    $db->do(
+        'update mock_basic_bind_column set id = ?, uid = ?, name = ?, body = ? , raw = ?', {}, 5, 5, 'name5', 'body5', 'raw5'
     );
 
     $row = $db->search('mock_basic_bind_column')->first;
@@ -83,7 +83,7 @@ subtest 'insert data' => sub {
         raw  => 'raw6',
     });
 
-    ok +$db->delete_by_sql('delete from mock_basic_bind_column where id = ?',[6]);
+    ok +$db->do('delete from mock_basic_bind_column where id = ?',{}, 6);
 
     ok not +$db->search_by_sql('select * from mock_basic_bind_column where id = ?',[4])->first;
 };

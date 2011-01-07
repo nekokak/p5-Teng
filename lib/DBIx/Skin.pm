@@ -592,13 +592,6 @@ sub update {
     return $rows;
 }
 
-sub update_by_sql {
-    my ($self, $sql, $bind) = @_;
-
-    Carp::carp( 'update_by_sql has been deprecated. Please use $skinny->do($sql, undef, @bind)' );
-    $self->do($sql, undef, @$bind);
-}
-
 sub delete {
     my ($self, $table, $where) = @_;
 
@@ -622,13 +615,6 @@ sub delete {
 
     $self->_close_sth($sth);
     $rows;
-}
-
-sub delete_by_sql {
-    my ($self, $sql, $bind) = @_;
-
-    Carp::carp( 'delete_by_sql has been deprecated. Please use $skinny->do($sql, undef, @bind)' );
-    $self->do($sql, undef, @$bind);
 }
 
 *find_or_insert = \*find_or_create;
@@ -926,17 +912,6 @@ or
     my $row = Your::Model->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
-=item $skinny->update_by_sql($sql, [\@bind_values])
-
-update record by specific sql. return update row count.
-
-example:
-
-    my $update_row_count = Your::Model->update_by_sql(
-        q{UPDATE user SET name = ?},
-        ['nomaneko']
-    );
-
 =item $skinny->delete($table, \%delete_condition)
 
 delete record. return delete row count.
@@ -952,17 +927,6 @@ or
     # see) DBIx::Skin::Row's POD
     my $row = Your::Model->single('user', {id => 1});
     $row->delete
-
-=item $skinny->delete_by_sql($sql, \@bind_values)
-
-delete record by specific sql. return delete row count.
-
-example:
-
-    my $delete_row_count = Your::Model->delete_by_sql(
-        q{DELETE FROM user WHERE id = ?},
-        [1]
-    });
 
 =item $skinny->find_or_create($table, \%values)
 
