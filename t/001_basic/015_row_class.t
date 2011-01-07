@@ -28,7 +28,7 @@ use Test::More;
         /;
     };
 
-    tall_table {
+    table {
         name 'mock_basic_row_foo';
         pk 'id';
         columns qw/
@@ -55,7 +55,7 @@ use Test::More;
 
 {
     package Mock::ExRow;
-    use DBIx::Skin;
+    use base qw(DBIx::Skin);
 
     sub setup_test_db {
         shift->do(q{
@@ -68,9 +68,10 @@ use Test::More;
 
     package Mock::ExRow::Schema;
     use utf8;
-    use DBIx::Skin::Schema;
+    use DBIx::Skin::Schema::Declare;
 
-    install_table mock_ex_row => schema {
+    table {
+        name 'mock_ex_row';
         pk 'id';
         columns qw/
             id
