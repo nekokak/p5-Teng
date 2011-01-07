@@ -3,17 +3,11 @@ use Mock::Basic;
 use Test::More;
 
 my $db = Mock::Basic->new(
-    {
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    }
+    connect_info => [ 'dbi:SQLite:', '', '' ]
 );
 
 my $connect_info = $db->connect_info();
 
-is $connect_info->{dsn}, 'dbi:SQLite:';
-is $connect_info->{username}, '';
-is $connect_info->{password}, '';
+is_deeply $connect_info, [ 'dbi:SQLite:', '', '', { RaiseError => 1, AutoCommit => 1, PrintError => 0 } ];
 
 done_testing;
