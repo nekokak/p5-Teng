@@ -39,9 +39,15 @@ subtest 'search_named' => sub {
 };
 
 subtest 'search_named' => sub {
-    require DBIx::Skin::Profiler;
-    local $db->{profiler} = DBIx::Skin::Profiler->new;
-    $db->profiler->reset;
+
+    my $org_code = Mock::Basic->can('search_by_sql');
+    my ($query, $bind);
+    local *Mock::Basic::search_by_sql = sub {
+        $query = $_[1];
+        $bind  = $_[2];
+        $org_code->(@_);
+    };
+
     my $itr = $db->search_named(q{SELECT * FROM mock_basic WHERE id = :id limit %d}, {id => 1},[100]);
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
@@ -50,13 +56,20 @@ subtest 'search_named' => sub {
     is $row->id , 1;
     is $row->name, 'perl';
 
-    is_deeply +$db->profiler->query_log, ['SELECT * FROM mock_basic WHERE id = ? limit 100 :binds 1'];
+    is $query, 'SELECT * FROM mock_basic WHERE id = ? limit 100';
+    is_deeply $bind, [1];
 };
 
 subtest 'search_named with arrayref' => sub {
-    require DBIx::Skin::Profiler;
-    local $db->{profiler} = DBIx::Skin::Profiler->new;
-    $db->profiler->reset;
+
+    my $org_code = Mock::Basic->can('search_by_sql');
+    my ($query, $bind);
+    local *Mock::Basic::search_by_sql = sub {
+        $query = $_[1];
+        $bind  = $_[2];
+        $org_code->(@_);
+    };
+
     my $itr = $db->search_named(q{
         SELECT * FROM mock_basic
         WHERE (
@@ -72,7 +85,14 @@ subtest 'search_named with arrayref' => sub {
     is $row->id , 1;
     is $row->name, 'perl';
 
-    is_deeply +$db->profiler->query_log, ['SELECT * FROM mock_basic WHERE ( id IN ( ?,?,? ) ) limit 100 :binds 1, 2, 3'];
+    is $query, q{
+        SELECT * FROM mock_basic
+        WHERE (
+            id IN ( ?,?,? )
+        )
+        limit 100
+    };
+    is_deeply $bind, [qw/1 2 3/];
 };
 
 done_testing;
