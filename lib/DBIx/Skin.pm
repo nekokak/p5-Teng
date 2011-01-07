@@ -5,9 +5,7 @@ use Carp ();
 use Class::Load ();
 use DBI;
 use DBIx::Skin::Iterator;
-use DBIx::Skin::Row;
 use DBIx::Skin::Schema;
-use DBIx::Skin::Util;
 use DBIx::TransactionManager 1.02;
 use Class::Accessor::Lite
    rw => [ qw(
