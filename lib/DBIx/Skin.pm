@@ -314,14 +314,6 @@ sub _guess_driver_name {
     }
 }
 
-
-#--------------------------------------------------------------------------------
-# schema trigger call
-sub call_schema_trigger {
-    my ($class, $trigger, $schema, $table, $args) = @_;
-    $schema->call_trigger($class, $table, $trigger, $args);
-}
-
 #--------------------------------------------------------------------------------
 sub do {
     my ($self, $sql, $attr, @bind_vars) = @_;
