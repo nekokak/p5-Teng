@@ -6,13 +6,12 @@ BEGIN {
 
 subtest 'basic declare' => sub {
     my $schema = schema {
-        name 'DBIx::Skin::TestSchema';
         table {
             pk 'id';
             name "foo_table";
             columns qw( foo bar baz );
         };
-    };
+    } 'DBIx::Skin::TestSchema';
 
     ok $schema, "schema is defined";
     isa_ok $schema, "DBIx::Skin::Schema";

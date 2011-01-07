@@ -2,6 +2,7 @@ package DBIx::Skin::Schema::Declare;
 use strict;
 use DBIx::Skin::Schema;
 use DBIx::Skin::Schema::Table;
+use Scalar::Util ();
 use base qw(Exporter);
 
 our @EXPORT = qw(
@@ -12,71 +13,86 @@ our @EXPORT = qw(
     columns
     trigger
 );
+our $CURRENT_SCHEMA_CLASS;
 
-sub name($);
-sub table(&);
+sub schema (&;$) { 
+    my ($code, $schema_class) = @_;
+    local $CURRENT_SCHEMA_CLASS = $schema_class;
+    $code->();
+    _current_schema();
+}
+
+sub _current_schema {
+    
+    my $class = $CURRENT_SCHEMA_CLASS || __PACKAGE__;
+    my $schema_class;
+
+    my $i = 1;
+    while ( $schema_class = caller($i++) ) {
+        if ( ! $schema_class->isa( $class ) ) {
+            last;
+        }
+    }
+
+    if (! $schema_class) {
+        Carp::confess( "PANIC: cannot find a package name that is not ISA $class" );
+    }
+
+    no warnings 'once';
+    if (! $schema_class->isa( 'DBIx::Skin::Schema' ) ) {
+        no strict 'refs';
+        push @{ "$schema_class\::ISA" }, 'DBIx::Skin::Schema';
+        my $schema = $schema_class->new();
+        $schema_class->set_default_instance( $schema );
+    }
+
+    $schema_class->instance();
+}
+
+sub trigger($&) {
+    my ($trigger_name, $callback) = @_;
+    my $current = _current_schema();
+    $current->add_trigger( $trigger_name, $callback );
+}
+
 sub pk(@);
 sub columns(@);
-sub schema (&) {
+sub name ($);
+sub table(&) {
     my $code = shift;
+    my $current = _current_schema();
 
     my (
-        %tables,
-        $schema_class,
-        %schema_triggers,
+        $table_name,
+        @table_pk,
+        @table_columns,
+        %table_triggers,
     );
-
-    $schema_class = caller();
-
     no warnings 'redefine';
-    local *name    = sub ($) { $schema_class = shift };
-    local *trigger = sub ($&) {
-        my $list = $schema_triggers{$_[0]};
+    
+    my $schema_class = Scalar::Util::blessed($current);
+    no strict 'refs';
+    no warnings 'once';
+    local *{"$schema_class\::name"}    = sub ($) { $table_name = shift };
+    local *{"$schema_class\::pk"}      = sub (@) { @table_pk = @_ };
+    local *{"$schema_class\::columns"} = sub (@) { @table_columns = @_ };
+    local *{"$schema_class\::trigger"} = sub ($&) {
+        my $list = $table_triggers{$_[0]};
         if (! $list) {
-            $schema_triggers{$_[0]} = $list = [];
+            $table_triggers{$_[0]} = $list = [];
         }
         push @$list, $_[1]
     };
-    local *table   = sub (&) {
-        my $code = shift;
-        my (
-            $table_name,
-            @table_pk,
-            @table_columns,
-            %table_triggers,
-        );
-        local *name    = sub ($) { $table_name = shift };
-        local *pk      = sub (@) { @table_pk = @_ };
-        local *columns = sub (@) { @table_columns = @_ };
-        local *trigger = sub ($&) {
-            my $list = $table_triggers{$_[0]};
-            if (! $list) {
-                $table_triggers{$_[0]} = $list = [];
-            }
-            push @$list, $_[1]
-        };
-        $code->();
+    $code->();
 
-        $tables{$table_name} = DBIx::Skin::Schema::Table->new(
+    $current->add_table(
+        DBIx::Skin::Schema::Table->new(
             columns      => \@table_columns,
             name         => $table_name,
             primary_keys => \@table_pk,
             triggers     => \%table_triggers,
-        ); 
-    };
-
-    $code->();
-
-    if (! $schema_class->isa( 'DBIx::Skin::Schema' ) ) {
-        no strict 'refs';
-        push @{ "$schema_class\::ISA" }, 'DBIx::Skin::Schema';
-    }
-    my $schema = $schema_class->new(
-        tables => \%tables,
-    );
-    $schema_class->set_default_instance( $schema );
-    
-    return $schema;
+        )
+    ); 
 }
 
 1;

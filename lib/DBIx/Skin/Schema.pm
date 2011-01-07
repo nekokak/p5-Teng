@@ -34,6 +34,11 @@ sub instance {
     ${"$class\::DEFAULT_INSTANCE"};
 }
 
+sub add_table {
+    my ($self, $table) = @_;
+    $self->tables->{$table->name} = $table;
+}
+
 sub get_table {
     my ($self, $name) = @_;
     $self->tables->{$name};
