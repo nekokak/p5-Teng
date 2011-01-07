@@ -23,12 +23,14 @@ sub new {
 sub set_default_instance {
     my ($class, $instance) = @_;
     no strict 'refs';
+    no warnings 'once';
     ${"$class\::DEFAULT_INSTANCE"} = $instance;
 }
 
 sub instance {
     my $class = shift;
     no strict 'refs';
+    no warnings 'once';
     ${"$class\::DEFAULT_INSTANCE"};
 }
 
