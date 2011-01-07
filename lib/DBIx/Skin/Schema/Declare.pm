@@ -12,6 +12,7 @@ our @EXPORT = qw(
     pk
     columns
     trigger
+    row_class
 );
 our $CURRENT_SCHEMA_CLASS;
 
@@ -58,6 +59,7 @@ sub trigger($&) {
 sub pk(@);
 sub columns(@);
 sub name ($);
+sub row_class ($);
 sub table(&) {
     my $code = shift;
     my $current = _current_schema();
@@ -67,15 +69,17 @@ sub table(&) {
         @table_pk,
         @table_columns,
         %table_triggers,
+        $row_class,
     );
     no warnings 'redefine';
     
     my $schema_class = Scalar::Util::blessed($current);
     no strict 'refs';
     no warnings 'once';
-    local *{"$schema_class\::name"}    = sub ($) { $table_name = shift };
-    local *{"$schema_class\::pk"}      = sub (@) { @table_pk = @_ };
-    local *{"$schema_class\::columns"} = sub (@) { @table_columns = @_ };
+    local *{"$schema_class\::name"}      = sub ($) { $table_name = shift };
+    local *{"$schema_class\::pk"}        = sub (@) { @table_pk = @_ };
+    local *{"$schema_class\::columns"}   = sub (@) { @table_columns = @_ };
+    local *{"$schema_class\::row_class"} = sub (@) { $row_class = shift };
     local *{"$schema_class\::trigger"} = sub ($&) {
         my $list = $table_triggers{$_[0]};
         if (! $list) {
@@ -91,6 +95,7 @@ sub table(&) {
             name         => $table_name,
             primary_keys => \@table_pk,
             triggers     => \%table_triggers,
+            row_class    => $row_class,
         )
     ); 
 }
