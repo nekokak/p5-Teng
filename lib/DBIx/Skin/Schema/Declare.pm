@@ -28,6 +28,7 @@ sub schema (&) {
 
     $schema_class = caller();
 
+    no warnings 'redefine';
     local *name    = sub ($) { $schema_class = shift };
     local *trigger = sub ($&) {
         my $list = $schema_triggers{$_[0]};
