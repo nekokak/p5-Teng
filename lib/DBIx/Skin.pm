@@ -4,6 +4,7 @@ use warnings;
 use Carp ();
 use Class::Load ();
 use DBI;
+use DBIx::Skin::Row;
 use DBIx::Skin::Iterator;
 use DBIx::Skin::Schema;
 use DBIx::TransactionManager 1.02;
