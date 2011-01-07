@@ -8,7 +8,6 @@ subtest 'basic' => sub {
     my $db = Mock::Basic->new(
         connect_info => [ "dbi:SQLite::memory:" ],
     );
-    $db->ensure_connected;
 
     ok $db->dbh, "dbh is now defined";
     t::Utils::prepare_db( "Mock::Basic", $db->dbh );
