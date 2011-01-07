@@ -1,26 +1,29 @@
 use t::Utils;
 use Mock::Basic;
 use Test::More;
+use MyGuard;
 
-Mock::Basic->reconnect(
+unlink './db1.db' if -f './db1.db';
+my $db = Mock::Basic->new(
     {
         dsn => 'dbi:SQLite:./db1.db',
         username => '',
         password => '',
     }
 );
-Mock::Basic->setup_test_db;
+$db->setup_test_db;
+my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
 subtest 'db1.db ok' => sub {
-    isa_ok +Mock::Basic->dbh, 'DBI::db';
-    Mock::Basic->insert('mock_basic',
+    isa_ok +$db->dbh, 'DBI::db';
+    $db->insert('mock_basic',
         {
             id   => 1,
             name => 'perl',
         }
     );
     
-    my $itr = Mock::Basic->search('mock_basic',{id => 1});
+    my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
@@ -29,25 +32,26 @@ subtest 'db1.db ok' => sub {
     is $row->name, 'perl';
 };
 
-Mock::Basic->reconnect(
+$db->reconnect(
     {
         dsn => 'dbi:SQLite:./db2.db',
         username => '',
         password => '',
     }
 );
-Mock::Basic->setup_test_db;
+my $guard2 = MyGuard->new(sub { unlink 'db2.db' });
+$db->setup_test_db;
 
 subtest 'db2.db ok' => sub {
-    isa_ok +Mock::Basic->dbh, 'DBI::db';
-    Mock::Basic->insert('mock_basic',
+    isa_ok +$db->dbh, 'DBI::db';
+    $db->insert('mock_basic',
         {
             id   => 1,
             name => 'ruby',
         }
     );
 
-    my $itr = Mock::Basic->search('mock_basic',{id => 1});
+    my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
@@ -56,7 +60,7 @@ subtest 'db2.db ok' => sub {
     is $row->name, 'ruby';
 };
 
-Mock::Basic->reconnect(
+$db->reconnect(
     {
         dsn => 'dbi:SQLite:./db1.db',
         username => '',
@@ -65,7 +69,7 @@ Mock::Basic->reconnect(
 );
 
 subtest 'db1.db ok' => sub {
-    my $itr = Mock::Basic->search('mock_basic',{id => 1});
+    my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
@@ -74,10 +78,10 @@ subtest 'db1.db ok' => sub {
     is $row->name, 'perl';
 };
 
-Mock::Basic->reconnect();
+$db->reconnect();
 
 subtest 'db1.db ok' => sub {
-    my $itr = Mock::Basic->search('mock_basic',{id => 1});
+    my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
@@ -99,6 +103,5 @@ subtest '(re)connect fail' => sub {
     ok $@;
 };
 
-unlink qw{./db1.db db2.db};
 done_testing;
 

@@ -11,11 +11,6 @@ use Test::More;
     use t::Utils;
     use DBIx::Skin
         profiler => Mock::CustomProfiler::Profiler->new,
-        connect_info => +{
-            dsn => 'dbi:SQLite:',
-            username => '',
-            password => '',
-        }
     ;
 
     sub setup_test_db {
@@ -40,10 +35,15 @@ use Test::More;
     };
 }
 
-isa_ok(Mock::CustomProfiler->profiler, "Mock::CustomProfiler::Profiler", "it should be able to replace profiler class");
-Mock::CustomProfiler->_attributes->{profile} = 1;
-Mock::CustomProfiler->setup_test_db;
-Mock::CustomProfiler->search('mock_custom_profiler', { });
-ok(Mock::CustomProfiler->profiler->query_log, 'query log recorded');
+my $db = Mock::CustomProfiler->new({
+    dsn => 'dbi:SQLite:',
+    username => '',
+    password => '',
+});
+isa_ok($db->profiler, "Mock::CustomProfiler::Profiler", "it should be able to replace profiler class");
+$db->{profile} = 1;
+$db->setup_test_db;
+$db->search('mock_custom_profiler', { });
+ok($db->profiler->query_log, 'query log recorded');
 
 done_testing();

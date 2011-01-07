@@ -3,15 +3,15 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
-Mock::Basic->insert('mock_basic',{
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
+$db->insert('mock_basic',{
     id   => 1,
     name => 'perl',
 });
 
 subtest 'update/delete error: no table info' => sub {
-    my $row = Mock::Basic->search_by_sql(q{SELECT name FROM mock_basic})->first;
+    my $row = $db->search_by_sql(q{SELECT name FROM mock_basic})->first;
 
     isa_ok $row, 'DBIx::Skin::Row';
 
@@ -29,7 +29,7 @@ subtest 'update/delete error: no table info' => sub {
 };
 
 subtest 'update/delete error: table name typo' => sub {
-    my $row = Mock::Basic->single('mock_basic',{id => 1});
+    my $row = $db->single('mock_basic',{id => 1});
 
     isa_ok $row, 'DBIx::Skin::Row';
 
@@ -47,9 +47,9 @@ subtest 'update/delete error: table name typo' => sub {
 };
 
 subtest 'update/delete error: table have no pk' => sub {
-    Mock::Basic->schema->schema_info->{mock_basic}->{pk} = undef;
+    $db->schema->schema_info->{mock_basic}->{pk} = undef;
 
-    my $row = Mock::Basic->single('mock_basic',{id => 1});
+    my $row = $db->single('mock_basic',{id => 1});
     isa_ok $row, 'DBIx::Skin::Row';
 
     eval {
@@ -64,11 +64,11 @@ subtest 'update/delete error: table have no pk' => sub {
     ok $@;
     like $@, qr/mock_basic have no pk./;
 
-    Mock::Basic->schema->schema_info->{mock_basic}->{pk} = 'id';
+    $db->schema->schema_info->{mock_basic}->{pk} = 'id';
 };
 
 subtest 'update/delete error: select column have no pk.' => sub {
-    my $row = Mock::Basic->resultset(
+    my $row = $db->resultset(
         {
             select => [qw/name/],
             from   => [qw/mock_basic/],

@@ -3,11 +3,11 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'insert mode' => sub {
-    my ($cols, $column_list) = Mock::Basic->_set_columns(+{id => 1, name => 'nekokak'}, 1);
+    my ($cols, $column_list) = $db->_set_columns(+{id => 1, name => 'nekokak'}, 1);
 
     is_deeply $cols, +['?','?'];
     is_deeply $column_list, [
@@ -24,7 +24,7 @@ subtest 'insert mode' => sub {
 };
 
 subtest 'insert mode / scalarref' => sub {
-    my ($cols, $column_list) = Mock::Basic->_set_columns(+{id => 1, name => \'NOW ()'}, 1);
+    my ($cols, $column_list) = $db->_set_columns(+{id => 1, name => \'NOW ()'}, 1);
 
     is_deeply $cols, +[
         'NOW ()',
@@ -40,7 +40,7 @@ subtest 'insert mode / scalarref' => sub {
 };
 
 subtest 'update mode' => sub {
-    my ($cols, $column_list) = Mock::Basic->_set_columns(+{id => 1, name => 'nekokak'}, 0);
+    my ($cols, $column_list) = $db->_set_columns(+{id => 1, name => 'nekokak'}, 0);
 
     is_deeply $cols, +[
         '`name` = ?',
@@ -60,7 +60,7 @@ subtest 'update mode' => sub {
 };
 
 subtest 'update mode / scalarref' => sub {
-    my ($cols, $column_list) = Mock::Basic->_set_columns(+{id => 1, name => \'NOW()'}, 0);
+    my ($cols, $column_list) = $db->_set_columns(+{id => 1, name => \'NOW()'}, 0);
 
     is_deeply $cols, +[
         '`name` = NOW()',

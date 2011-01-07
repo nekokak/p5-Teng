@@ -3,11 +3,11 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'insert mock_basic data/ insert method' => sub {
-    my $row = Mock::Basic->insert('mock_basic',{
+    my $row = $db->insert('mock_basic',{
         id   => 1,
         name => 'perl',
     });
@@ -16,7 +16,7 @@ subtest 'insert mock_basic data/ insert method' => sub {
 };
 
 subtest 'insert mock_basic data/ create method' => sub {
-    my $row = Mock::Basic->create('mock_basic',{
+    my $row = $db->create('mock_basic',{
         id   => 2,
         name => 'ruby',
     });

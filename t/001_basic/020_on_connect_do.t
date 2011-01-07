@@ -4,13 +4,7 @@ use Test::More;
 {
     package Mock::BasicOnConnectDo;
     our $CONNECTION_COUNTER;
-    use DBIx::Skin connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-        connect_options => { AutoCommit => 1 },
-        on_connect_do => sub { $CONNECTION_COUNTER++ }
-    };
+    use DBIx::Skin;
 
     sub setup_test_db {
         shift->do(q{
@@ -43,6 +37,7 @@ subtest 'global level on_connect_do / coderef' => sub {
             dsn => 'dbi:SQLite:./t/main.db',
             username => '',
             password => '',
+            on_connect_do => sub { $Mock::BasicOnConnectDo::CONNECTION_COUNTER++ }
         }
     );
 
@@ -75,11 +70,17 @@ subtest 'instance level on_connect_do / coderef' => sub {
 
 subtest 'instance level on_connect_do / scalar' => sub {
     require DBIx::Skin::Profiler;
-    local Mock::BasicOnConnectDo->_attributes->{profiler} = DBIx::Skin::Profiler->new;
-    my $db = Mock::BasicOnConnectDo->new;
+    local Mock::BasicOnConnectDo->_new_attributes->{profiler} = DBIx::Skin::Profiler->new;
+    my $db = Mock::BasicOnConnectDo->new(
+        +{
+            dsn => 'dbi:SQLite:',
+            username => '',
+            password => '',
+            on_connect_do => 'select * from sqlite_master',
+        }
+    );
 
-    $db->_attributes->{on_connect_do} = 'select * from sqlite_master';
-    $db->_attributes->{profile} = 1;
+    $db->{profile} = 1;
 
     $db->connect;
     is_deeply $db->profiler->query_log, [
@@ -97,11 +98,15 @@ subtest 'instance level on_connect_do / scalar' => sub {
 
 subtest 'instance level on_connect_do / array' => sub {
     require DBIx::Skin::Profiler;
-    local Mock::BasicOnConnectDo->_attributes->{profiler} = DBIx::Skin::Profiler->new;
-    my $db = Mock::BasicOnConnectDo->new;
+    local Mock::BasicOnConnectDo->_new_attributes->{profiler} = DBIx::Skin::Profiler->new;
+    my $db = Mock::BasicOnConnectDo->new({
+        dsn => 'dbi:SQLite:',
+        username => '',
+        password => '',
+        on_connect_do => ['select * from sqlite_master', 'select * from sqlite_master'],
+    });
 
-    $db->_attributes->{on_connect_do} = ['select * from sqlite_master', 'select * from sqlite_master'];
-    $db->_attributes->{profile} = 1;
+    $db->{profile} = 1;
 
     $db->connect; 
     is_deeply $db->profiler->query_log, [

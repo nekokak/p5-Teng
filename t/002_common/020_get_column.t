@@ -3,11 +3,11 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'get_column' => sub {
-    my $row = Mock::Basic->insert('mock_basic',{
+    my $row = $db->insert('mock_basic',{
         id   => 1,
         name => 'perl',
     });
@@ -29,7 +29,7 @@ subtest 'get_column' => sub {
 };
 
 subtest 'get_column' => sub {
-    my $row = Mock::Basic->search_by_sql(
+    my $row = $db->search_by_sql(
         q{SELECT id FROM mock_basic LIMIT 1}
     )->first;
     isa_ok $row, 'DBIx::Skin::Row';

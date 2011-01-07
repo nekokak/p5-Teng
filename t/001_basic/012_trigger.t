@@ -3,13 +3,13 @@ use Mock::Trigger;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Trigger->set_dbh($dbh);
-Mock::Trigger->setup_test_db;
+my $db = Mock::Trigger->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'schema info' => sub {
-    is +Mock::Trigger->schema, 'Mock::Trigger::Schema';
+    is +$db->schema, 'Mock::Trigger::Schema';
 
-    my $info = Mock::Trigger->schema->schema_info;
+    my $info = $db->schema->schema_info;
     is_deeply $info,{
         mock_trigger_pre => {
             pk      => 'id',
@@ -47,31 +47,31 @@ subtest 'schema info' => sub {
             row_class => 'Mock::Trigger::Row::MockTriggerPostDelete',
         },
     };
-    isa_ok +Mock::Trigger->dbh, 'DBI::db';
+    isa_ok +$db->dbh, 'DBI::db';
 };
 
 subtest 'pre_insert/post_insert' => sub {
-    my $row = Mock::Trigger->insert('mock_trigger_pre',{
+    my $row = $db->insert('mock_trigger_pre',{
         id   => 1,
     });
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'pre_insert_s';
 
-    my $p_row = Mock::Trigger->single('mock_trigger_post',{id => 1});
+    my $p_row = $db->single('mock_trigger_post',{id => 1});
     isa_ok $p_row, 'DBIx::Skin::Row';
     is $p_row->name, 'post_insert';
 };
 
 subtest 'pre_update/post_update' => sub {
-    ok +Mock::Trigger->update('mock_trigger_pre',{});
+    ok +$db->update('mock_trigger_pre',{});
 
-    my $p_row = Mock::Trigger->single('mock_trigger_post',{id => 1});
+    my $p_row = $db->single('mock_trigger_post',{id => 1});
     isa_ok $p_row, 'DBIx::Skin::Row';
     is $p_row->name, 'post_update';
 };
 
 subtest "pre_update affects row object's own column" => sub {
-    my $row = Mock::Trigger->insert('mock_trigger_pre',{
+    my $row = $db->insert('mock_trigger_pre',{
             id   => 2,
             name => 'pre',
         });
@@ -81,11 +81,11 @@ subtest "pre_update affects row object's own column" => sub {
 };
 
 subtest 'pre_delete/post_delete' => sub {
-    Mock::Trigger->delete('mock_trigger_pre',{});
+    $db->delete('mock_trigger_pre',{});
 
-    is +Mock::Trigger->count('mock_trigger_post', 'id',{}), 0;
+    is +$db->count('mock_trigger_post', 'id',{}), 0;
 
-    my $row = Mock::Trigger->single('mock_trigger_post_delete',{id => 1});
+    my $row = $db->single('mock_trigger_post_delete',{id => 1});
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'post_delete';
 };

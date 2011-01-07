@@ -3,26 +3,27 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
-Mock::Basic->insert('mock_basic',{
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
+
+$db->insert('mock_basic',{
     id   => 1,
     name => 'perl',
 });
-Mock::Basic->insert('mock_basic',{
+$db->insert('mock_basic',{
     id   => 2,
     name => 'ruby',
 });
 
 subtest 'all' => sub {
-    my $itr = Mock::Basic->search("mock_basic");
+    my $itr = $db->search("mock_basic");
     my $rows = $itr->all;
     is ref $rows, 'ARRAY';
     is $rows->[0]->id, 1;
 };
 
 subtest 'iterator with cache' => sub {
-    my $itr = Mock::Basic->search("mock_basic");
+    my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
     is $itr->position, 0, 'initial position';
 
@@ -48,7 +49,7 @@ subtest 'iterator with cache' => sub {
 };
 
 subtest 'iterator with no cache all/count' => sub {
-    my $itr = Mock::Basic->search("mock_basic");
+    my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
     $itr->cache(0);
 
@@ -61,7 +62,7 @@ subtest 'iterator with no cache all/count' => sub {
 };
 
 subtest 'iterator with no cache' => sub {
-    my $itr = Mock::Basic->search("mock_basic");
+    my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
     is $itr->position, 0, 'initial position';
     $itr->cache(0);
@@ -81,7 +82,7 @@ subtest 'iterator with no cache' => sub {
 };
 
 subtest 'iterator with suppress_objects on to off' => sub {
-    my $itr = Mock::Basic->search("mock_basic");
+    my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
     $itr->suppress_objects(1);
 
@@ -105,8 +106,8 @@ subtest 'iterator with suppress_objects on to off' => sub {
 };
 
 subtest 'iterator with suppress_row_objects on to off' => sub {
-    Mock::Basic->suppress_row_objects(1);
-    my $itr = Mock::Basic->search("mock_basic");
+    $db->suppress_row_objects(1);
+    my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->next;
@@ -117,8 +118,8 @@ subtest 'iterator with suppress_row_objects on to off' => sub {
         name      => 'perl',
     };
 
-    Mock::Basic->suppress_row_objects(0);
-    $itr = Mock::Basic->search("mock_basic");
+    $db->suppress_row_objects(0);
+    $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
     $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
@@ -131,8 +132,8 @@ subtest 'iterator with suppress_row_objects on to off' => sub {
 };
 
 subtest 'iterator with suppress_row_objects on with cache' => sub {
-    Mock::Basic->suppress_row_objects(1);
-    my $itr = Mock::Basic->search("mock_basic");
+    $db->suppress_row_objects(1);
+    my $itr = $db->search("mock_basic");
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->next;
@@ -162,7 +163,7 @@ subtest 'iterator with suppress_row_objects on with cache' => sub {
     };
 };
 
-Mock::Basic->suppress_row_objects(0);
+$db->suppress_row_objects(0);
 
 done_testing;
 

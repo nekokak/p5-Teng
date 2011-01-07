@@ -3,8 +3,8 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 {
     my $hash = +{
@@ -12,7 +12,7 @@ Mock::Basic->setup_test_db;
         name => 'perl',
     };
 
-    my $row = Mock::Basic->hash_to_row('mock_basic', $hash);
+    my $row = $db->hash_to_row('mock_basic', $hash);
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 1;
     is $row->name, 'perl';
@@ -21,7 +21,7 @@ Mock::Basic->setup_test_db;
 }
 
 {
-    my $row = Mock::Basic->single('mock_basic',{id => 1});
+    my $row = $db->single('mock_basic',{id => 1});
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->id, 1;
     is $row->name, 'perl';

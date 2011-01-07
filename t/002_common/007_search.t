@@ -3,24 +3,24 @@ use Mock::Basic;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
-Mock::Basic->insert('mock_basic',{
+$db->insert('mock_basic',{
     id   => 1,
     name => 'perl',
 });
-Mock::Basic->insert('mock_basic',{
+$db->insert('mock_basic',{
     id   => 2,
     name => 'python',
 });
-Mock::Basic->insert('mock_basic',{
+$db->insert('mock_basic',{
     id   => 3,
     name => 'java',
 });
 
 subtest 'search' => sub {
-    my $itr = Mock::Basic->search('mock_basic',{id => 1});
+    my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
     my $row = $itr->first;
@@ -31,7 +31,7 @@ subtest 'search' => sub {
 };
 
 subtest 'search without where' => sub {
-    my $itr = Mock::Basic->search('mock_basic');
+    my $itr = $db->search('mock_basic');
 
     my $row = $itr->next;
     isa_ok $row, 'DBIx::Skin::Row';
@@ -48,7 +48,7 @@ subtest 'search without where' => sub {
 };
 
 subtest 'search with order_by (originally)' => sub {
-    my $itr = Mock::Basic->search('mock_basic', {}, { order_by => [ { id => 'desc' } ] });
+    my $itr = $db->search('mock_basic', {}, { order_by => [ { id => 'desc' } ] });
     isa_ok $itr, 'DBIx::Skin::Iterator';
     my $row = $itr->first;
     isa_ok $row, 'DBIx::Skin::Row';
@@ -57,7 +57,7 @@ subtest 'search with order_by (originally)' => sub {
 };
 
 subtest 'search with order_by (as hashref)' => sub {
-    my $itr = Mock::Basic->search('mock_basic', {}, { order_by => { id => 'desc' } });
+    my $itr = $db->search('mock_basic', {}, { order_by => { id => 'desc' } });
     isa_ok $itr, 'DBIx::Skin::Iterator';
     my $row = $itr->first;
     isa_ok $row, 'DBIx::Skin::Row';
@@ -66,7 +66,7 @@ subtest 'search with order_by (as hashref)' => sub {
 };
 
 subtest 'search with order_by (as string)' => sub {
-    my $itr = Mock::Basic->search('mock_basic', {}, { order_by => 'name' });
+    my $itr = $db->search('mock_basic', {}, { order_by => 'name' });
     isa_ok $itr, 'DBIx::Skin::Iterator';
     my $row = $itr->first;
     isa_ok $row, 'DBIx::Skin::Row';
@@ -76,7 +76,7 @@ subtest 'search with order_by (as string)' => sub {
 
 subtest 'search with non-exist table' => sub {
     eval {
-        my $itr = Mock::Basic->search('must_not_exist', {}, { order_by => 'name' });
+        my $itr = $db->search('must_not_exist', {}, { order_by => 'name' });
     };
     ok $@;
     like $@, qr/schema_info does not exist for table/;

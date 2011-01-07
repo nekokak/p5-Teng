@@ -105,11 +105,6 @@ sub suppress_objects {
     $self->{suppress_objects} = $mode;
 }
 
-sub no_cache {
-    Carp::carp( "no_cache method has been deprecated. Please use cache method instead" );
-    $_[0]->{_cache} = 0;
-}
-
 sub cache {
     my ($self, $mode) = @_;
     return $self->{_cache} unless defined $mode;
@@ -172,8 +167,6 @@ this method reset iterator position number.
 =item $itr->count
 
 The number of lines that iterator has are returned. 
-
-=item $itr->no_cache # has been deprecated
 
 =item $itr->cache($mode)
 

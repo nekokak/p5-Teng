@@ -189,6 +189,7 @@ use DBIx::Skin::Util;
 use DBIx::TransactionManager 1.02;
 use Carp ();
 use Storable ();
+use Class::Load ();
 
 sub import {
     my ($class, %opt) = @_;
@@ -196,20 +197,10 @@ sub import {
     return if $class ne 'DBIx::Skin';
 
     my $caller = caller;
-    my $connect_info = $opt{connect_info};
-    if (! $connect_info ) {
-        if ( $connect_info = $opt{setup} ) {
-            Carp::carp( "use DBIx::Skin setup => { ... } has been deprecated. Please use connect_info instead" );
-        } else {
-            $connect_info = {};
-        }
-    }
 
     my $profiler = $opt{profiler};
     if (! $profiler ) {
-        if ( $profiler = $connect_info->{profiler} ) {
-            Carp::carp( "use DBIx::Skin connect_info => { profiler => ... } has been deprecated. Please use use DBIx::Skin profiler => ... instead" );
-        } elsif ($ENV{SKINNY_TRACE}) {
+        if ($ENV{SKINNY_TRACE}) {
             require DBIx::Skin::Profiler::Trace;
             $profiler = DBIx::Skin::Profiler::Trace->new;
         } elsif ($ENV{SKINNY_PROFILE}) {
@@ -219,124 +210,74 @@ sub import {
     }
                 
     my $schema = $opt{schema} || "$caller\::Schema";
+    Class::Load::try_load_class($schema); # XXX Why is it optional? -- tokuhirom@20110107
 
-    my $driver_name = _guess_driver_name($connect_info);
     my $_attributes = +{
-        check_schema    => defined $connect_info->{check_schema} ? $connect_info->{check_schema} : 1,
-        dsn             => $connect_info->{dsn},
-        username        => $connect_info->{username},
-        password        => $connect_info->{password},
-        connect_options => $connect_info->{connect_options},
-        on_connect_do   => $connect_info->{on_connect_do},
-        dbh             => $connect_info->{dbh}||undef,
-        driver_name     => $driver_name,
         schema          => $schema,
         profiler        => $profiler,
-        klass           => $caller,
-        _common_row_class    => '',
-        active_transaction   => 0,
-        suppress_row_objects => 0,
-        last_pid => $$,
     };
 
     {
         no strict 'refs';
         push @{"${caller}::ISA"}, $class;
-        *{"$caller\::_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes };
+        *{"$caller\::_new_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes }; # TODO: rename or remove? -- tokuhirom@20110107
     }
-    $caller->_setup_dbd;
-
-    DBIx::Skin::Util::load_class($schema);
 
     strict->import;
     warnings->import;
 }
 
 sub new {
-    my ($class, $connection_info) = @_;
-    my $attr = $class->_attributes;
+    my $class = shift;
+    my %args = @_==1 ? %{$_[0]} : @_;
 
-    $attr->{last_pid} = $$;
+    my $attr = $class->_new_attributes;
 
-    my %unstorable_attribute;
-    for my $key ( qw/dbd profiler dbh connect_options on_connect_do / ) {
-        $unstorable_attribute{$key} = delete $attr->{$key};
-    }
+    my $self = bless +{
+        profiler             => $attr->{profiler},
+        schema               => $attr->{schema},
+        suppress_row_objects => 0,
+        last_pid             => $$,
+        _common_row_class    => undef,
+    }, $class;
 
-    my $self = bless Storable::dclone($attr), $class;
-
-    # restore.
-    for my $key ( keys %unstorable_attribute ) {
-        $attr->{$key} = $unstorable_attribute{$key};
-    }
-
-    if ($connection_info) {
-
-        $self->_attributes->{profiler} = $unstorable_attribute{profiler};
-
-        if ( $connection_info->{on_connect_do} ) {
-            $self->_attributes->{on_connect_do} = $connection_info->{on_connect_do};
-        } else {
-            $self->_attributes->{on_connect_do} = $unstorable_attribute{on_connect_do};
-        }
-
-        if ($connection_info->{dbh}) {
-            $self->connect_info($connection_info);
-            $self->set_dbh($connection_info->{dbh});
-        } else {
-            $self->connect_info($connection_info);
-            $self->reconnect;
-        }
-
+    $self->connect_info(\%args);
+    if ($args{dbh}) {
+        $self->{dbh} = $args{dbh};
+        $self->_setup_dbd({dbh => $args{dbh}});
     } else {
-        for my $key ( keys %unstorable_attribute ) {
-            $self->_attributes->{$key} = $unstorable_attribute{$key};
-        }
+        $self->connect();
     }
 
     return $self;
 }
 
-my $schema_checked = 0;
-sub schema { 
-    my $attribute = $_[0]->_attributes;
-    my $schema = $attribute->{schema};
-    if ( $attribute->{check_schema} && !$schema_checked ) {
-        {
-            no strict 'refs'; ## no critic..
-            unless ( defined *{"@{[ $schema ]}::schema_info"} ) {
-                die "Cannot use schema $schema ( is it really loaded? )";
-            }
-        };
-        $schema_checked=1;
-    }
-    return $schema;
-}
+sub schema { $_[0]->{schema} }
 
-sub profiler {
-    my ($class, $sql, $bind) = @_;
-    my $attr = $class->_attributes;
-    if ($attr->{profiler} && $sql) {
-        $attr->{profiler}->record_query($sql, $bind);
+sub profiler { $_[0]->{profiler} }
+
+sub _profiler_record_query {
+    my ($self, $sql, $bind) = @_;
+    if ($self->{profiler}) {
+        $self->{profiler}->record_query($sql, $bind);
     }
-    return $attr->{profiler};
 }
 
 sub suppress_row_objects {
-    my ($class, $mode) = @_;
-    return $class->_attributes->{suppress_row_objects} unless defined $mode;
-    $class->_attributes->{suppress_row_objects} = $mode;
+    my ($self, $mode) = @_;
+    return $self->{suppress_row_objects} unless defined $mode;
+    $self->{suppress_row_objects} = $mode;
 }
 
 #--------------------------------------------------------------------------------
 # for transaction
 
 sub txn_manager  {
-    my $class = shift;
+    my $self = shift;
 
-    $class->_attributes->{txn_manager} ||= do {
-        my $dbh = $class->dbh;
-        unless ($dbh) {
+    $self->{txn_manager} ||= do {
+        my $dbh = $self->dbh;
+        unless ($dbh) { # XXX this assertion is maybe trash. -- tokuhirom@20110107
             Carp::croak("dbh is not found.");
         }
         DBIx::TransactionManager->new($dbh);
@@ -352,89 +293,63 @@ sub txn_end      { $_[0]->txn_manager->txn_end      }
 #--------------------------------------------------------------------------------
 # db handling
 sub connect_info {
-    my ($class, $connect_info) = @_;
+    my ($self, $connect_info) = @_;
 
-    my $attr = $class->_attributes;
-
-    if ($connect_info) {
-        $attr->{dsn} = $connect_info->{dsn};
-        $attr->{username} = $connect_info->{username};
-        $attr->{password} = $connect_info->{password};
-        $attr->{connect_options} = $connect_info->{connect_options};
-
-        $class->_setup_dbd($connect_info);
-        return;
+    if (@_==2) {
+        # setter
+        $_[0]->{connect_info} = $_[1];
+        $_[0]->_setup_dbd($_[1]);
     } else {
-        return +{
-            dsn             => $attr->{dsn},
-            username        => $attr->{username},
-            password        => $attr->{password},
-            connect_options => $attr->{connect_options},
-        };
+        return $_[0]->{connect_info};
     }
 }
 
 sub connect {
-    my $class = shift;
+    my $self = shift;
 
-    $class->connect_info(@_) if scalar @_ >= 1;
+    $self->connect_info(@_) if scalar @_ >= 1;
+    my $connect_info = $self->connect_info;
 
-    my $attr = $class->_attributes;
-    my $do_connected=0;
-    if ( !$attr->{dbh} ) {
-        $do_connected=1;
+    if (!$self->{dbh} ) {
+        $self->{dbh} = DBI->connect(
+            $connect_info->{dsn},
+            $connect_info->{username},
+            $connect_info->{password},
+            { RaiseError => 1, PrintError => 0, AutoCommit => 1, %{ $connect_info->{connect_options} || {} } }
+        ) or Carp::croak("Connection error: " . $DBI::errstr);
+
+        if ( my $on_connect_do = $connect_info->{on_connect_do} ) {
+            if (not ref($on_connect_do)) {
+                $self->do($on_connect_do);
+            } elsif (ref($on_connect_do) eq 'CODE') {
+                $on_connect_do->($self);
+            } elsif (ref($on_connect_do) eq 'ARRAY') {
+                $self->do($_) for @$on_connect_do;
+            } else {
+                Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
+            }
+        }
     }
-    $attr->{dbh} ||= DBI->connect(
-        $attr->{dsn},
-        $attr->{username},
-        $attr->{password},
-        { RaiseError => 1, PrintError => 0, AutoCommit => 1, %{ $attr->{connect_options} || {} } }
-    ) or Carp::croak("Connection error: " . $DBI::errstr);
 
-    if ( $do_connected && $attr->{on_connect_do} ) {
-        $class->do_on_connect;
-    }
-
-    $attr->{dbh};
+    $self->{dbh};
 }
 
 sub reconnect {
-    my $class = shift;
-    $class->disconnect();
-    $class->connect(@_);
-}
-
-sub do_on_connect {
-    my $class = shift;
-
-    my $on_connect_do = $class->_attributes->{on_connect_do};
-    if (not ref($on_connect_do)) {
-        $class->do($on_connect_do);
-    } elsif (ref($on_connect_do) eq 'CODE') {
-        $on_connect_do->($class);
-    } elsif (ref($on_connect_do) eq 'ARRAY') {
-        $class->do($_) for @$on_connect_do;
-    } else {
-        Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
-    }
+    my $self = shift;
+    $self->disconnect();
+    $self->connect(@_);
 }
 
 sub disconnect {
-    my $class = shift;
-    $class->_attributes->{dbh} = undef;
-}
-
-sub set_dbh {
-    my ($class, $dbh) = @_;
-    $class->_attributes->{dbh} = $dbh;
-    $class->_setup_dbd({dbh => $dbh});
+    my $self = shift;
+    $self->{dbh} = undef;
 }
 
 sub _setup_dbd {
-    my ($class, $args) = @_;
-    my $driver_name = $args ? _guess_driver_name($args) : $class->_attributes->{driver_name};
-    $class->_attributes->{driver_name} = $driver_name;
-    $class->_attributes->{dbd} = $driver_name ? DBIx::Skin::DBD->new($driver_name) : undef;
+    my ($self, $args) = @_;
+    my $driver_name = $args ? _guess_driver_name($args) : $self->{driver_name};
+    $self->{driver_name} = $driver_name;
+    $self->{dbd} = $driver_name ? DBIx::Skin::DBD->new($driver_name) : undef;
 }
 
 sub _guess_driver_name {
@@ -448,23 +363,25 @@ sub _guess_driver_name {
 }
 
 sub dbd {
-    $_[0]->_attributes->{dbd} or do {
+    Carp::croak("$_[0]->dbh is a instance method.") unless ref $_[0]; # this is a temoprary croak to refactoring. I should remove this method later. -- tokuhirom
+
+    $_[0]->{dbd} or do {
         require Data::Dumper;
-        Carp::croak("Attribute 'dbd' is not defined. Either we failed to connect, or the connection has gone away. Current attribute dump: @{[ Data::Dumper::Dumper($_[0]->_attributes) ]}");
+        Carp::croak("Attribute 'dbd' is not defined. Either we failed to connect, or the connection has gone away.");
     };
 }
 
 sub dbh {
-    my $class = shift;
+    my $self = shift;
 
-    my $dbh = $class->connect;
-    if ( $class->_attributes->{last_pid} != $$ ) {
-        $class->_attributes->{last_pid} = $$;
+    my $dbh = $self->connect;
+    if ( $self->{last_pid} != $$ ) {
+        $self->{last_pid} = $$;
         $dbh->{InactiveDestroy} = 1;
-        $dbh = $class->reconnect;
+        $dbh = $self->reconnect;
     }
     unless ($dbh && $dbh->FETCH('Active') && $dbh->ping) {
-        $dbh = $class->reconnect;
+        $dbh = $self->reconnect;
     }
     $dbh;
 }
@@ -478,55 +395,55 @@ sub call_schema_trigger {
 
 #--------------------------------------------------------------------------------
 sub do {
-    my ($class, $sql, $attr, @bind_vars) = @_;
-    $class->profiler($sql, @bind_vars ? \@bind_vars : undef);
+    my ($self, $sql, $attr, @bind_vars) = @_;
+    $self->_profiler_record_query($sql, @bind_vars ? \@bind_vars : undef);
     my $ret;
-    eval { $ret = $class->dbh->do($sql, $attr, @bind_vars) };
+    eval { $ret = $self->dbh->do($sql, $attr, @bind_vars) };
     if ($@) {
-        $class->_stack_trace('', $sql, @bind_vars ? \@bind_vars : '', $@);
+        $self->_stack_trace('', $sql, @bind_vars ? \@bind_vars : '', $@);
     }
     $ret;
 }
 
 sub count {
-    my ($class, $table, $column, $where) = @_;
+    my ($self, $table, $column, $where) = @_;
 
-    my $rs = $class->resultset(
+    my $rs = $self->resultset(
         {
             from   => [$table],
         }
     );
 
     $rs->add_select("COUNT($column)" =>  'cnt');
-    $class->_add_where($rs, $where);
+    $self->_add_where($rs, $where);
 
     $rs->retrieve->first->cnt;
 }
 
 sub resultset {
-    my ($class, $args) = @_;
-    $args->{skinny} = $class;
-    $class->dbd->query_builder_class->new($args);
+    my ($self, $args) = @_;
+    $args->{skinny} = $self;
+    $self->dbd->query_builder_class->new($args);
 }
 
 sub search {
-    my ($class, $table, $where, $opt) = @_;
+    my ($self, $table, $where, $opt) = @_;
 
-    $class->search_rs($table, $where, $opt)->retrieve;
+    $self->search_rs($table, $where, $opt)->retrieve;
 }
 
 sub search_rs {
-    my ($class, $table, $where, $opt) = @_;
+    my ($self, $table, $where, $opt) = @_;
 
     my $cols = $opt->{select} || do {
-        my $column_info = $class->schema->schema_info->{$table};
+        my $column_info = $self->schema->schema_info->{$table};
         unless ( $column_info ) {
             Carp::croak("schema_info does not exist for table '$table'");
         }
         $column_info->{columns};
     };
 
-    my $rs = $class->resultset(
+    my $rs = $self->resultset(
         {
             select => $cols,
             from   => [$table],
@@ -534,7 +451,7 @@ sub search_rs {
     );
 
     if ( $where ) {
-        $class->_add_where($rs, $where);
+        $self->_add_where($rs, $where);
     }
 
     $rs->limit(  $opt->{limit}  ) if $opt->{limit};
@@ -568,13 +485,13 @@ sub search_rs {
 }
 
 sub single {
-    my ($class, $table, $where, $opt) = @_;
+    my ($self, $table, $where, $opt) = @_;
     $opt->{limit} = 1;
-    $class->search_rs($table, $where, $opt)->retrieve->first;
+    $self->search_rs($table, $where, $opt)->retrieve->first;
 }
 
 sub search_named {
-    my ($class, $sql, $args, $opts, $opt_table_info) = @_;
+    my ($self, $sql, $args, $opts, $opt_table_info) = @_;
 
     $sql = sprintf($sql, @{$opts||[]});
     my %named_bind = %{$args};
@@ -591,32 +508,32 @@ sub search_named {
         }
     }ge;
 
-    $class->search_by_sql($sql, \@bind, $opt_table_info);
+    $self->search_by_sql($sql, \@bind, $opt_table_info);
 }
 
 sub search_by_sql {
-    my ($class, $sql, $bind, $opt_table_info) = @_;
+    my ($self, $sql, $bind, $opt_table_info) = @_;
 
-    my $sth = $class->_execute($sql, $bind);
-    return $class->_get_sth_iterator($sql, $sth, $opt_table_info);
+    my $sth = $self->_execute($sql, $bind);
+    return $self->_get_sth_iterator($sql, $sth, $opt_table_info);
 }
 
 sub find_or_new {
-    my ($class, $table, $args) = @_;
-    $class->single($table, $args) or do {
-        $class->hash_to_row($table, $args);
+    my ($self, $table, $args) = @_;
+    $self->single($table, $args) or do {
+        $self->hash_to_row($table, $args);
     };
 }
 
 sub hash_to_row {
-    my ($class, $table, $hash) = @_;
+    my ($self, $table, $hash) = @_;
 
-    my $row_class = $class->_get_row_class($table, $table);
+    my $row_class = $self->_get_row_class($table, $table);
     my $row = $row_class->new(
         {
             sql            => undef,
             row_data       => $hash,
-            skinny         => $class,
+            skinny         => $self,
             opt_table_info => $table,
         }
     );
@@ -625,32 +542,32 @@ sub hash_to_row {
 }
 
 sub _get_sth_iterator {
-    my ($class, $sql, $sth, $opt_table_info) = @_;
+    my ($self, $sql, $sth, $opt_table_info) = @_;
 
     return DBIx::Skin::Iterator->new(
-        skinny         => $class,
+        skinny         => $self,
         sth            => $sth,
         sql            => $sql,
-        row_class      => $class->_get_row_class($sql, $opt_table_info),
+        row_class      => $self->_get_row_class($sql, $opt_table_info),
         opt_table_info => $opt_table_info,
-        suppress_objects => $class->suppress_row_objects,
+        suppress_objects => $self->suppress_row_objects,
     );
 }
 
 sub data2itr {
-    my ($class, $table, $data) = @_;
+    my ($self, $table, $data) = @_;
 
     return DBIx::Skin::Iterator->new(
-        skinny         => $class,
+        skinny         => $self,
         data           => $data,
-        row_class      => $class->_get_row_class($table, $table),
+        row_class      => $self->_get_row_class($table, $table),
         opt_table_info => $table,
-        suppress_objects => $class->suppress_row_objects,
+        suppress_objects => $self->suppress_row_objects,
     );
 }
 
 sub _guess_table_name {
-    my ($class, $sql) = @_;
+    my ($self, $sql) = @_;
 
     if ($sql =~ /\sfrom\s+([\w]+)\s*/si) {
         return $1;
@@ -659,14 +576,15 @@ sub _guess_table_name {
 }
 
 sub _get_row_class {
-    my ($class, $sql, $table) = @_;
+    my ($self, $sql, $table) = @_;
 
-    $table ||= $class->_guess_table_name($sql)||'';
+    $table ||= $self->_guess_table_name($sql)||'';
     if ($table) {
-        return $class->schema->schema_info->{$table}->{row_class};
+        return $self->schema->schema_info->{$table}->{row_class};
     } else {
-        return $class->_attributes->{_common_row_class} ||= do {
-            my $row_class = join '::', $class->_attributes->{klass}, 'Row';
+        return $self->{_common_row_class} ||= do {
+            my $klass = ref $self || $self;
+            my $row_class = join '::', $klass, 'Row';
             DBIx::Skin::Util::load_class($row_class) or do {
                 no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
             };
@@ -684,10 +602,10 @@ sub _quote {
 }
 
 sub bind_params {
-    my($class, $table, $columns, $sth) = @_;
+    my($self, $table, $columns, $sth) = @_;
 
-    my $schema = $class->schema;
-    my $dbd    = $class->dbd;
+    my $schema = $self->schema;
+    my $dbd    = $self->dbd;
     my $i = 1;
     for my $column (@{ $columns }) {
         my($col, $val) = @{ $column };
@@ -706,10 +624,10 @@ sub bind_params {
 }
 
 sub _set_columns {
-    my ($class, $args, $insert) = @_;
+    my ($self, $args, $insert) = @_;
 
-    my $schema = $class->schema;
-    my $dbd = $class->dbd;
+    my $schema = $self->schema;
+    my $dbd = $self->dbd;
     my $quote = $dbd->quote;
     my $name_sep = $dbd->name_sep;
 
@@ -729,38 +647,38 @@ sub _set_columns {
 }
 
 sub _insert_or_replace {
-    my ($class, $is_replace, $table, $args) = @_;
+    my ($self, $is_replace, $table, $args) = @_;
 
-    my $schema = $class->schema;
+    my $schema = $self->schema;
 
     # deflate
     for my $col (keys %{$args}) {
         $args->{$col} = $schema->call_deflate($col, $args->{$col});
     }
 
-    my ($columns, $bind_columns, $quoted_columns) = $class->_set_columns($args, 1);
+    my ($columns, $bind_columns, $quoted_columns) = $self->_set_columns($args, 1);
 
     my $sql = $is_replace ? 'REPLACE' : 'INSERT';
     $sql .= " INTO $table\n";
     $sql .= '(' . join(', ', @$quoted_columns) .')' . "\n" .
             'VALUES (' . join(', ', @$columns) . ')' . "\n";
 
-    my $sth = $class->_execute($sql, $bind_columns, $table);
-    $class->_close_sth($sth);
+    my $sth = $self->_execute($sql, $bind_columns, $table);
+    $self->_close_sth($sth);
 
-    my $pk = $class->schema->schema_info->{$table}->{pk};
+    my $pk = $self->schema->schema_info->{$table}->{pk};
 
     if (not ref $pk && not defined $args->{$pk}) {
-        $args->{$pk} = $class->_last_insert_id($table);
+        $args->{$pk} = $self->_last_insert_id($table);
     }
 
-    my $row_class = $class->_get_row_class($sql, $table);
-    return $args if $class->suppress_row_objects;
+    my $row_class = $self->_get_row_class($sql, $table);
+    return $args if $self->suppress_row_objects;
 
     my $obj = $row_class->new(
         {
             row_data       => $args,
-            skinny         => $class,
+            skinny         => $self,
             opt_table_info => $table,
         }
     );
@@ -770,10 +688,10 @@ sub _insert_or_replace {
 }
 
 sub _last_insert_id {
-    my ($class, $table) = @_;
+    my ($self, $table) = @_;
 
-    my $dbh = $class->dbh;
-    my $driver = $class->_attributes->{driver_name};
+    my $dbh = $self->dbh;
+    my $driver = $self->{driver_name};
     if ( $driver eq 'mysql' ) {
         return $dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
@@ -789,156 +707,142 @@ sub _last_insert_id {
 
 *create = \*insert;
 sub insert {
-    my ($class, $table, $args) = @_;
+    my ($self, $table, $args) = @_;
 
-    my $schema = $class->schema;
-    $class->call_schema_trigger('pre_insert', $schema, $table, $args);
+    my $schema = $self->schema;
+    $self->call_schema_trigger('pre_insert', $schema, $table, $args);
 
-    my $obj = $class->_insert_or_replace(0, $table, $args);
+    my $obj = $self->_insert_or_replace(0, $table, $args);
 
-    $class->call_schema_trigger('post_insert', $schema, $table, $obj);
+    $self->call_schema_trigger('post_insert', $schema, $table, $obj);
 
     $obj;
 }
 
 sub replace {
-    my ($class, $table, $args) = @_;
+    my ($self, $table, $args) = @_;
 
-    my $schema = $class->schema;
-    $class->call_schema_trigger('pre_insert', $schema, $table, $args);
+    my $schema = $self->schema;
+    $self->call_schema_trigger('pre_insert', $schema, $table, $args);
 
-    my $obj = $class->_insert_or_replace(1, $table, $args);
+    my $obj = $self->_insert_or_replace(1, $table, $args);
 
-    $class->call_schema_trigger('post_insert', $schema, $table, $obj);
+    $self->call_schema_trigger('post_insert', $schema, $table, $obj);
 
     $obj;
 }
 
 sub bulk_insert {
-    my ($class, $table, $args) = @_;
+    my ($self, $table, $args) = @_;
 
-    my $code = $class->_attributes->{dbd}->can('bulk_insert') or Carp::croak "dbd don't provide bulk_insert method";
-    $code->($class, $table, $args);
+    my $code = $self->{dbd}->can('bulk_insert') or Carp::croak "dbd don't provide bulk_insert method";
+    $code->($self, $table, $args);
 }
 
 sub update {
-    my ($class, $table, $args, $where) = @_;
+    my ($self, $table, $args, $where) = @_;
 
-    my $schema = $class->schema;
-    $class->call_schema_trigger('pre_update', $schema, $table, $args);
+    my $schema = $self->schema;
+    $self->call_schema_trigger('pre_update', $schema, $table, $args);
 
     my $values = {};
     for my $col (keys %{$args}) {
        $values->{$col} = $schema->call_deflate($col, $args->{$col});
     }
 
-    my ($columns, $bind_columns, undef) = $class->_set_columns($values, 0);
+    my ($columns, $bind_columns, undef) = $self->_set_columns($values, 0);
 
-    my $stmt = $class->resultset;
-    $class->_add_where($stmt, $where);
+    my $stmt = $self->resultset;
+    $self->_add_where($stmt, $where);
     my @where_values = map {[$_ => $stmt->where_values->{$_}]} @{$stmt->bind_col};
 
     push @{$bind_columns}, @where_values;
 
     my $sql = "UPDATE $table SET " . join(', ', @$columns) . ' ' . $stmt->as_sql_where;
-    my $sth = $class->_execute($sql, $bind_columns, $table);
+    my $sth = $self->_execute($sql, $bind_columns, $table);
 
     my $rows = $sth->rows;
 
-    $class->_close_sth($sth);
-    $class->call_schema_trigger('post_update', $schema, $table, $rows);
+    $self->_close_sth($sth);
+    $self->call_schema_trigger('post_update', $schema, $table, $rows);
 
     return $rows;
 }
 
-sub update_by_sql {
-    my ($class, $sql, $bind) = @_;
-
-    Carp::carp( 'update_by_sql has been deprecated. Please use $skinny->do($sql, undef, @bind)' );
-    $class->do($sql, undef, @$bind);
-}
-
 sub delete {
-    my ($class, $table, $where) = @_;
+    my ($self, $table, $where) = @_;
 
-    my $schema = $class->schema;
-    $class->call_schema_trigger('pre_delete', $schema, $table, $where);
+    my $schema = $self->schema;
+    $self->call_schema_trigger('pre_delete', $schema, $table, $where);
 
-    my $stmt = $class->resultset(
+    my $stmt = $self->resultset(
         {
             from => [$table],
         }
     );
 
-    $class->_add_where($stmt, $where);
+    $self->_add_where($stmt, $where);
 
     my $sql = "DELETE " . $stmt->as_sql;
     my @where_values = map {[$_ => $stmt->where_values->{$_}]} @{$stmt->bind_col};
-    my $sth = $class->_execute($sql, \@where_values, $table);
+    my $sth = $self->_execute($sql, \@where_values, $table);
     my $rows = $sth->rows;
 
-    $class->call_schema_trigger('post_delete', $schema, $table, $rows);
+    $self->call_schema_trigger('post_delete', $schema, $table, $rows);
 
-    $class->_close_sth($sth);
+    $self->_close_sth($sth);
     $rows;
-}
-
-sub delete_by_sql {
-    my ($class, $sql, $bind) = @_;
-
-    Carp::carp( 'delete_by_sql has been deprecated. Please use $skinny->do($sql, undef, @bind)' );
-    $class->do($sql, undef, @$bind);
 }
 
 *find_or_insert = \*find_or_create;
 sub find_or_create {
-    my ($class, $table, $args) = @_;
-    my $row = $class->single($table, $args);
+    my ($self, $table, $args) = @_;
+    my $row = $self->single($table, $args);
     return $row if $row;
-    $class->insert($table, $args)->refetch;
+    $self->insert($table, $args)->refetch;
 }
 
 sub _add_where {
-    my ($class, $stmt, $where) = @_;
+    my ($self, $stmt, $where) = @_;
     for my $col (keys %{$where}) {
         $stmt->add_where($col => $where->{$col});
     }
 }
 
 sub _execute {
-    my ($class, $stmt, $args, $table) = @_;
+    my ($self, $stmt, $args, $table) = @_;
 
     my ($sth, $bind);
     if ($table) {
         $bind = [map {(ref $_->[1]) eq 'ARRAY' ? @{$_->[1]} : $_->[1]} @$args];
-        $class->profiler($stmt, $bind);
+        $self->_profiler_record_query($stmt, $bind);
         eval {
-            $sth = $class->dbh->prepare($stmt) or die $class->dbh->errstr;
-            $class->bind_params($table, $args, $sth);
+            $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
+            $self->bind_params($table, $args, $sth);
             $sth->execute;
         };
     } else {
         $bind = $args;
-        $class->profiler($stmt, $bind);
+        $self->_profiler_record_query($stmt, $bind);
         eval {
-            $sth = $class->dbh->prepare($stmt) or die $class->dbh->errstr;
+            $sth = $self->dbh->prepare($stmt) or die $self->dbh->errstr;
             $sth->execute(@{$args});
         };
     }
 
     if ($@) {
-        $class->_stack_trace($sth, $stmt, $bind, $@);
+        $self->_stack_trace($sth, $stmt, $bind, $@);
     }
     return $sth;
 }
 
 # stack trace
 sub _stack_trace {
-    my ($class, $sth, $stmt, $bind, $reason) = @_;
+    my ($self, $sth, $stmt, $bind, $reason) = @_;
     require Data::Dumper;
 
     if ($sth) {
-        $class->_close_sth($sth);
+        $self->_close_sth($sth);
     }
 
     $stmt =~ s/\n/\n          /gm;
@@ -953,7 +857,7 @@ TRACE
 }
 
 sub _close_sth {
-    my ($class, $sth) = @_;
+    my ($self, $sth) = @_;
     $sth->finish;
     undef $sth;
 }
@@ -970,11 +874,7 @@ DBIx::Skin - simple DBI wrapper/ORMapper
 create your db model base class.
 
     package Your::Model;
-    use DBIx::Skin connect_info => {
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
+    use parent 'DBIx::Skin';
     1;
     
 create your db schema class.
@@ -982,13 +882,10 @@ See DBIx::Skin::Schema for docs on defining schema class.
 
     package Your::Model::Schema;
     use DBIx::Skin::Schema;
-    
-    install_table user => schema {
+    table {
+        name 'user';
         pk 'id';
-        columns qw/
-            id
-            name
-        /;
+        columns qw( foo bar baz );
     };
     1;
     
@@ -996,7 +893,7 @@ in your script.
 
     use Your::Model;
     
-    my $skinny = Your::Model->new;
+    my $skinny = Your::Model->new(\%args);
     # insert new record.
     my $row = $skinny->insert('user',
         {
@@ -1185,17 +1082,6 @@ or
     my $row = Your::Model->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
-=item $skinny->update_by_sql($sql, [\@bind_values])
-
-update record by specific sql. return update row count.
-
-example:
-
-    my $update_row_count = Your::Model->update_by_sql(
-        q{UPDATE user SET name = ?},
-        ['nomaneko']
-    );
-
 =item $skinny->delete($table, \%delete_condition)
 
 delete record. return delete row count.
@@ -1211,17 +1097,6 @@ or
     # see) DBIx::Skin::Row's POD
     my $row = Your::Model->single('user', {id => 1});
     $row->delete
-
-=item $skinny->delete_by_sql($sql, \@bind_values)
-
-delete record by specific sql. return delete row count.
-
-example:
-
-    my $delete_row_count = Your::Model->delete_by_sql(
-        q{DELETE FROM user WHERE id = ?},
-        [1]
-    });
 
 =item $skinny->find_or_create($table, \%values)
 

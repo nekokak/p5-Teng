@@ -11,3 +11,4 @@ old/
 test.*
 *~
 tools/externals
+db1.db

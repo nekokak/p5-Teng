@@ -4,13 +4,13 @@ use Mock::BasicBindColumn;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
-Mock::Basic->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 subtest 'schema info' => sub {
-    is +Mock::Basic->schema, 'Mock::Basic::Schema';
+    is +$db->schema, 'Mock::Basic::Schema';
 
-    my $info = Mock::Basic->schema->schema_info;
+    my $info = $db->schema->schema_info;
     is_deeply $info,{
         mock_basic => {
             pk      => 'id',
@@ -24,14 +24,15 @@ subtest 'schema info' => sub {
         }
     };
 
-    isa_ok +Mock::Basic->dbh, 'DBI::db';
+    isa_ok +$db->dbh, 'DBI::db';
     done_testing;
 };
 
 subtest 'schema info' => sub {
-    is +Mock::BasicBindColumn->schema, 'Mock::BasicBindColumn::Schema';
+    my $db_basic_bind_column = +Mock::BasicBindColumn->new({dbh => $dbh});
+    is +$db_basic_bind_column->schema, 'Mock::BasicBindColumn::Schema';
 
-    my $info = Mock::BasicBindColumn->schema->schema_info;
+    my $info = $db_basic_bind_column->schema->schema_info;
     is_deeply $info,{
         mock_basic_bind_column => {
             pk      => 'id',

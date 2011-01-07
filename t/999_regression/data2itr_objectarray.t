@@ -4,9 +4,9 @@ use Mock::Inflate::Name;
 use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Inflate->set_dbh($dbh);
-Mock::Inflate->setup_test_db;
-Mock::Inflate->insert('mock_inflate',
+my $db = Mock::Inflate->new({dbh => $dbh});
+$db->setup_test_db;
+$db->insert('mock_inflate',
     {
         id   => 1,
         name => Mock::Inflate::Name->new(name => 'perl'),
@@ -14,7 +14,7 @@ Mock::Inflate->insert('mock_inflate',
 );
 
 subtest 'data2itr method' => sub {
-    my $itr = Mock::Inflate->data2itr('mock_inflate',[
+    my $itr = $db->data2itr('mock_inflate',[
         {
             id   => 1,
             name => 'perl',
@@ -28,7 +28,7 @@ subtest 'data2itr method' => sub {
             name => 'python',
         },
     ]);
-    $itr = Mock::Inflate->data2itr('mock_inflate', [$itr->all]);
+    $itr = $db->data2itr('mock_inflate', [$itr->all]);
 
     isa_ok $itr, 'DBIx::Skin::Iterator';
     is $itr->count, 3;
