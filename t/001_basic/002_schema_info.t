@@ -1,7 +1,10 @@
 use t::Utils;
+use Test::More;
+
+plan skip_all => 'schema_info has been deprecated.';
+
 use Mock::Basic;
 use Mock::BasicBindColumn;
-use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
