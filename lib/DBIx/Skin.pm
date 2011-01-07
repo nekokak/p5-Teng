@@ -80,7 +80,7 @@ sub schema { $_[0]->{schema} }
 
 sub profiler {
     my ($self, $sql, $bind) = @_;
-    if ($self->{profiler} && $sql) {
+    if ($self->{profiler} && $sql) { # XXX I think this is bad interface... -- tokuhirom@20110107
         $self->{profiler}->record_query($sql, $bind);
     }
     return $self->{profiler};
