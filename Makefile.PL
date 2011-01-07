@@ -11,6 +11,7 @@ requires 'Class::Accessor::Lite';
 requires 'Try::Tiny';
 requires 'DBIx::TransactionManager' => '1.02';
 requires 'Class::Load';
+requires 'SQL::Maker';
 
 author_tests('xt');
 

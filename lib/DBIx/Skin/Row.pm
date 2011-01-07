@@ -27,7 +27,7 @@ sub setup {
 }
 
 sub _lazy_get_data {
-    my ($self, $col) = @_;
+    my ($x, $col) = @_;
 
     return sub {
         my $self = shift;
@@ -56,7 +56,8 @@ sub get_column {
         Carp::croak('please specify $col for first argument');
     }
 
-    my $data = exists $self->{row_data}->{$col} ? $self->{row_data}->{$col} : Carp::croak("$col no selected column. SQL: " . ($self->{sql}||'unknown'));
+    my $row_data = $self->{row_data};
+    my $data = exists $row_data->{$col} ? $row_data->{$col} : Carp::croak("$col no selected column. SQL: " . ($self->{sql}||'unknown'));
 
 #    return $self->{skinny}->schema->utf8_on($col, $data);
     $data;
@@ -78,7 +79,9 @@ sub set_column {
     if (ref($val) eq 'SCALAR') {
         $self->{_untrusted_row_data}->{$col} = 1;
     } else {
-        $self->{row_data}->{$col} = $self->{skinny}->schema->call_deflate($col, $val);
+        # XXX Skip deflate
+#        $self->{row_data}->{$col} = $self->{skinny}->schema->call_deflate($col, $val);
+        $self->{row_data}->{$col} = $val;
         $self->{_get_column_cached}->{$col} = $val;
         $self->{_dirty_columns}->{$col} = 1;
     }
@@ -113,7 +116,7 @@ sub update {
     $table ||= $self->{opt_table_info};
     $args ||= $self->get_dirty_columns;
 
-    my $result = $self->{skinny}->update($table, $args, $self->_where_cond($table));
+    my $result = $self->{skinny}->update($table->name, $args, $self->_where_cond($table));
     $self->set_columns($args);
 
     return $result;
@@ -139,13 +142,8 @@ sub _where_cond {
         Carp::croak "no table info";
     }
 
-    my $schema_info = $self->{skinny}->schema->schema_info;
-    unless ( $schema_info->{$table} ) {
-        Carp::croak "unknown table: $table";
-    }
-
     # get target table pk
-    my $pk = $schema_info->{$table}->{pk};
+    my $pk = $table->primary_keys;
     unless ($pk) {
         Carp::croak "$table have no pk.";
     }

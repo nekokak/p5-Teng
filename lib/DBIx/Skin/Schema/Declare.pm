@@ -10,6 +10,7 @@ our @EXPORT = qw(
     table
     pk
     columns
+    trigger
 );
 
 sub name($);
@@ -22,29 +23,44 @@ sub schema (&) {
     my (
         %tables,
         $schema_class,
-        $schema_options,
+        %schema_triggers,
     );
 
     $schema_class = caller();
 
-    local *name       = sub ($) { $schema_class = shift };
-    local *options  = sub ($) { $schema_options = shift };
-    local *table    = sub (&) {
+    local *name    = sub ($) { $schema_class = shift };
+    local *trigger = sub ($&) {
+        my $list = $schema_triggers{$_[0]};
+        if (! $list) {
+            $schema_triggers{$_[0]} = $list = [];
+        }
+        push @$list, $_[1]
+    };
+    local *table   = sub (&) {
         my $code = shift;
         my (
             $table_name,
             @table_pk,
             @table_columns,
+            %table_triggers,
         );
         local *name    = sub ($) { $table_name = shift };
         local *pk      = sub (@) { @table_pk = @_ };
         local *columns = sub (@) { @table_columns = @_ };
+        local *trigger = sub ($&) {
+            my $list = $table_triggers{$_[0]};
+            if (! $list) {
+                $table_triggers{$_[0]} = $list = [];
+            }
+            push @$list, $_[1]
+        };
         $code->();
 
         $tables{$table_name} = DBIx::Skin::Schema::Table->new(
-            name => $table_name,
+            columns      => \@table_columns,
+            name         => $table_name,
             primary_keys => \@table_pk,
-            columns => \@table_columns,
+            triggers     => \%table_triggers,
         ); 
     };
 

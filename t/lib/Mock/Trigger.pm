@@ -1,63 +1,61 @@
 package Mock::Trigger;
-use DBIx::Skin;
+use strict;
+use base qw(DBIx::SkinTest);
 
-sub setup_test_db {
-    my $skinny = shift;
+sub create_sqlite {
+    my ($class, $dbh) = @_;
+    $dbh->do(q{
+        CREATE TABLE mock_trigger_pre (
+            id   INT,
+            name TEXT
+        )
+    });
+    $dbh->do(q{
+        CREATE TABLE mock_trigger_post (
+            id   INT,
+            name TEXT
+        )
+    });
+    $dbh->do(q{
+        CREATE TABLE mock_trigger_post_delete (
+            id   INT,
+            name TEXT
+        )
+    });
+}
 
-    my $dbd = $skinny->{driver_name};
-    if ($dbd eq 'SQLite') {
-        $skinny->do(q{
-            CREATE TABLE mock_trigger_pre (
-                id   INT,
-                name TEXT
-            )
-        });
-        $skinny->do(q{
-            CREATE TABLE mock_trigger_post (
-                id   INT,
-                name TEXT
-            )
-        });
-        $skinny->do(q{
-            CREATE TABLE mock_trigger_post_delete (
-                id   INT,
-                name TEXT
-            )
-        });
-    } elsif ($dbd eq 'mysql') {
-        $skinny->do(
-            q{DROP TABLE IF EXISTS mock_trigger_pre}
-        );
-        $skinny->do(
-            q{DROP TABLE IF EXISTS mock_trigger_post}
-        );
-        $skinny->do(
-            q{DROP TABLE IF EXISTS mock_trigger_post_delete}
-        );
-        $skinny->do(q{
-            CREATE TABLE mock_trigger_pre (
-                id        INT auto_increment,
-                name      TEXT,
-                PRIMARY KEY  (id)
-            ) ENGINE=InnoDB
-        });
-        $skinny->do(q{
-            CREATE TABLE mock_trigger_post (
-                id        INT auto_increment,
-                name      TEXT,
-                PRIMARY KEY  (id)
-            ) ENGINE=InnoDB
-        });
-        $skinny->do(q{
-            CREATE TABLE mock_trigger_post_delete (
-                id        INT auto_increment,
-                name      TEXT,
-                PRIMARY KEY  (id)
-            ) ENGINE=InnoDB
-        });
-    } else {
-        die 'unknown DBD';
-    }
+sub create_mysql {
+    my ($class, $dbh) = @_;
+    $dbh->do(
+        q{DROP TABLE IF EXISTS mock_trigger_pre}
+    );
+    $dbh->do(
+        q{DROP TABLE IF EXISTS mock_trigger_post}
+    );
+    $dbh->do(
+        q{DROP TABLE IF EXISTS mock_trigger_post_delete}
+    );
+    $dbh->do(q{
+        CREATE TABLE mock_trigger_pre (
+            id        INT auto_increment,
+            name      TEXT,
+            PRIMARY KEY  (id)
+        ) ENGINE=InnoDB
+    });
+    $dbh->do(q{
+        CREATE TABLE mock_trigger_post (
+            id        INT auto_increment,
+            name      TEXT,
+            PRIMARY KEY  (id)
+        ) ENGINE=InnoDB
+    });
+    $dbh->do(q{
+        CREATE TABLE mock_trigger_post_delete (
+            id        INT auto_increment,
+            name      TEXT,
+            PRIMARY KEY  (id)
+        ) ENGINE=InnoDB
+    });
 }
 
 1;

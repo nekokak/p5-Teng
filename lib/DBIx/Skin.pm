@@ -2,7 +2,10 @@ package DBIx::Skin;
 use strict;
 use warnings;
 use Carp ();
+use Class::Load ();
 use DBI;
+use DBIx::Skin::DBD;
+use DBIx::Skin::Iterator;
 use DBIx::Skin::Row;
 use DBIx::Skin::Schema;
 use Class::Accessor::Lite
@@ -17,6 +20,8 @@ use Class::Accessor::Lite
         suppress_row_objects
         sql_builder
         parent_pid
+
+        dbd
     )]
 ;
 
@@ -24,6 +29,7 @@ our $VERSION = '0.0732';
 
 sub new {
     my ($class, %args) = @_;
+
     my $self = bless {
         schema_class => "$class\::Schema",
         %args,
@@ -32,6 +38,7 @@ sub new {
 
     if (! $self->schema) {
         my $schema_class = $self->schema_class;
+        Class::Load::load_class( $schema_class );
         my $schema = $schema_class->instance;
         if (! $schema) {
             Carp::croak("schema object was not passed, and could not get schema instance from $schema_class");
@@ -72,13 +79,33 @@ sub connect {
     $self->dbh( $dbh );
 
     if (! $self->sql_builder) {
-        # XXX Hackish
-        require SQL::Maker;
-        my $builder = SQL::Maker->new(driver => (split /:/, $dsn)[1]);
-        $self->sql_builder( $builder );
     }
 
     return $self;
+}
+
+sub ensure_connected {
+    my $self = shift;
+    if (! $self->dbh) {
+        $self->connect();
+    }
+
+    my $dbh = $self->dbh or
+        Carp::croak("ensure_connected: failed to connect to database");
+    my $driver_name = $dbh->{Driver}->{Name};
+    my $builder = $self->sql_builder;
+    if (! $builder ) {
+        # XXX Hackish
+        require SQL::Maker;
+        $builder = SQL::Maker->new(driver => $driver_name );
+        $self->sql_builder( $builder );
+    }
+
+    my $dbd = $self->dbd;
+    if (! $dbd) {
+        $dbd = DBIx::Skin::DBD->new( $driver_name );
+        $self->dbd( $dbd );
+    }
 }
 
 sub _guess_table_name {
@@ -123,6 +150,7 @@ sub _execute {
 sub _insert_or_replace {
     my ($self, $is_replace, $tablename, $args) = @_;
 
+    $self->ensure_connected;
     my $schema = $self->schema;
 
     # deflate
@@ -166,13 +194,142 @@ sub insert {
     my ($self, $table, $args) = @_;
 
     my $schema = $self->schema;
-#    $self->call_schema_trigger('pre_insert', $schema, $table, $args);
-
+    $schema->call_trigger( pre_insert => $self, $table, $args );
     my $obj = $self->_insert_or_replace(0, $table, $args);
-
-#    $self->call_schema_trigger('post_insert', $schema, $table, $obj);
+    $schema->call_trigger( post_insert => $self, $table, $obj );
 
     $obj;
+}
+
+sub resultset {
+    my ($self, $args) = @_;
+    $args->{skinny} = $self;
+    $self->dbd->query_builder_class->new($args);
+}
+
+sub search_rs {
+    my ($self, $table, $where, $opt) = @_;
+
+    my $cols = $opt->{select} || do {
+        my $table = $self->schema->get_table( $table );
+        unless ( $table ) {
+            Carp::croak("Table object does not exist for table '$table'");
+        }
+        $table->columns;
+    };
+
+    my $rs = $self->resultset(
+        {
+            select => $cols,
+            from   => [$table],
+        }
+    );
+
+    if ( $where ) {
+        $rs->add_where(%$where);
+    }
+
+    $rs->limit(  $opt->{limit}  ) if $opt->{limit};
+    $rs->offset( $opt->{offset} ) if $opt->{offset};
+
+    if (my $terms = $opt->{order_by}) {
+        $terms = [$terms] unless ref($terms) eq 'ARRAY';
+        my @orders;
+        for my $term (@{$terms}) {
+            my ($col, $case);
+            if (ref($term) eq 'HASH') {
+                ($col, $case) = each %$term;
+            } else {
+                $col  = $term;
+                $case = 'ASC';
+            }
+            push @orders, { column => $col, desc => $case };
+        }
+        $rs->order(\@orders);
+    }
+
+    if (my $terms = $opt->{having}) {
+        for my $col (keys %$terms) {
+            $rs->add_having($col => $terms->{$col});
+        }
+    }
+
+    $rs->for_update(1) if $opt->{for_update};
+
+    return $rs;
+}
+
+sub single {
+    my ($self, $table, $where, $opt) = @_;
+    $opt->{limit} = 1;
+    $self->search_rs($table, $where, $opt)->retrieve->next;
+}
+
+sub _get_sth_iterator {
+    my ($self, $sql, $sth, $opt_table_info) = @_;
+
+    return DBIx::Skin::Iterator->new(
+        skinny         => $self,
+        sth            => $sth,
+        sql            => $sql,
+        row_class      => $self->schema->get_row_class($self, $opt_table_info),
+        opt_table_info => $opt_table_info,
+        suppress_objects => $self->suppress_row_objects,
+    );
+}
+
+sub search_by_sql {
+    my ($self, $sql, $bind, $opt_table_info) = @_;
+
+    $self->ensure_connected;
+
+    my $sth = $self->_execute($sql, $bind);
+    my $itr = $self->_get_sth_iterator($sql, $sth, $opt_table_info);
+    return wantarray ? $itr->all : $itr;
+}
+
+sub update {
+    my ($self, $table, $args, $where) = @_;
+
+    $self->ensure_connected;
+
+    my $schema = $self->schema;
+    $schema->call_trigger('pre_update', $self, $table, $args);
+
+# XXX skip deflate
+#    my $values = {};
+#    for my $col (keys %{$args}) {
+#       $values->{$col} = $schema->call_deflate($col, $args->{$col});
+#    }
+
+    my $builder = $self->sql_builder;
+    my ($sql, @binds) = $builder->update( $table, $args, $where );
+    my $sth = $self->_execute($sql, \@binds, $table);
+    my $rows = $sth->rows;
+    $sth->finish;
+
+    $schema->call_trigger('post_update', $self, $table, $rows);
+
+    return $rows;
+}
+
+sub delete {
+    my ($self, $table, $where) = @_;
+
+    $self->ensure_connected;
+
+    my $schema = $self->schema;
+    $schema->call_trigger('pre_delete', $self, $table, $where);
+
+    my $builder = $self->sql_builder;
+    my ( $sql, @binds ) = $builder->delete( $table, $where );
+    my $sth = $self->_execute($sql, \@binds, $table);
+    my $rows = $sth->rows;
+
+    $schema->call_trigger('post_delete', $self, $table, $rows);
+    $sth->finish;
+
+    $rows;
 }
 
 1;
@@ -415,75 +572,11 @@ sub count {
     $rs->retrieve->next->cnt;
 }
 
-sub resultset {
-    my ($self, $args) = @_;
-    $args->{skinny} = $self;
-    $self->dbd->query_builder_class->new($args);
-}
-
 sub search {
     my ($self, $table, $where, $opt) = @_;
 
     my $iter = $self->search_rs($table, $where, $opt)->retrieve;
     return wantarray ? $iter->all : $iter;
-}
-
-sub search_rs {
-    my ($self, $table, $where, $opt) = @_;
-
-    my $cols = $opt->{select} || do {
-        my $column_info = $self->schema->schema_info->{$table};
-        unless ( $column_info ) {
-            Carp::croak("schema_info does not exist for table '$table'");
-        }
-        $column_info->{columns};
-    };
-
-    my $rs = $self->resultset(
-        {
-            select => $cols,
-            from   => [$table],
-        }
-    );
-
-    if ( $where ) {
-        $self->_add_where($rs, $where);
-    }
-
-    $rs->limit(  $opt->{limit}  ) if $opt->{limit};
-    $rs->offset( $opt->{offset} ) if $opt->{offset};
-
-    if (my $terms = $opt->{order_by}) {
-        $terms = [$terms] unless ref($terms) eq 'ARRAY';
-        my @orders;
-        for my $term (@{$terms}) {
-            my ($col, $case);
-            if (ref($term) eq 'HASH') {
-                ($col, $case) = each %$term;
-            } else {
-                $col  = $term;
-                $case = 'ASC';
-            }
-            push @orders, { column => $col, desc => $case };
-        }
-        $rs->order(\@orders);
-    }
-
-    if (my $terms = $opt->{having}) {
-        for my $col (keys %$terms) {
-            $rs->add_having($col => $terms->{$col});
-        }
-    }
-
-    $rs->for_update(1) if $opt->{for_update};
-
-    return $rs;
-}
-
-sub single {
-    my ($self, $table, $where, $opt) = @_;
-    $opt->{limit} = 1;
-    $self->search_rs($table, $where, $opt)->retrieve->next;
 }
 
 sub search_named {
@@ -505,14 +598,6 @@ sub search_named {
     }ge;
 
     $self->search_by_sql($sql, \@bind, $opt_table_info);
-}
-
-sub search_by_sql {
-    my ($self, $sql, $bind, $opt_table_info) = @_;
-
-    my $sth = $self->_execute($sql, $bind);
-    my $itr = $self->_get_sth_iterator($sql, $sth, $opt_table_info);
-    return wantarray ? $itr->all : $itr;
 }
 
 sub find_or_new {
@@ -537,19 +622,6 @@ sub hash_to_row {
     );
     $row->setup;
     $row;
-}
-
-sub _get_sth_iterator {
-    my ($self, $sql, $sth, $opt_table_info) = @_;
-
-    return DBIx::Skin::Iterator->new(
-        skinny         => $self,
-        sth            => $sth,
-        sql            => $sql,
-        row_class      => $self->_get_row_class($sql, $opt_table_info),
-        opt_table_info => $opt_table_info,
-        suppress_objects => $self->suppress_row_objects,
-    );
 }
 
 sub _guess_table_name {
@@ -723,61 +795,6 @@ sub bulk_insert {
 
     my $code = $self->{dbd}->can('bulk_insert') or Carp::croak "dbd don't provide bulk_insert method";
     $code->($self, $table, $args);
-}
-
-sub update {
-    my ($self, $table, $args, $where) = @_;
-
-    my $schema = $self->schema;
-    $self->call_schema_trigger('pre_update', $schema, $table, $args);
-
-    my $values = {};
-    for my $col (keys %{$args}) {
-       $values->{$col} = $schema->call_deflate($col, $args->{$col});
-    }
-
-    my ($columns, $bind_columns, undef) = $self->_set_columns($values, 0);
-
-    my $stmt = $self->resultset;
-    $self->_add_where($stmt, $where);
-    my @where_values = map {[$_ => $stmt->where_values->{$_}]} @{$stmt->bind_col};
-
-    push @{$bind_columns}, @where_values;
-
-    my $sql = "UPDATE $table SET " . join(', ', @$columns) . ' ' . $stmt->as_sql_where;
-    my $sth = $self->_execute($sql, $bind_columns, $table);
-
-    my $rows = $sth->rows;
-
-    $self->_close_sth($sth);
-    $self->call_schema_trigger('post_update', $schema, $table, $rows);
-
-    return $rows;
-}
-
-sub delete {
-    my ($self, $table, $where) = @_;
-
-    my $schema = $self->schema;
-    $self->call_schema_trigger('pre_delete', $schema, $table, $where);
-
-    my $stmt = $self->resultset(
-        {
-            from => [$table],
-        }
-    );
-
-    $self->_add_where($stmt, $where);
-
-    my $sql = "DELETE " . $stmt->as_sql;
-    my @where_values = map {[$_ => $stmt->where_values->{$_}]} @{$stmt->bind_col};
-    my $sth = $self->_execute($sql, \@where_values, $table);
-    my $rows = $sth->rows;
-
-    $self->call_schema_trigger('post_delete', $schema, $table, $rows);
-
-    $self->_close_sth($sth);
-    $rows;
 }
 
 *find_or_insert = \*find_or_create;

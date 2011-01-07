@@ -16,6 +16,15 @@ sub import {
     utf8->import;
 }
 
+sub prepare_db {
+    my ( $schema_class, $dbh ) = @_;
+
+    if ( ! $schema_class->isa( 'DBIx::SkinTest' ) ) {
+        die "Don't know how to setup $schema_class";
+    }
+    $schema_class->prepare_db( $dbh );
+}
+
 sub setup_dbh {
     shift;
     my $file = shift || ':memory:';

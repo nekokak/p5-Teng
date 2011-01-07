@@ -7,12 +7,17 @@ use Class::Accessor::Lite
         primary_keys
         columns
         row_class
+        triggers
     ) ]
 ;
 
 sub new {
     my ($class, %args) = @_;
-    my $self = bless { %args }, $class;
+    my $self = bless {
+        triggers => {},
+        %args
+    }, $class;
+
     if (! $self->row_class) {
         $self->row_class( 
             join('',
@@ -22,6 +27,14 @@ sub new {
         );
     }
     return $self;
+}
+
+sub call_trigger {
+    my ($self, $db, $trigger_name, $args) = @_;
+    my $triggers = $self->triggers->{ $trigger_name } || [];
+    for my $code (@$triggers) {
+        $code->($db, $args, $self->name);
+    }
 }
 
 1;

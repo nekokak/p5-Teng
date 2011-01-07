@@ -4,6 +4,8 @@ use t::Utils;
 
 use_ok "Mock::Basic";
 
+t::Utils::prepare_db( "Mock::Basic" );
+
 subtest 'basic' => sub {
     my $db = Mock::Basic->new();
     $db->connect( dsn => "dbi:SQLite:dbname=");

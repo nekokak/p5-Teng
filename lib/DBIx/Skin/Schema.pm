@@ -4,11 +4,21 @@ use warnings;
 use Scalar::Util ();
 use DBIx::Skin::Util ();
 use Class::Accessor::Lite
-    new => 1,
     rw => [ qw(
         tables
+        triggers
     ) ]
 ;
+
+sub new {
+    my ($class, %args) = @_;
+    my $self = bless {
+        triggers => {},
+        tables => {},
+        %args,
+    }, $class;
+    return $self;
+}
 
 sub set_default_instance {
     my ($class, $instance) = @_;
@@ -43,9 +53,28 @@ sub get_row_class {
 
     DBIx::Skin::Util::load_class($row_class) or do {
         no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
+        foreach my $col (@{$table->columns}) {
+            no strict 'refs';
+            *{"$row_class\::$col"} = $row_class->_lazy_get_data($col);
+        }
     };
 
     return $row_class;
+}
+
+sub call_trigger {
+    my ($self, $trigger_name, $db, $tablename, $args) = @_;
+
+    my $triggers = $self->triggers->{ $trigger_name } || [];
+    for my $code (@$triggers) {
+        $code->($db, $args, $tablename);
+    }
+
+    my $table = $self->get_table($tablename);
+    if (! $table) {
+        Carp::croak( "No table object associated with $tablename" );
+    }
+    $table->call_trigger( $db, $trigger_name, $args );
 }
 
 1;

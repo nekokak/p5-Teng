@@ -159,9 +159,10 @@ sub as_sql_having {
 }
 
 sub add_where {
-    my $self = shift;
+    my ($self, %args) = @_;
     ## xxx Need to support old range and transform behaviors.
-    my($col, $val) = @_;
+
+    while (my ($col, $val) = each %args) {
     # XXX; DATE_FORMAT(member.created_at,'%Y-%m') 
 #    Carp::croak("Invalid/unsafe column name $col") unless $col =~ /^[\w\.]+$/;
     my($term, $bind, $tcol) = $self->_mk_term($col, $val);
@@ -169,6 +170,7 @@ sub add_where {
     push @{ $self->{bind} }, @$bind;
     push @{ $self->{bind_col} }, $tcol;
     $self->where_values->{$tcol} = $bind;
+    }
 }
 
 sub add_complex_where {
