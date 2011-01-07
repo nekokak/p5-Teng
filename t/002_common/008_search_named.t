@@ -40,7 +40,7 @@ subtest 'search_named' => sub {
 
 subtest 'search_named' => sub {
     require DBIx::Skin::Profiler;
-    local $db->_attributes->{profiler} = DBIx::Skin::Profiler->new;
+    local $db->{profiler} = DBIx::Skin::Profiler->new;
     $db->profiler->reset;
     my $itr = $db->search_named(q{SELECT * FROM mock_basic WHERE id = :id limit %d}, {id => 1},[100]);
     isa_ok $itr, 'DBIx::Skin::Iterator';
@@ -55,7 +55,7 @@ subtest 'search_named' => sub {
 
 subtest 'search_named with arrayref' => sub {
     require DBIx::Skin::Profiler;
-    local $db->_attributes->{profiler} = DBIx::Skin::Profiler->new;
+    local $db->{profiler} = DBIx::Skin::Profiler->new;
     $db->profiler->reset;
     my $itr = $db->search_named(q{
         SELECT * FROM mock_basic

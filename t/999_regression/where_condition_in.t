@@ -12,7 +12,7 @@ $db->insert('mock_basic',{
 });
 
 use DBIx::Skin::Profiler;
-$db->_attributes->{profiler} = DBIx::Skin::Profiler->new;
+$db->{profiler} = DBIx::Skin::Profiler->new;
 
 subtest 'where condition in' => sub {
     $db->search('mock_basic',{

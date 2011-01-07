@@ -4,7 +4,7 @@ use DBIx::Skin;
 sub setup_test_db {
     my $skinny = shift;
 
-    my $dbd = $skinny->_attributes->{driver_name};
+    my $dbd = $skinny->{driver_name};
     if ($dbd eq 'SQLite') {
         $skinny->do(q{
             CREATE TABLE mock_inflate (

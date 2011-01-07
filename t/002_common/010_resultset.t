@@ -31,7 +31,7 @@ subtest 'resultset' => sub {
 
 subtest 'no connection test' => sub {
     eval {
-        $db->_attributes->{dbd} = '';
+        $db->{dbd} = '';
         $db->resultset;
     };
     ok $@;

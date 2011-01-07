@@ -5,11 +5,11 @@ use Test::More;
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
-$db->_attributes->{profile} = 1;
+$db->{profile} = 1;
 
 subtest 'quote sql by sqlite' => sub {
     require DBIx::Skin::Profiler;
-    local $db->_attributes->{profiler} = DBIx::Skin::Profiler->new;
+    local $db->{profiler} = DBIx::Skin::Profiler->new;
     my $row = $db->insert('mock_basic',{
         id   => 1,
         name => 'perl',

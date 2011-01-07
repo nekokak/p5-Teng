@@ -43,7 +43,7 @@ sub import {
     {
         no strict 'refs';
         push @{"${caller}::ISA"}, $class;
-        *{"$caller\::_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes };
+        *{"$caller\::_new_attributes"} = sub { ref $_[0] ? $_[0] : $_attributes }; # TODO: rename or remove? -- tokuhirom@20110107
     }
 
     strict->import;
@@ -54,7 +54,7 @@ sub new {
     my $class = shift;
     my %args = @_==1 ? %{$_[0]} : @_;
 
-    my $attr = $class->_attributes;
+    my $attr = $class->_new_attributes;
 
     my $self = bless +{
         profiler             => $attr->{profiler},
@@ -190,7 +190,7 @@ sub dbd {
 
     $_[0]->{dbd} or do {
         require Data::Dumper;
-        Carp::croak("Attribute 'dbd' is not defined. Either we failed to connect, or the connection has gone away. Current attribute dump: @{[ Data::Dumper::Dumper($_[0]->_attributes) ]}");
+        Carp::croak("Attribute 'dbd' is not defined. Either we failed to connect, or the connection has gone away.");
     };
 }
 

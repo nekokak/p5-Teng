@@ -41,7 +41,7 @@ my $db = Mock::CustomProfiler->new({
     password => '',
 });
 isa_ok($db->profiler, "Mock::CustomProfiler::Profiler", "it should be able to replace profiler class");
-$db->_attributes->{profile} = 1;
+$db->{profile} = 1;
 $db->setup_test_db;
 $db->search('mock_custom_profiler', { });
 ok($db->profiler->query_log, 'query log recorded');
