@@ -374,13 +374,6 @@ sub search_named {
     $self->search_by_sql($sql, \@bind, $opt_table_info);
 }
 
-sub find_or_new {
-    my ($self, $table, $args) = @_;
-    $self->single($table, $args) or do {
-        $self->hash_to_row($table, $args);
-    };
-}
-
 # XXX bad name? -- tokuhirom@20110107
 sub hash_to_row {
     my ($self, $table, $hash) = @_;
