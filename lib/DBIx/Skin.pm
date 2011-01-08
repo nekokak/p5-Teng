@@ -387,14 +387,6 @@ sub hash_to_row {
     $row;
 }
 
-sub _quote {
-    my ($label, $quote, $name_sep) = @_;
-
-    return $label if $label eq '*';
-    return $quote . $label . $quote if !defined $name_sep;
-    return join $name_sep, map { $quote . $_ . $quote } split /\Q$name_sep\E/, $label;
-}
-
 sub _last_insert_id {
     my ($self, $table) = @_;
 
