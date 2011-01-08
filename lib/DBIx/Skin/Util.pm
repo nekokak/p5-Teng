@@ -25,17 +25,5 @@ sub camelize {
     join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
 }
 
-sub mk_row_class {
-    my ($class, $table) = @_;
-
-    (my $k = $class) =~ s/::Schema//;
-    my $r = join '::', $k, 'Row', camelize($table);
-    load_class($r) or do {
-        my $isa_row = DBIx::Skin::Util::load_class(join '::', $k, 'Row') || 'DBIx::Skin::Row';
-        {no strict 'refs'; @{"$r\::ISA"} = ($isa_row)}
-        $r;
-    };
-}
-
 1;
 
