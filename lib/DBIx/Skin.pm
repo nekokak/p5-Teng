@@ -8,6 +8,7 @@ use DBIx::Skin::Row;
 use DBIx::Skin::Iterator;
 use DBIx::Skin::Schema;
 use DBIx::TransactionManager 1.02;
+use DBIx::Skin::QueryBuilder;
 use Class::Accessor::Lite
    rw => [ qw(
         connect_info
@@ -97,8 +98,7 @@ sub _prepare_from_dbh {
     my $builder = $self->sql_builder;
     if (! $builder ) {
         # XXX Hackish
-        require SQL::Maker;
-        $builder = SQL::Maker->new(driver => $driver_name );
+        $builder = DBIx::Skin::QueryBuilder->new(driver => $driver_name );
         $self->sql_builder( $builder );
     }
 
@@ -416,8 +416,17 @@ sub _last_insert_id {
 sub bulk_insert {
     my ($self, $table, $args) = @_;
 
-#    my $code = $self->{dbd}->can('bulk_insert') or Carp::croak "dbd don't provide bulk_insert method";
-#    $code->($self, $table, $args);
+    if ($self->dbh->{Driver}->{Name} eq 'mysql') {
+        $self->insert_multi($table, $args);
+    } else {
+        # use transaction for better performance and atomicity.
+        my $txn = $self->txn_scope();
+        for my $arg (@$args) {
+            # do not run trigger for consistency with mysql.
+            $self->_insert_or_replace(0, $table, $arg);
+        }
+        $txn->commit;
+    }
 }
 
 *find_or_insert = \*find_or_create;
