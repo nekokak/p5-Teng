@@ -19,6 +19,7 @@ use Class::Accessor::Lite
         suppress_row_objects
         sql_builder
         owner_pid
+        driver_name
     )]
 ;
 
@@ -106,11 +107,11 @@ sub _prepare_from_dbh {
 #        $dbh = $self->reconnect;
 #    }
 
-    my $driver_name = $dbh->{Driver}->{Name};
+    $self->driver_name($dbh->{Driver}->{Name});
     my $builder = $self->sql_builder;
     if (! $builder ) {
         # XXX Hackish
-        $builder = DBIx::Skin::QueryBuilder->new(driver => $driver_name );
+        $builder = DBIx::Skin::QueryBuilder->new(driver => $self->driver_name );
         $self->sql_builder( $builder );
     }
 
@@ -159,8 +160,8 @@ sub _insert_or_replace {
     my $table = $schema->get_table($tablename);
     my $pk = $table->primary_keys();
 
-    if (not ref $pk && not defined $args->{$pk}) {
-        $args->{$pk} = $self->_last_insert_id($tablename);
+    if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {
+        $args->{$pk->[0]} = $self->_last_insert_id($tablename);
     }
 
     my $row_class = $schema->get_row_class($self, $tablename);
@@ -378,7 +379,7 @@ sub _last_insert_id {
     my ($self, $table) = @_;
 
     my $dbh = $self->dbh;
-    my $driver = $self->{driver_name};
+    my $driver = $self->driver_name;
     if ( $driver eq 'mysql' ) {
         return $dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
