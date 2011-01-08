@@ -341,7 +341,7 @@ sub count {
 
     $select->add_select(\"COUNT($column)");
     $select->add_from($table);
-    $self->_add_where($select, $where);
+    $select->add_where($_ => $where->{$_}) for keys %{ $where || {} };
 
     my $sql = $select->as_sql();
     my @bind = $select->bind();
@@ -418,13 +418,6 @@ sub find_or_create {
     my $row = $self->single($table, $args);
     return $row if $row;
     $self->insert($table, $args)->refetch;
-}
-
-sub _add_where {
-    my ($self, $stmt, $where) = @_;
-    for my $col (keys %{$where}) {
-        $stmt->add_where($col => $where->{$col});
-    }
 }
 
 # stack trace
