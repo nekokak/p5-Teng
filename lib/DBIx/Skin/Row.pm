@@ -133,16 +133,15 @@ sub refetch {
 sub _where_cond {
     my ($self, $table_name) = @_;
 
-    unless ($table_name) {
-        Carp::croak "no table info";
-    }
-
     my $table = $self->{skinny}->schema->get_table( $table_name );
+    unless ($table) {
+        Carp::croak("Unknown table: $table_name");
+    }
 
     # get target table pk
     my $pk = $table->primary_keys;
     unless ($pk) {
-        Carp::croak "$table have no pk.";
+        Carp::croak("$table_name has no primary key.");
     }
 
     # multi primary keys

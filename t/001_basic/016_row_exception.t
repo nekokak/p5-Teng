@@ -37,17 +37,18 @@ subtest 'update/delete error: table name typo' => sub {
         $row->update({name => 'python'}, 'mock_basick');
     };
     ok $@;
-    like $@, qr/unknown table: mock_basick/;
+    like $@, qr/Unknown table: mock_basick/;
 
     eval {
         $row->delete('mock_basick');
     };
     ok $@;
-    like $@, qr/unknown table: mock_basick/;
+    like $@, qr/Unknown table: mock_basick/;
 };
 
 subtest 'update/delete error: table have no pk' => sub {
-    $db->schema->schema_info->{mock_basic}->{pk} = undef;
+    my $table = $db->schema->get_table('mock_basic');
+    local $table->{primary_keys};
 
     my $row = $db->single('mock_basic',{id => 1});
     isa_ok $row, 'DBIx::Skin::Row';
@@ -56,34 +57,30 @@ subtest 'update/delete error: table have no pk' => sub {
         $row->update({name => 'python'});
     };
     ok $@;
-    like $@, qr/mock_basic have no pk./;
+    like $@, qr/mock_basic has no primary key/;
 
     eval {
         $row->delete;
     };
     ok $@;
-    like $@, qr/mock_basic have no pk./;
-
-    $db->schema->schema_info->{mock_basic}->{pk} = 'id';
+    like $@, qr/mock_basic has no primary key/;
 };
 
-subtest 'update/delete error: select column have no pk.' => sub {
-    my $row = $db->search_by_sql('select name from mock_basic')->first;
+subtest 'update/delete error: select column has no primary key' => sub {
+    my $row = $db->search_by_sql('select name from mock_basic')->next;
     isa_ok $row, 'DBIx::Skin::Row';
 
     eval {
         $row->update({name => 'python'});
     };
     ok $@;
-    like $@, qr/can't get primary column in your query./;
+    like $@, qr/can't get primary columns in your query./;
 
     eval {
         $row->delete;
     };
     ok $@;
-    like $@, qr/can't get primary column in your query./;
+    like $@, qr/can't get primary columns in your query./;
 };
+
 done_testing;
-
-
-
