@@ -2,8 +2,6 @@ use t::Utils;
 use Test::More;
 use MyGuard;
 
-TODO: {
-todo_skip 'not yet...',0;
 {
     package Mock::MultiPK;
     use parent 'DBIx::Skin';
@@ -55,9 +53,7 @@ todo_skip 'not yet...',0;
 }
 
 my $skinny = Mock::MultiPK->new({
-    dsn => 'dbi:SQLite:./db1.db',
-    username => '',
-    password => '',
+    connect_info => [ 'dbi:SQLite:./db1.db' ]
 });
 my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
@@ -134,8 +130,11 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         is_deeply( $row->get_columns, { id_a => 3, id_b => 40 } );
 
+        TODO: {
+            todo_skip( "XXX What is this supposed to do?!", 2 );
         $row->insert(); # find_or_create => find
 
+            # ここからもTODOに入ってるのはおまけ
         @rows = $skinny->search( 'a_multi_pk_table', { id_a => 3 } );
         is( 0+@rows, 4 );
 
@@ -143,6 +142,7 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         @rows = $skinny->search( 'a_multi_pk_table', { id_a => 3 } );
         is( 0+@rows, 3 );
+        };
     };
 }
 
@@ -217,8 +217,11 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         is_deeply( $row->get_columns, { id_c => 3, id_d => 40 } );
 
+        TODO: {
+            todo_skip( "XXX What is this supposed to do?!", 2 );
         $row->insert(); # find_or_create => find
 
+            # ここからもTODOに入ってるのはおまけ
         @rows = $skinny->search( 'c_multi_pk_table', { id_c => 3 } );
         is( 0+@rows, 4 );
 
@@ -226,6 +229,7 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 
         @rows = $skinny->search( 'c_multi_pk_table', { id_c => 3 } );
         is( 0+@rows, 3 );
+        };
     };
 
     subtest 'multi pk find_or_create' => sub {
@@ -245,5 +249,3 @@ my $guard = MyGuard->new(sub { unlink 'db1.db' });
 }
 
 done_testing;
-
-}
