@@ -192,7 +192,7 @@ sub replace {
 sub resultset {
     my ($self, $args) = @_;
     $args->{skinny} = $self;
-    $self->sql_builder->new_select($args);
+    $self->sql_builder->new_select(%$args);
 }
 
 sub search_rs {
@@ -321,16 +321,17 @@ sub do {
 sub count {
     my ($self, $table, $column, $where) = @_;
 
-    my $rs = $self->resultset(
-        {
-            from   => [$table],
-        }
-    );
+    my $select = $self->resultset({});
 
-    $rs->add_select("COUNT($column)" =>  'cnt');
-    $self->_add_where($rs, $where);
+    $select->add_select(\"COUNT($column)");
+    $select->add_from($table);
+    $self->_add_where($select, $where);
 
-    $rs->retrieve->next->cnt;
+    my $sql = $select->as_sql();
+    my @bind = $select->bind();
+
+    my ($cnt) = $self->dbh->selectrow_array($sql, {}, @bind);
+    return $cnt;
 }
 
 sub search {
