@@ -4,7 +4,7 @@ use Test::More;
 {
     package Mock::BasicOnConnectDo;
     our $CONNECTION_COUNTER;
-    use DBIx::Skin;
+    use parent qw/DBIx::Skin/;
 
     sub setup_test_db {
         shift->do(q{
@@ -18,9 +18,10 @@ use Test::More;
 
     package Mock::BasicOnConnectDo::Schema;
     use utf8;
-    use DBIx::Skin::Schema;
+    use DBIx::Skin::Schema::Declare;
 
-    install_table mock_basic => schema {
+    table {
+        name 'mock_basic';
         pk 'id';
         columns qw/
             id
@@ -34,9 +35,11 @@ subtest 'global level on_connect_do / coderef' => sub {
 
     my $db = Mock::BasicOnConnectDo->new(
         {
-            dsn => 'dbi:SQLite:./t/main.db',
-            username => '',
-            password => '',
+            connect_info => [
+                'dbi:SQLite:./t/main.db',
+                '',
+                '',
+            ],
             on_connect_do => sub { $Mock::BasicOnConnectDo::CONNECTION_COUNTER++ }
         }
     );
