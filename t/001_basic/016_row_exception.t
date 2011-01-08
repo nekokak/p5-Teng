@@ -2,9 +2,6 @@ use t::Utils;
 use Mock::Basic;
 use Test::More;
 
-TODO : {
-todo_skip 'not yet...', 0;
-
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
@@ -21,14 +18,14 @@ subtest 'update/delete error: no table info' => sub {
     eval {
         $row->update({name => 'python'});
     };
-    ok $@;
-    like $@, qr/no table info/;
+    ok $@, "Update fails w/o primary key";
+    like $@, qr/can't get primary columns in your query/;
 
     eval {
         $row->delete;
     };
-    ok $@;
-    like $@, qr/no table info/;
+    ok $@, "Delete fails w/o primary key";
+    like $@, qr/can't get primary columns in your query/;
 };
 
 subtest 'update/delete error: table name typo' => sub {
@@ -93,7 +90,6 @@ subtest 'update/delete error: select column have no pk.' => sub {
     like $@, qr/can't get primary column in your query./;
 };
 done_testing;
-};
 
 
 
