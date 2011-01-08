@@ -340,7 +340,7 @@ sub count {
 
     $select->add_select(\"COUNT($column)");
     $select->add_from($table);
-    $self->_add_where($select, $where);
+    $select->add_where($_ => $where->{$_}) for keys %{ $where || {} };
 
     my $sql = $select->as_sql();
     my @bind = $select->bind();
@@ -419,20 +419,13 @@ sub find_or_create {
     $self->insert($table, $args)->refetch;
 }
 
-sub _add_where {
-    my ($self, $stmt, $where) = @_;
-    for my $col (keys %{$where}) {
-        $stmt->add_where($col => $where->{$col});
-    }
-}
-
 # stack trace
 sub _stack_trace {
     my ($self, $sth, $stmt, $bind, $reason) = @_;
     require Data::Dumper;
 
     if ($sth) {
-        $self->_close_sth($sth);
+        $sth->finish;
     }
 
     $stmt =~ s/\n/\n          /gm;
@@ -444,12 +437,6 @@ SQL     : %s
 BIND    : %s
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 TRACE
-}
-
-sub _close_sth {
-    my ($self, $sth) = @_;
-    $sth->finish;
-    undef $sth;
 }
 
 1;

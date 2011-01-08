@@ -114,3 +114,33 @@ sub table(&) {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+DBIx::Skin::Schema::Declare - DSL For Declaring DBIx::Skin Schema
+
+=head1 NORMAL USE
+
+    package MyDB::Schema;
+    use strict;
+    use DBIx::Skin::Schema::Declare;
+
+    table {
+        name "your_table_name";
+        pk "primary_key";
+        columns qw( col1 col2 col3 );
+    };
+
+=head1 INLINE DECLARATION
+
+    use DBIx::Skin::Schema::Declare;
+    my $schema = schema {
+        table {
+            name "your_table_name";
+            columns qw( col1 col2 col3 );
+        };
+    } "MyDB::Schema";
+
+=cut
