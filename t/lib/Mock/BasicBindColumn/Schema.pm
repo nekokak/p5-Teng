@@ -1,7 +1,10 @@
 package Mock::BasicBindColumn::Schema;
-use DBIx::Skin::Schema;
+use strict;
+use warnings;
+use DBIx::Skin::Schema::Declare;
 
-install_table mock_basic_bind_column => schema {
+table {
+    name 'mock_basic_bind_column';
     pk 'id';
 
     my @columns = (
