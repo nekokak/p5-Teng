@@ -6,9 +6,9 @@ use MyGuard;
 unlink './db1.db' if -f './db1.db';
 my $db = Mock::Basic->new(
     {
-        dsn => 'dbi:SQLite:./db1.db',
-        username => '',
-        password => '',
+        connect_info => [
+           'dbi:SQLite:./db1.db',
+        ],
     }
 );
 $db->setup_test_db;
@@ -33,11 +33,7 @@ subtest 'db1.db ok' => sub {
 };
 
 $db->reconnect(
-    {
-        dsn => 'dbi:SQLite:./db2.db',
-        username => '',
-        password => '',
-    }
+    'dbi:SQLite:./db2.db',
 );
 my $guard2 = MyGuard->new(sub { unlink 'db2.db' });
 $db->setup_test_db;
@@ -61,11 +57,9 @@ subtest 'db2.db ok' => sub {
 };
 
 $db->reconnect(
-    {
-        dsn => 'dbi:SQLite:./db1.db',
-        username => '',
-        password => '',
-    }
+    'dbi:SQLite:./db1.db',
+    '',
+    '',
 );
 
 subtest 'db1.db ok' => sub {
