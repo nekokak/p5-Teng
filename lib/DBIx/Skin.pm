@@ -374,24 +374,6 @@ sub search_named {
     $self->search_by_sql($sql, \@bind, $opt_table_info);
 }
 
-# XXX bad name? -- tokuhirom@20110107
-sub hash_to_row {
-    my ($self, $table, $hash) = @_;
-
-    my $schema = $self->schema;
-    my $row_class = $schema->get_row_class($self, $table);
-    my $row = $row_class->new(
-        {
-            sql            => undef,
-            row_data       => $hash,
-            skinny         => $self,
-            opt_table_info => $table,
-        }
-    );
-    $row->setup;
-    $row;
-}
-
 sub _last_insert_id {
     my ($self, $table) = @_;
 
@@ -857,27 +839,6 @@ using a L</txn_begin>/L</txn_commit> pair, without having to worry
 about calling L</txn_rollback> at the right places. Note that since there
 is no defined code closure, there will be no retries and other magic upon
 database disconnection.
-
-=item $skinny->hash_to_row($table_name, $row_data_hash_ref)
-
-make DBIx::Skin::Row's class from hash_ref.
-
-    my $row = Your::Model->hash_to_row('user',
-        {
-            id   => 1,
-            name => 'lestrrat',
-        }
-    );
-
-=item $skinny->find_or_new($table_name, \%row_data)
-
-Find an existing record from database.
-
-If none exists, instantiate a new row object and return it.
-
-The object will not be saved into your storage until you call "insert" in DBIx::Skin::Row on it.
-
-    my $row = Your::Model->find_or_new('user',{name => 'nekokak'});
 
 =item $skinny->do($sql, [$option, $bind_values])
 
