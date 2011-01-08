@@ -336,7 +336,7 @@ sub count {
 sub search {
     my ($self, $table, $where, $opt) = @_;
 
-    my $iter = $self->search_rs($table, $where, $opt)->retrieve;
+    my $iter = $self->search_rs($table, $where, $opt);
     return wantarray ? $iter->all : $iter;
 }
 
