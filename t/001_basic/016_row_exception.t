@@ -71,13 +71,7 @@ subtest 'update/delete error: table have no pk' => sub {
 };
 
 subtest 'update/delete error: select column have no pk.' => sub {
-    my $row = $db->resultset(
-        {
-            select => [qw/name/],
-            from   => [qw/mock_basic/],
-        }
-    )->retrieve->next;
-
+    my $row = $db->search_by_sql('select name from mock_basic')->first;
     isa_ok $row, 'DBIx::Skin::Row';
 
     eval {

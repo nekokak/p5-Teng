@@ -202,12 +202,6 @@ sub replace {
     $obj;
 }
 
-sub resultset {
-    my ($self, $args) = @_;
-    $args->{skinny} = $self;
-    $self->sql_builder->new_select(%$args);
-}
-
 sub search_rs {
     my ($self, $table_name, $where, $opt) = @_;
 
@@ -334,7 +328,7 @@ sub do {
 sub count {
     my ($self, $table, $column, $where) = @_;
 
-    my $select = $self->resultset({});
+    my $select = $self->sql_builder->new_select();
 
     $select->add_select(\"COUNT($column)");
     $select->add_from($table);
@@ -758,22 +752,6 @@ get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
     my $row = Your::Model->single('user',{id =>1});
-
-=item $skinny->resultset(\%options)
-
-resultset case:
-
-    my $rs = Your::Model->resultset(
-        {
-            select => [qw/id name/],
-            from   => [qw/user/],
-        }
-    );
-    $rs->add_where('name' => {op => 'like', value => "%neko%"});
-    $rs->limit(10);
-    $rs->offset(10);
-    $rs->order({ column => 'id', desc => 'DESC' });
-    my $itr = $rs->retrieve;
 
 =item $skinny->count($table_name, $target_column, [\%search_condition])
 
