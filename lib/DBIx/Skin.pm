@@ -433,7 +433,7 @@ sub _stack_trace {
     require Data::Dumper;
 
     if ($sth) {
-        $self->_close_sth($sth);
+        $sth->finish;
     }
 
     $stmt =~ s/\n/\n          /gm;
@@ -445,12 +445,6 @@ SQL     : %s
 BIND    : %s
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 TRACE
-}
-
-sub _close_sth {
-    my ($self, $sth) = @_;
-    $sth->finish;
-    undef $sth;
 }
 
 1;
