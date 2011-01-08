@@ -105,35 +105,29 @@ sub get_dirty_columns {
     return \%rows;
 }
 
-sub insert {
-    my $self = shift;
-
-    $self->{skinny}->find_or_create($self->{table}, $self->get_columns);
-}
-
 sub update {
-    my ($self, $args, $table) = @_;
+    my ($self, $args, $table_name) = @_;
 
-    $table ||= $self->{table};
+    $table_name ||= $self->{table_name};
     $args ||= $self->get_dirty_columns;
 
-    my $result = $self->{skinny}->update($table, $args, $self->_where_cond($table));
+    my $result = $self->{skinny}->update($table_name, $args, $self->_where_cond($table_name));
     $self->set_columns($args);
 
     return $result;
 }
 
 sub delete {
-    my ($self, $table) = @_;
+    my ($self, $table_name) = @_;
 
-    $table ||= $self->{table};
-    $self->{skinny}->delete($table, $self->_where_cond($table));
+    $table_name ||= $self->{table_name};
+    $self->{skinny}->delete($table_name, $self->_where_cond($table_name));
 }
 
 sub refetch {
-    my ($self, $table) = @_;
-    $table ||= $self->{table};
-    $self->{skinny}->single($table, $self->_where_cond($table));
+    my ($self, $table_name) = @_;
+    $table_name ||= $self->{table_name};
+    $self->{skinny}->single($table_name, $self->_where_cond($table_name));
 }
 
 sub _where_cond {

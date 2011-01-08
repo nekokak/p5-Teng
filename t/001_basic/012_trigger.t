@@ -4,7 +4,6 @@ use t::Utils;
 
 use_ok "Mock::Trigger";
 
-
 my $dbh = t::Utils::setup_dbh();
 t::Utils::prepare_db( "Mock::Trigger", $dbh );
 my $db = Mock::Trigger->new(dbh => $dbh);
@@ -17,7 +16,7 @@ subtest 'schema info' => sub {
     is_deeply $triggers, {}, "schema trigger list is empty";
 
     my %data = (
-        # tablename => { trigger_name => count }
+        # table_name => { trigger_name => count }
         mock_trigger_pre => {
             pre_insert => 2,
             post_insert => 1,
@@ -45,12 +44,12 @@ subtest 'schema info' => sub {
             
     );
 
-    while ( my ($tablename, $trigcounts) = each %data ) {
-        my $table = $schema->get_table( $tablename );
+    while ( my ($table_name, $trigcounts) = each %data ) {
+        my $table = $schema->get_table( $table_name );
         my $table_triggers = $table->triggers;
         while( my ($trigger_name, $count) = each %$trigcounts) {
             is scalar @{ $table_triggers->{$trigger_name} || [] }, $count,
-                "$tablename.$trigger_name count should be $count";
+                "$table_name.$trigger_name count should be $count";
         }
     }
 };

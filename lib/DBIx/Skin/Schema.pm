@@ -49,11 +49,11 @@ sub get_table {
 }
 
 sub get_row_class {
-    my ($self, $db, $tablename) = @_;
+    my ($self, $db, $table_name) = @_;
 
-    my $table = $self->get_table($tablename);
+    my $table = $self->get_table($table_name);
     if (! $table) {
-        Carp::croak( "No table object associated with $tablename" );
+        Carp::croak( "No table object associated with $table_name" );
     }
     my $row_class = $table->row_class;
 
@@ -83,16 +83,16 @@ sub add_trigger {
 }
 
 sub call_trigger {
-    my ($self, $trigger_name, $db, $tablename, $args) = @_;
+    my ($self, $trigger_name, $db, $table_name, $args) = @_;
 
     my $triggers = $self->triggers->{ $trigger_name } || [];
     for my $code (@$triggers) {
-        $code->($db, $args, $tablename);
+        $code->($db, $args, $table_name);
     }
 
-    my $table = $self->get_table($tablename);
+    my $table = $self->get_table($table_name);
     if (! $table) {
-        Carp::croak( "No table object associated with $tablename" );
+        Carp::croak( "No table object associated with $table_name" );
     }
     $table->call_trigger( $db, $trigger_name, $args );
 }
