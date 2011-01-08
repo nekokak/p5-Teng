@@ -141,7 +141,7 @@ sub _execute {
 }
 
 sub _insert_or_replace {
-    my ($self, $is_replace, $tablename, $args) = @_;
+    my ($self, $is_replace, $table_name, $args) = @_;
 
     my $schema = $self->schema;
 
@@ -150,28 +150,28 @@ sub _insert_or_replace {
 #        $args->{$col} = $schema->call_deflate($col, $args->{$col});
 #    }
 
-    my ($sql, @binds) = $self->sql_builder->insert( $tablename, $args );
+    my ($sql, @binds) = $self->sql_builder->insert( $table_name, $args );
     if ($is_replace) {
         $sql =~ s/^\s*INSERT\b/REPLACE/;
     }
 
-    $self->_execute($sql, \@binds, $tablename);
+    $self->_execute($sql, \@binds, $table_name);
 
-    my $table = $schema->get_table($tablename);
+    my $table = $schema->get_table($table_name);
     my $pk = $table->primary_keys();
 
     if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {
-        $args->{$pk->[0]} = $self->_last_insert_id($tablename);
+        $args->{$pk->[0]} = $self->_last_insert_id($table_name);
     }
 
-    my $row_class = $schema->get_row_class($self, $tablename);
+    my $row_class = $schema->get_row_class($self, $table_name);
     return $args if $self->suppress_row_objects;
 
     my $obj = $row_class->new(
         {
-            row_data       => $args,
-            skinny         => $self,
-            table => $table,
+            row_data   => $args,
+            skinny     => $self,
+            table_name => $table_name,
         }
     );
     $obj->setup;
@@ -209,37 +209,37 @@ sub resultset {
 }
 
 sub search_rs {
-    my ($self, $tablename, $where, $opt) = @_;
+    my ($self, $table_name, $where, $opt) = @_;
 
     my $builder = $self->sql_builder;
-    my $table = $self->schema->get_table( $tablename );
+    my $table = $self->schema->get_table( $table_name );
     my ($sql, @binds) = $builder->select(
-        $tablename,
+        $table_name,
         $table->columns,
         $where,
         $opt
     );
 
-    return scalar($self->search_by_sql($sql, \@binds, $tablename));
+    return scalar($self->search_by_sql($sql, \@binds, $table_name));
 }
 
 sub single {
-    my ($self, $table, $where, $opt) = @_;
+    my ($self, $table_name, $where, $opt) = @_;
     $opt->{limit} = 1;
-    $self->search_rs($table, $where, $opt)->next;
+    $self->search_rs($table_name, $where, $opt)->next;
 }
 
 sub search_by_sql {
-    my ($self, $sql, $bind, $tablename) = @_;
+    my ($self, $sql, $bind, $table_name) = @_;
 
-    $tablename ||= $self->_guess_table_name( $sql );
+    $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->_execute($sql, $bind);
     my $itr = DBIx::Skin::Iterator->new(
         skinny         => $self,
         sth            => $sth,
         sql            => $sql,
-        row_class      => defined($tablename) ? $self->schema->get_row_class($self, $tablename) : 'DBIx::Skin::AnonRow',
-        table => $tablename,
+        row_class      => defined($table_name) ? $self->schema->get_row_class($self, $table_name) : 'DBIx::Skin::AnonRow',
+        table_name     => $table_name,
         suppress_objects => $self->suppress_row_objects,
     );
     return wantarray ? $itr->all : $itr;
@@ -348,9 +348,9 @@ sub count {
 }
 
 sub search {
-    my ($self, $table, $where, $opt) = @_;
+    my ($self, $table_name, $where, $opt) = @_;
 
-    my $iter = $self->search_rs($table, $where, $opt);
+    my $iter = $self->search_rs($table_name, $where, $opt);
     return wantarray ? $iter->all : $iter;
 }
 
@@ -537,7 +537,7 @@ Unlike DBIx::Class, you don't need to have a set of classes that represent a row
 
 If you want to define methods to be performed by your row objects, simply create a row class like so:
 
-    package MyApp::Model::Row::CamelizedTableName;
+    package MyApp::Model::Row::Camelizedtable_name;
     use base qw(DBIx::Skin::Row);
 
 Note that your table name will be camelized using String::CamelCase.
