@@ -170,7 +170,7 @@ sub _insert_or_replace {
         {
             row_data       => $args,
             skinny         => $self,
-            opt_table_info => $table,
+            table => $table,
         }
     );
     $obj->setup;
@@ -237,8 +237,8 @@ sub search_by_sql {
         skinny         => $self,
         sth            => $sth,
         sql            => $sql,
-        row_class      => $self->schema->get_row_class($self, $tablename),
-        opt_table_info => $tablename,
+        row_class      => defined($tablename) ? $self->schema->get_row_class($self, $tablename) : 'DBIx::Skin::AnonRow',
+        table => $tablename,
         suppress_objects => $self->suppress_row_objects,
     );
     return wantarray ? $itr->all : $itr;
@@ -354,7 +354,7 @@ sub search {
 }
 
 sub search_named {
-    my ($self, $sql, $args, $opts, $opt_table_info) = @_;
+    my ($self, $sql, $args, $opts, $table) = @_;
 
     $sql = sprintf($sql, @{$opts||[]});
     my %named_bind = %{$args};
@@ -371,7 +371,7 @@ sub search_named {
         }
     }ge;
 
-    $self->search_by_sql($sql, \@bind, $opt_table_info);
+    $self->search_by_sql($sql, \@bind, $table);
 }
 
 sub _last_insert_id {
@@ -814,7 +814,7 @@ execute your SQL
             id = ?
     },[ 1 ]);
 
-If $opt_table_info is specified, it set table infomation to result iterator.
+If $table is specified, it set table infomation to result iterator.
 So, you can use table row class to search_by_sql result.
 
 =item $skinny->txn_scope

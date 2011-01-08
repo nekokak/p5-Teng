@@ -108,13 +108,13 @@ sub get_dirty_columns {
 sub insert {
     my $self = shift;
 
-    $self->{skinny}->find_or_create($self->{opt_table_info}, $self->get_columns);
+    $self->{skinny}->find_or_create($self->{table}, $self->get_columns);
 }
 
 sub update {
     my ($self, $args, $table) = @_;
 
-    $table ||= $self->{opt_table_info};
+    $table ||= $self->{table};
     $args ||= $self->get_dirty_columns;
 
     my $result = $self->{skinny}->update($table->name, $args, $self->_where_cond($table));
@@ -126,13 +126,13 @@ sub update {
 sub delete {
     my ($self, $table) = @_;
 
-    $table ||= $self->{opt_table_info};
+    $table ||= $self->{table};
     $self->{skinny}->delete($table->name, $self->_where_cond($table));
 }
 
 sub refetch {
     my ($self, $table) = @_;
-    $table ||= $self->{opt_table_info};
+    $table ||= $self->{table};
     $self->{skinny}->single($table, $self->_where_cond($table));
 }
 

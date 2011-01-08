@@ -37,7 +37,7 @@ sub next {
                 sql            => $self->{sql},
                 row_data       => $row,
                 skinny         => $self->{skinny},
-                opt_table_info => $self->{opt_table_info},
+                table => $self->{table},
             }
         );
 
