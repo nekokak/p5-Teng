@@ -303,16 +303,6 @@ sub disconnect {
     $self->{dbh} = undef;
 }
 
-sub _guess_driver_name {
-    my $args = shift;
-    if ($args->{dbh}) {
-        return $args->{dbh}->{Driver}->{Name};
-    } elsif ($args->{dsn}) {
-        my (undef, $driver_name,) = DBI->parse_dsn($args->{dsn}) or Carp::croak "can't parse DSN: @{[ $args->{dsn} ]}";
-        return $driver_name
-    }
-}
-
 #--------------------------------------------------------------------------------
 sub do {
     my ($self, $sql, $attr, @bind_vars) = @_;
