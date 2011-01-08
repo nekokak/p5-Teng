@@ -8,9 +8,10 @@ for (qw/other main/) {
 
 my $db = Mock::Basic->new(
     {
-        dsn => 'dbi:SQLite:./t/main.db',
-        username => '',
-        password => '',
+        connect_info => [
+            'dbi:SQLite:./t/main.db',
+            '',''
+        ],
     }
 );
 $db->setup_test_db;
@@ -37,9 +38,11 @@ subtest 'search' => sub {
 subtest 'do new' => sub {
     my $model = Mock::Basic->new(
         {
-            dsn => 'dbi:SQLite:./t/main.db',
-            username => '',
-            password => '',
+            connect_info => [
+                'dbi:SQLite:./t/main.db',
+                '',
+                '',
+            ]
         }
     );
     my $itr = $model->search('mock_basic');
@@ -55,9 +58,11 @@ subtest 'do new' => sub {
 subtest 'do new other connection' => sub {
     my $model = Mock::Basic->new(
         {
-            dsn => 'dbi:SQLite:./t/other.db',
-            username => '',
-            password => '',
+            connect_info => [
+                'dbi:SQLite:./t/other.db',
+                '',
+                '',
+            ]
         }
     );
     $model->setup_test_db;
