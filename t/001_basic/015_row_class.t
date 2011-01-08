@@ -2,8 +2,6 @@ use t::Utils;
 use Mock::Basic;
 use Test::More;
 
-TODO: {
-todo_skip 'not yet..', 0;
 {
     package Mock::BasicRow;
     use base qw(DBIx::Skin);
@@ -37,7 +35,7 @@ todo_skip 'not yet..', 0;
             id
             name
         /;
-        row_class 'Mock::BasicRow::FooRow';
+        row_class '+Mock::BasicRow::FooRow';
     };
 
     package Mock::BasicRow::FooRow;
@@ -118,7 +116,6 @@ $db_ex_row->insert('mock_ex_row',{
 subtest 'no your row class' => sub {
     my $row = $db_basic->single('mock_basic',{id => 1});
     isa_ok $row, 'DBIx::Skin::Row';
-    done_testing;
 };
 
 subtest 'your row class' => sub {
@@ -127,7 +124,6 @@ subtest 'your row class' => sub {
     is $row->foo, 'foo';
     is $row->id, 1;
     is $row->name, 'perl';
-    done_testing;
 };
 
 subtest 'ex row class' => sub {
@@ -142,16 +138,12 @@ subtest 'ex row class' => sub {
 
 subtest 'row_class specific Schema.pm' => sub {
     is +$db_basic_row->schema->get_row_class($db_basic_row, 'mock_basic_row_foo'), 'Mock::BasicRow::FooRow';
-    done_testing;
 };
 
 subtest 'handle' => sub {
     my $row = $db_basic->single('mock_basic',{id => 1});
     isa_ok $row->handle, 'Mock::Basic';
     can_ok $row->handle, 'single';
-    done_testing;
 };
 
 done_testing;
-
-}
