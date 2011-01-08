@@ -2,8 +2,6 @@ use t::Utils;
 use Mock::Basic;
 use Test::More;
 
-TODO: {
-todo_skip 'not yet..', 0;
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
@@ -81,9 +79,7 @@ subtest 'search with non-exist table' => sub {
         my $itr = $db->search('must_not_exist', {}, { order_by => 'name' });
     };
     ok $@;
-    like $@, qr/schema_info does not exist for table/;
+    like $@, qr/No such table must_not_exist/;
 };
 
 done_testing;
-
-};
