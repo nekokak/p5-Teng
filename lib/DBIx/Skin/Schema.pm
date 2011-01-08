@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Scalar::Util ();
 use DBIx::Skin::Util ();
+use DBIx::Skin::Row ();
 use Class::Accessor::Lite
     rw => [ qw(
         tables
