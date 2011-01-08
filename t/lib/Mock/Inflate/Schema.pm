@@ -1,8 +1,11 @@
 package Mock::Inflate::Schema;
+use strict;
+use warnings;
 use DBIx::Skin::Schema;
 use Mock::Inflate::Name;
 
-install_table mock_inflate => schema {
+table {
+    name 'mock_inflate';
     pk 'id';
     columns qw/
         id
