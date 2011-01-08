@@ -65,7 +65,8 @@ sub get_row_class {
         ;
     }
 
-    DBIx::Skin::Util::load_class($row_class) or do {
+    Class::Load::load_optional_class($row_class) or do {
+        # make row class automatically
         no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
         foreach my $col (@{$table->columns}) {
             no strict 'refs';
