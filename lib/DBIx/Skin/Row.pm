@@ -117,7 +117,7 @@ sub update {
     $table ||= $self->{table};
     $args ||= $self->get_dirty_columns;
 
-    my $result = $self->{skinny}->update($table->name, $args, $self->_where_cond($table));
+    my $result = $self->{skinny}->update($table, $args, $self->_where_cond($table));
     $self->set_columns($args);
 
     return $result;
@@ -127,7 +127,7 @@ sub delete {
     my ($self, $table) = @_;
 
     $table ||= $self->{table};
-    $self->{skinny}->delete($table->name, $self->_where_cond($table));
+    $self->{skinny}->delete($table, $self->_where_cond($table));
 }
 
 sub refetch {
@@ -137,11 +137,13 @@ sub refetch {
 }
 
 sub _where_cond {
-    my ($self, $table) = @_;
+    my ($self, $table_name) = @_;
 
-    unless ($table) {
+    unless ($table_name) {
         Carp::croak "no table info";
     }
+
+    my $table = $self->{skinny}->schema->get_table( $table_name );
 
     # get target table pk
     my $pk = $table->primary_keys;

@@ -2,8 +2,6 @@ use t::Utils;
 use Mock::Basic;
 use Test::More;
 
-TODO: {
-todo_skip 'not yet..', 0;
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
@@ -14,7 +12,7 @@ $db->insert('mock_basic',{
 });
 
 subtest 'update mock_basic data' => sub {
-    ok +$db->update('mock_basic',{name => 'python'},{id => 1});
+    ok $db->update('mock_basic',{name => 'python'},{id => 1});
     my $row = $db->single('mock_basic',{id => 1});
 
     isa_ok $row, 'DBIx::Skin::Row';
@@ -23,6 +21,7 @@ subtest 'update mock_basic data' => sub {
 
 subtest 'row object update' => sub {
     my $row = $db->single('mock_basic',{id => 1});
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'python';
 
     ok $row->update({name => 'perl'});
@@ -33,6 +32,7 @@ subtest 'row object update' => sub {
 
 subtest 'row data set and update' => sub {
     my $row = $db->single('mock_basic',{id => 1});
+    isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'perl';
 
     $row->set_columns({name => 'ruby'});
@@ -71,4 +71,4 @@ subtest 'update row count' => sub {
 };
 
 done_testing;
-};
+
