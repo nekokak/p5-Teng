@@ -1,5 +1,6 @@
 package DBIx::Skin::Schema::Table;
 use strict;
+use DBIx::Skin::Util ();
 use Class::Accessor::Lite
     rw => [ qw(
         name
@@ -20,12 +21,7 @@ sub new {
 
     if (! $self->row_class) {
         # camelize the table name
-        $self->row_class( 
-            join('',
-                map{ ucfirst $_ }
-                    split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $self->name)
-            )
-        );
+        $self->row_class( DBIx::Skin::Util::camelize( $self->name ) );
     }
     return $self;
 }
