@@ -12,6 +12,7 @@ use DBIx::Skin::QueryBuilder;
 use Class::Accessor::Lite
    rw => [ qw(
         connect_info
+        on_connect_do
         dbh
         schema
         schema_class
@@ -24,7 +25,6 @@ use Class::Accessor::Lite
 our $VERSION = '0.0732';
 
 sub new {
-#    my ($class, %args) = @_;
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
 
@@ -77,6 +77,18 @@ sub connect {
         or Carp::croak("Connection error: " . $DBI::errstr);
 
     $self->dbh( $dbh );
+
+    my $on_connect_do = $self->on_connect_do;
+    if (not ref($on_connect_do)) {
+        $self->do($on_connect_do);
+    } elsif (ref($on_connect_do) eq 'CODE') {
+        $on_connect_do->($self);
+    } elsif (ref($on_connect_do) eq 'ARRAY') {
+        $self->do($_) for @$on_connect_do;
+    } else {
+        Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
+    }
+
     $self->_prepare_from_dbh( $dbh );
     return $self;
 }

@@ -44,31 +44,27 @@ subtest 'global level on_connect_do / coderef' => sub {
         }
     );
 
-    $db->connect; # for do connection.
     is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 1, "counter should called");
-    $db->reconnect;
+    $db->connect; # for do connection.
     is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 2, "called after reconnect");
-    $db->reconnect;
-    is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 3, "called after reconnect");
 };
 
 subtest 'instance level on_connect_do / coderef' => sub {
     my $counter = 0;
     my $db = Mock::BasicOnConnectDo->new(
         {
-            dsn => 'dbi:SQLite:./t/main.db',
-            username => '',
-            password => '',
+            connect_info => [
+                'dbi:SQLite:./t/main.db',
+                '',
+                '',
+            ],
             on_connect_do => sub { $counter++ },
         }
     );
 
-    $db->connect; # for do connection.
     is($counter, 1, "counter should called");
-    $db->reconnect;
+    $db->connect; # for do connection.
     is($counter, 2, "called after reconnect");
-    $db->reconnect;
-    is($counter, 3, "called after reconnect");
 };
 
 subtest 'instance level on_connect_do / scalar' => sub {
@@ -79,17 +75,18 @@ subtest 'instance level on_connect_do / scalar' => sub {
     };
     my $db = Mock::BasicOnConnectDo->new(
         +{
-            dsn => 'dbi:SQLite:',
-            username => '',
-            password => '',
+            connect_info => [
+                'dbi:SQLite:./t/main.db',
+                '',
+                '',
+            ],
             on_connect_do => 'select * from sqlite_master',
         }
     );
 
-    $db->connect;
     is $query, 'select * from sqlite_master';
     $query='';
-    $db->reconnect;
+    $db->connect;
     is $query, 'select * from sqlite_master';
 };
 
@@ -99,17 +96,20 @@ subtest 'instance level on_connect_do / array' => sub {
         my ($self, $sql, ) = @_;
         push @query, $sql;
     };
-    my $db = Mock::BasicOnConnectDo->new({
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-        on_connect_do => ['select * from sqlite_master', 'select * from sqlite_master'],
-    });
+    my $db = Mock::BasicOnConnectDo->new(
+        {
+            connect_info => [
+                'dbi:SQLite:./t/main.db',
+                '',
+                '',
+            ],
+            on_connect_do => ['select * from sqlite_master', 'select * from sqlite_master'],
+        }
+    );
 
-    $db->connect; 
     is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
     @query = ();
-    $db->reconnect;
+    $db->connect; 
     is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
 };
 
