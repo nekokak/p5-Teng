@@ -141,7 +141,7 @@ sub _execute {
 }
 
 sub _insert_or_replace {
-    my ($self, $is_replace, $table_name, $args) = @_;
+    my ($self, $prefix, $table_name, $args) = @_;
 
     my $schema = $self->schema;
 
@@ -150,10 +150,9 @@ sub _insert_or_replace {
 #        $args->{$col} = $schema->call_deflate($col, $args->{$col});
 #    }
 
-    my ($sql, @binds) = $self->sql_builder->insert( $table_name, $args );
-    if ($is_replace) {
-        $sql =~ s/^\s*INSERT\b/REPLACE/;
-    }
+    my ( $sql, @binds ) =
+      $self->sql_builder->insert( $table_name, $args,
+        { prefix => $prefix } );
 
     $self->_execute($sql, \@binds, $table_name);
 
@@ -185,7 +184,7 @@ sub insert {
 
     my $schema = $self->schema;
     $schema->call_trigger( pre_insert => $self, $table, $args );
-    my $obj = $self->_insert_or_replace(0, $table, $args);
+    my $obj = $self->_insert_or_replace('INSERT', $table, $args);
     $schema->call_trigger( post_insert => $self, $table, $obj );
 
     $obj;
@@ -196,7 +195,7 @@ sub replace {
 
     my $schema = $self->schema;
     $schema->call_trigger('pre_insert', $self, $table, $args);
-    my $obj = $self->_insert_or_replace(1, $table, $args);
+    my $obj = $self->_insert_or_replace('REPLACE', $table, $args);
     $schema->call_trigger('post_insert', $self, $table, $obj);
 
     $obj;
@@ -406,7 +405,7 @@ sub bulk_insert {
         my $txn = $self->txn_scope();
         for my $arg (@$args) {
             # do not run trigger for consistency with mysql.
-            $self->_insert_or_replace(0, $table, $arg);
+            $self->_insert_or_replace('INSERT', $table, $arg);
         }
         $txn->commit;
     }
