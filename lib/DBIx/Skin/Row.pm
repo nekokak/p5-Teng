@@ -127,7 +127,7 @@ sub delete {
     my ($self, $table) = @_;
 
     $table ||= $self->{opt_table_info};
-    $self->{skinny}->delete($table, $self->_where_cond($table));
+    $self->{skinny}->delete($table->name, $self->_where_cond($table));
 }
 
 sub refetch {
