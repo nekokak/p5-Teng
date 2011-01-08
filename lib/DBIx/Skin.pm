@@ -207,7 +207,7 @@ sub search_rs {
         $opt
     );
 
-    return $self->search_by_sql($sql, \@binds, $tablename);
+    return scalar($self->search_by_sql($sql, \@binds, $tablename));
 }
 
 sub single {
