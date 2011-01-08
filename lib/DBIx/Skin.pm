@@ -43,6 +43,10 @@ sub new {
         $self->schema( $schema );
     }
 
+    unless ($self->connect_info || $self->dbh) {
+        Carp::croak("'dbh' or 'connect_info' is required.");
+    }
+
     if ( ! $self->dbh ) {
         $self->connect;
     } else {
