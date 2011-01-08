@@ -117,7 +117,7 @@ sub update {
     $table ||= $self->{opt_table_info};
     $args ||= $self->get_dirty_columns;
 
-    my $result = $self->{skinny}->update($table->name, $args, $self->_where_cond($table));
+    my $result = $self->{skinny}->update($table, $args, $self->_where_cond($table));
     $self->set_columns($args);
 
     return $result;
@@ -137,8 +137,9 @@ sub refetch {
 }
 
 sub _where_cond {
-    my ($self, $table) = @_;
+    my ($self, $table_name) = @_;
 
+    my $table = $self->handle->schema->get_table($table_name);
     unless ($table) {
         Carp::croak "no table info";
     }
