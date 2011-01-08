@@ -89,11 +89,24 @@ sub table(&) {
     };
     $code->();
 
+    my @col_names;
+    my %sql_types;
+    while ( @table_columns ) {
+        my $col_name = shift @table_columns;
+        if (ref $col_name) {
+            my $sql_type = $col_name;
+            $col_name = $col_name->{ name };
+            $sql_types{ $col_name } = $sql_type;
+        }
+        push @col_names, $col_name;
+    }
+
     $current->add_table(
         DBIx::Skin::Schema::Table->new(
-            columns      => \@table_columns,
+            columns      => \@col_names,
             name         => $table_name,
             primary_keys => \@table_pk,
+            sql_types    => \%sql_types,
             triggers     => \%table_triggers,
             row_class    => $row_class,
         )

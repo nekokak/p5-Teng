@@ -5,6 +5,7 @@ use Class::Accessor::Lite
         name
         primary_keys
         columns
+        sql_types
         row_class
         triggers
     ) ]
@@ -41,6 +42,11 @@ sub call_trigger {
     for my $code (@$triggers) {
         $code->($db, $args, $self->name);
     }
+}
+
+sub get_sql_type {
+    my ($self, $column_name) = @_;
+    $self->sql_types->{ $column_name };
 }
 
 1;

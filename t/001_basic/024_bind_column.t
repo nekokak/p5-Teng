@@ -2,12 +2,45 @@ use t::Utils;
 use Test::More;
 use Mock::BasicBindColumn;
 
-TODO: {
-todo_skip 'not yet...', 0;
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::BasicBindColumn->new({dbh => $dbh});
 $db->setup_test_db;
 
+subtest 'schema information' => sub {
+    my $table = $db->schema->get_table( 'mock_basic_bind_column' );
+    ok $table, "got table";
+
+    ok ! $table->get_sql_type( 'id' ), "no sqltype info for column 'id'";
+    is_deeply
+        $table->get_sql_type( 'uid' ),
+        {
+            name => 'uid',
+            type => 'bigint',
+        },
+        "sqltype infor for column 'uid' matches"
+    ;
+    ok ! $table->get_sql_type( 'name' ), "no sqltype info for column 'name'";
+    is_deeply
+        $table->get_sql_type( 'body' ),
+        {
+            name => 'body',
+            type => 'blob',
+        },
+        "sqltype infor for column 'body' matches"
+    ;
+    is_deeply
+        $table->get_sql_type( 'raw' ),
+        {
+            name => 'raw',
+            type => 'bin',
+        },
+        "sqltype infor for column 'raw' matches"
+    ;
+};
+
+# XXX 2011/01/08 19:40 時点でsqltypesをSchema::Tableに格納するように
+# 変更したが、まだsqltype自体を使用してないのにこのテストは通ってしまった！
+# sqltypesのテストとして機能してないのでは？？？
 subtest 'insert data' => sub {
     local $SIG{__WARN__} = sub {}; # <- why need this?? -- tokuhirom@20100106
     my $row = $db->insert('mock_basic_bind_column',{
@@ -17,6 +50,7 @@ subtest 'insert data' => sub {
         body => 'body',
         raw  => 'raw',
     });
+
 
     isa_ok $row, 'DBIx::Skin::Row';
     is $row->name, 'name';
@@ -91,5 +125,3 @@ subtest 'insert data' => sub {
 };
 
 done_testing;
-
-}
