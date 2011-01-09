@@ -81,7 +81,8 @@ sub call_trigger {
 
 sub call_deflate {
     my ($self, $table_name, $col_name, $col_value) = @_;
-    my $table = $self->get_table($table_name);
+    my $table = $self->get_table($table_name)
+        or Carp::croak("No table object associated with '$table_name'");
     $table->call_deflate($col_name, $col_value);
 }
 
