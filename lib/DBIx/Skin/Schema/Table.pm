@@ -9,6 +9,8 @@ use Class::Accessor::Lite
         sql_types
         row_class
         triggers
+        inflators
+        deflators
     ) ]
 ;
 use Class::Load ();
@@ -31,7 +33,7 @@ sub new {
             $caller = caller($i);
             last if $caller !~ /^DBIx::Skin/;
         }
-           $caller =~ s/::Schema//;
+        $caller =~ s/::Schema//;
         $row_class = join '::',
             $caller,
             'Row',
@@ -70,6 +72,25 @@ sub call_trigger {
 sub get_sql_type {
     my ($self, $column_name) = @_;
     $self->sql_types->{ $column_name };
+}
+
+sub get_deflator { $_[0]->deflators->{$_[1]} }
+sub get_inflator { $_[0]->inflators->{$_[1]} }
+
+sub call_deflate {
+    my ($self, $col_name, $col_value) = @_;
+    if (my $code = $self->get_deflator( $col_name )) {
+        return $code->($col_value);
+    }
+    return $col_value;
+}
+
+sub call_inflate {
+    my ($self, $col_name, $col_value) = @_;
+    if (my $code = $self->get_inflator( $col_name )) {
+        return $code->($col_value);
+    }
+    return $col_value;
 }
 
 1;

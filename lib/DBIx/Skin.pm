@@ -145,13 +145,13 @@ sub _insert_or_replace {
 
     my $schema = $self->schema;
 
-    # deflate
-#    for my $col (keys %{$args}) {
-#        $args->{$col} = $schema->call_deflate($col, $args->{$col});
-#    }
+    my $values = {};
+    for my $col (keys %{$args}) {
+        $values->{$col} = $schema->call_deflate($table_name, $col, $args->{$col});
+    }
 
     my ( $sql, @binds ) =
-      $self->sql_builder->insert( $table_name, $args,
+      $self->sql_builder->insert( $table_name, $values,
         { prefix => $prefix } );
 
     $self->_execute($sql, \@binds, $table_name);
@@ -159,17 +159,17 @@ sub _insert_or_replace {
     my $table = $schema->get_table($table_name);
     my $pk = $table->primary_keys();
 
-    if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {
-        $args->{$pk->[0]} = $self->_last_insert_id($table_name);
+    if (scalar(@$pk) == 1 && not defined $values->{$pk->[0]}) {
+        $values->{$pk->[0]} = $self->_last_insert_id($table_name);
     }
 
-    return $args if $self->suppress_row_objects;
+    return $values if $self->suppress_row_objects;
 
     my $row_class = $schema->get_row_class($self, $table_name);
 
     my $obj = $row_class->new(
         {
-            row_data   => $args,
+            row_data   => $values,
             skinny     => $self,
             table_name => $table_name,
         }
@@ -253,14 +253,13 @@ sub update {
     my $schema = $self->schema;
     $schema->call_trigger('pre_update', $self, $table, $args);
 
-# XXX skip deflate
-#    my $values = {};
-#    for my $col (keys %{$args}) {
-#       $values->{$col} = $schema->call_deflate($col, $args->{$col});
-#    }
+    my $values = {};
+    for my $col (keys %{$args}) {
+       $values->{$col} = $schema->call_deflate($table, $col, $args->{$col});
+    }
 
     my $builder = $self->sql_builder;
-    my ($sql, @binds) = $builder->update( $table, $args, $where );
+    my ($sql, @binds) = $builder->update( $table, $values, $where );
     my $sth = $self->_execute($sql, \@binds, $table);
     my $rows = $sth->rows;
     $sth->finish;

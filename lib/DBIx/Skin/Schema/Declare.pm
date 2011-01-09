@@ -13,6 +13,8 @@ our @EXPORT = qw(
     columns
     trigger
     row_class
+    inflate
+    deflate
 );
 our $CURRENT_SCHEMA_CLASS;
 
@@ -60,6 +62,7 @@ sub pk(@);
 sub columns(@);
 sub name ($);
 sub row_class ($);
+sub inflate_rule ($@);
 sub table(&) {
     my $code = shift;
     my $current = _current_schema();
@@ -69,6 +72,8 @@ sub table(&) {
         @table_pk,
         @table_columns,
         %table_triggers,
+        %inflate,
+        %deflate,
         $row_class,
     );
     no warnings 'redefine';
@@ -87,6 +92,13 @@ sub table(&) {
         }
         push @$list, $_[1]
     };
+    local *{"$schema_class\::inflate"} = sub ($&) {
+        $inflate{ $_[0] } = $_[1];
+    };
+    local *{"$schema_class\::deflate"} = sub ($&) {
+        $deflate{ $_[0] } = $_[1];
+    };
+
     $code->();
 
     my @col_names;
@@ -108,6 +120,8 @@ sub table(&) {
             primary_keys => \@table_pk,
             sql_types    => \%sql_types,
             triggers     => \%table_triggers,
+            inflators    => \%inflate,
+            deflators    => \%deflate,
             row_class    => $row_class,
         )
     ); 

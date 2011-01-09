@@ -79,6 +79,18 @@ sub call_trigger {
     $table->call_trigger( $db, $trigger_name, $args );
 }
 
+sub call_deflate {
+    my ($self, $table_name, $col_name, $col_value) = @_;
+    my $table = $self->get_table($table_name);
+    $table->call_deflate($col_name, $col_value);
+}
+
+sub call_inflate {
+    my ($self, $table_name, $col_name, $col_value) = @_;
+    my $table = $self->get_table($table_name);
+    $table->call_inflate($col_name, $col_value);
+}
+
 1;
 
 __END__

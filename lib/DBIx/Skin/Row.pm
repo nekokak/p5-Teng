@@ -25,10 +25,9 @@ sub _lazy_get_data {
         my $cache = $self->{_get_column_cached};
         my $data = $cache->{$col};
         if (! $data) { 
-            $data = $self->get_column($col);
-            $cache->{$col} = $data;
-            # XXX Inflate / Deflate is handled later
-#          $self->{_get_column_cached}->{$col} = $self->{skinny}->schema->call_inflate($col, $data);
+            $data = $cache->{$col} = $self->{skinny}->schema->call_inflate(
+                $self->{table_name}, $col, $self->get_column($col)
+            );
         }
         return $data;
     };

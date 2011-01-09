@@ -3,8 +3,6 @@ use Mock::Inflate;
 use Mock::Inflate::Name;
 use Test::More;
 
-TODO: {
-todo_skip 'not yet...',0;
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Inflate->new({dbh => $dbh});
 $db->setup_test_db;
@@ -47,4 +45,3 @@ subtest 'update row' => sub {
 };
 
 done_testing;
-}
