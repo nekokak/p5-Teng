@@ -8,22 +8,9 @@ sub new {
 
     my $self = bless {%$args}, $class;
     $self->{select_columns} = [keys %{$self->{row_data}}];
-    return $self;
-}
-
-sub setup {
-    my $self = shift;
-    my $class = ref $self;
-
-    for my $alias ( @{$self->{select_columns}} ) {
-        (my $col = lc $alias) =~ s/.+\.(.+)/$1/o;
-        next if $class->can($col);
-        no strict 'refs';
-        *{"$class\::$col"} = $self->_lazy_get_data($col);
-    }
-
     $self->{_get_column_cached} = {};
     $self->{_dirty_columns} = {};
+    return $self;
 }
 
 sub _lazy_get_data {

@@ -20,6 +20,7 @@ sub new {
         %args
     }, $class;
 
+    # load row class
     my $row_class = $self->row_class;
     if (!defined $row_class) {
         $row_class = DBIx::Skin::Util::camelize( $self->name );
@@ -40,11 +41,13 @@ sub new {
     Class::Load::load_optional_class($row_class) or do {
         # make row class automatically
         no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
-        for my $col ($self->columns) {
-            no strict 'refs';
+    };
+    for my $col (@{$self->columns}) {
+        no strict 'refs';
+        unless ($row_class->can($col)) {
             *{"$row_class\::$col"} = $row_class->_lazy_get_data($col);
         }
-    };
+    }
     $self->row_class($row_class);
 
     return $self;

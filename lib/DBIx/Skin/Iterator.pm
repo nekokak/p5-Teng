@@ -40,11 +40,6 @@ sub next {
                 table_name     => $self->{table_name},
             }
         );
-
-        unless ($self->{_setup}) {
-            $obj->setup;
-            $self->{_setup}=1;
-        }
     }
 
     return $obj;
