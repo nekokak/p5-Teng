@@ -171,7 +171,6 @@ sub _insert_or_replace {
             row_data   => $args,
             skinny     => $self,
             table_name => $table_name,
-            row_class  => $table->row_class,
         }
     );
 
