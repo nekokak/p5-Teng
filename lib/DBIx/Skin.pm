@@ -163,8 +163,9 @@ sub _insert_or_replace {
         $args->{$pk->[0]} = $self->_last_insert_id($table_name);
     }
 
-    my $row_class = $schema->get_row_class($self, $table_name);
     return $args if $self->suppress_row_objects;
+
+    my $row_class = $schema->get_row_class($self, $table_name);
 
     my $obj = $row_class->new(
         {
