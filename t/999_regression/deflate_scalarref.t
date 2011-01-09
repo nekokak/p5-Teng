@@ -3,24 +3,25 @@ use Mock::Inflate;
 use Test::More;
 
 TODO: {
-todo_skip 'not yet...',0;
-my $dbh = t::Utils->setup_dbh;
-my $db = Mock::Inflate->new({dbh => $dbh});
-$db->setup_test_db;
+    todo_skip "I can't understand the purpose of this test -- tokuhirom", 2;
 
-subtest 'deflate scalarref' => sub {
-    my $ref_val = \"'hoge'";
-    my $val = $db->schema->call_deflate('name', $ref_val);
-    is $ref_val, $val;
+    my $dbh = t::Utils->setup_dbh;
+    my $db = Mock::Inflate->new({dbh => $dbh});
+    $db->setup_test_db;
 
-    my $row = $db->insert('mock_inflate',
-        {
-            id   => 1,
-            name => $ref_val,
-        }
-    );
-    isa_ok $row, 'DBIx::Skin::Row';
-};
+    subtest 'deflate scalarref' => sub {
+        my $ref_val = \"'hoge'";
+        my $val = $db->schema->call_deflate('mock_inflate', 'name', $ref_val);
+        is $ref_val, $val;
 
-done_testing;
+        my $row = $db->insert('mock_inflate',
+            {
+                id   => 1,
+                name => $ref_val,
+            }
+        );
+        isa_ok $row, 'DBIx::Skin::Row';
+    };
+
 }
+done_testing;
