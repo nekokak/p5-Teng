@@ -55,26 +55,7 @@ sub get_row_class {
     if (! $table) {
         Carp::croak( "No table object associated with $table_name" );
     }
-    my $row_class = $table->row_class;
-
-    if ( $row_class !~ s/^\+// ) {
-        $row_class = join '::',
-            Scalar::Util::blessed($db),
-            'Row',
-            $row_class
-        ;
-    }
-
-    Class::Load::load_optional_class($row_class) or do {
-        # make row class automatically
-        no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
-        foreach my $col (@{$table->columns}) {
-            no strict 'refs';
-            *{"$row_class\::$col"} = $row_class->_lazy_get_data($col);
-        }
-    };
-
-    return $row_class;
+    return $table->row_class;
 }
 
 sub add_trigger {

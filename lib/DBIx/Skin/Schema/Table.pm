@@ -11,6 +11,7 @@ use Class::Accessor::Lite
         triggers
     ) ]
 ;
+use Class::Load ();
 
 sub new {
     my ($class, %args) = @_;
@@ -19,10 +20,33 @@ sub new {
         %args
     }, $class;
 
-    if (! $self->row_class) {
-        # camelize the table name
-        $self->row_class( DBIx::Skin::Util::camelize( $self->name ) );
+    my $row_class = $self->row_class;
+    if (!defined $row_class) {
+        $row_class = DBIx::Skin::Util::camelize( $self->name );
     }
+    if ( $row_class !~ s/^\+// ) { # I want to remove '+' things -- tokuhirom@20110109
+        my $caller;
+        for my $i (0..10) {
+            $caller = caller($i);
+            last if $caller !~ /^DBIx::Skin/;
+        }
+           $caller =~ s/::Schema//;
+        $row_class = join '::',
+            $caller,
+            'Row',
+            $row_class
+        ;
+    }
+    Class::Load::load_optional_class($row_class) or do {
+        # make row class automatically
+        no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
+        for my $col ($self->columns) {
+            no strict 'refs';
+            *{"$row_class\::$col"} = $row_class->_lazy_get_data($col);
+        }
+    };
+    $self->row_class($row_class);
+
     return $self;
 }
 

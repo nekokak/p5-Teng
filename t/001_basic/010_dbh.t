@@ -38,7 +38,7 @@ subtest 'schema info' => sub {
 
     is_deeply $table->primary_keys, [ 'id' ];
     is_deeply $table->columns, [ 'id', 'name' ];
-    is $table->row_class, "MockDbh";
+    is $table->row_class, "Mock::DBH::Row::MockDbh";
 
     isa_ok +$db->dbh, 'DBI::db';
     done_testing;
