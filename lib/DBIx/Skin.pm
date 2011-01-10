@@ -210,11 +210,6 @@ sub search_rs {
         Carp::croak("No such table $table_name");
     }
 
-    # XXX SQL::Maker wants order_by => [ \%hash ], not order_by => \%hash
-    if ($opt && $opt->{order_by} && ref $opt->{order_by} ne 'ARRAY') {
-        $opt->{order_by} = [ $opt->{order_by} ];
-    }
-
     my ($sql, @binds) = $builder->select(
         $table_name,
         $table->columns,

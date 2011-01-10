@@ -9,7 +9,7 @@ requires 'IO::Handle';
 requires 'Class::Accessor::Lite' => 0.05;
 requires 'DBIx::TransactionManager' => '1.02';
 requires 'Class::Load';
-requires 'SQL::Maker';
+requires 'SQL::Maker' => 0.08;
 
 author_tests('xt');
 
