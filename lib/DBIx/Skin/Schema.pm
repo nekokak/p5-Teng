@@ -58,6 +58,7 @@ sub get_row_class {
     return $table->row_class;
 }
 
+# FIXME: remove trigger code. by nekokak@20110111
 sub add_trigger {
     my ($self, $trigger_name, $callback) = @_;
     my $triggers = $self->triggers->{ $trigger_name } || [];
