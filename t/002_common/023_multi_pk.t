@@ -52,10 +52,13 @@ use MyGuard;
     };
 }
 
+my $db_file = __FILE__;
+$db_file =~ s/\.t$/.db/;
+unlink $db_file if -f $db_file;
 my $skinny = Mock::MultiPK->new({
-    connect_info => [ 'dbi:SQLite:./db1.db' ]
+    connect_info => [ "dbi:SQLite:$db_file" ]
 });
-my $guard = MyGuard->new(sub { unlink 'db1.db' });
+my $guard = MyGuard->new(sub { unlink $db_file });
 
 {
     subtest 'init data' => sub {

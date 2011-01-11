@@ -3,18 +3,20 @@ use Mock::Basic;
 use Test::More;
 use MyGuard;
 
-unlink './db1.db' if -f './db1.db';
+my $db_file = __FILE__;
+$db_file =~ s/\.t$/.db/;
+unlink $db_file if -f $db_file;
 my $db = Mock::Basic->new(
     {
         connect_info => [
-           'dbi:SQLite:./db1.db',
+           "dbi:SQLite:$db_file"
         ],
     }
 );
 $db->setup_test_db;
-my $guard = MyGuard->new(sub { unlink 'db1.db' });
+my $guard = MyGuard->new(sub { unlink $db_file });
 
-subtest 'db1.db ok' => sub {
+subtest "$db_file ok" => sub {
     isa_ok +$db->dbh, 'DBI::db';
     $db->insert('mock_basic',
         {
@@ -57,12 +59,12 @@ subtest 'db2.db ok' => sub {
 };
 
 $db->reconnect(
-    'dbi:SQLite:./db1.db',
+    "dbi:SQLite:$db_file",
     '',
     '',
 );
 
-subtest 'db1.db ok' => sub {
+subtest "$db_file ok" => sub {
     my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
@@ -74,7 +76,7 @@ subtest 'db1.db ok' => sub {
 
 $db->reconnect();
 
-subtest 'db1.db ok' => sub {
+subtest "$db_file ok" => sub {
     my $itr = $db->search('mock_basic',{id => 1});
     isa_ok $itr, 'DBIx::Skin::Iterator';
 
