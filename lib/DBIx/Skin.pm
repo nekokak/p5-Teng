@@ -304,7 +304,7 @@ sub do {
     $ret;
 }
 
-# XXX: need? by nekokak@2011011
+# XXX: for mixin? by nekokak@2011011
 sub count {
     my ($self, $table, $column, $where) = @_;
 
