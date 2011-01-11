@@ -176,7 +176,7 @@ sub _insert_or_replace {
     my $obj = $row_class->new(
         {
             row_data   => $values,
-            skinny     => $self,
+            skin     => $self,
             table_name => $table_name,
         }
     );
@@ -225,7 +225,7 @@ sub search_by_sql {
     $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->_execute($sql, $bind);
     my $itr = DBIx::Skin::Iterator->new(
-        skinny         => $self,
+        skin         => $self,
         sth            => $sth,
         sql            => $sql,
         row_class      => defined($table_name) ? $self->schema->get_row_class($self, $table_name) : 'DBIx::Skin::AnonRow',
@@ -440,16 +440,16 @@ in your script.
 
     use Your::Model;
     
-    my $skinny = Your::Model->new(\%args);
+    my $skin = Your::Model->new(\%args);
     # insert new record.
-    my $row = $skinny->insert('user',
+    my $row = $skin->insert('user',
         {
             id   => 1,
         }
     );
     $row->update({name => 'nekokak'});
 
-    $row = $skinny->search_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
+    $row = $skin->search_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
     $row->delete('user');
 
 =head1 DESCRIPTION
@@ -507,9 +507,9 @@ DBIx::Skin provides a number of methods to all your classes,
 
 =over
 
-=item $skinny->new([\%connection_info])
+=item $skin->new([\%connection_info])
 
-create your skinny instance.
+create your skin instance.
 It is possible to use it even by the class method.
 
 $connection_info is optional argment.
@@ -541,7 +541,7 @@ or
         dbh => $dbh,
     });
 
-=item $skinny->insert($table_name, \%row_data)
+=item $skin->insert($table_name, \%row_data)
 
 insert new record and get inserted row object.
 
@@ -563,11 +563,11 @@ or
         name => 'nekokak',
     });
 
-=item $skinny->create($table_name, \%row_data)
+=item $skin->create($table_name, \%row_data)
 
 insert method alias.
 
-=item $skinny->replace($table_name, \%row_data)
+=item $skin->replace($table_name, \%row_data)
 
 The data that already exists is replaced. 
 
@@ -586,7 +586,7 @@ or
         name => 'tokuhirom',
     });
 
-=item $skinny->bulk_insert($table_name, \@rows_data)
+=item $skin->bulk_insert($table_name, \@rows_data)
 
 Accepts either an arrayref of hashrefs.
 each hashref should be a structure suitable
@@ -611,7 +611,7 @@ example:
         },
     ]);
 
-=item $skinny->update($table_name, \%update_row_data, [\%update_condition])
+=item $skin->update($table_name, \%update_row_data, [\%update_condition])
 
 $update_condition is optional argment.
 
@@ -629,7 +629,7 @@ or
     my $row = Your::Model->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
-=item $skinny->delete($table, \%delete_condition)
+=item $skin->delete($table, \%delete_condition)
 
 delete record. return delete row count.
 
@@ -645,7 +645,7 @@ or
     my $row = Your::Model->single('user', {id => 1});
     $row->delete
 
-=item $skinny->find_or_create($table, \%values)
+=item $skin->find_or_create($table, \%values)
 
 create record if not exsists record.
 
@@ -683,11 +683,11 @@ If you want to do the same thing in this case,
 
 Because the interchangeable rear side is lost, it doesn't mend. 
 
-=item $skinny->find_or_insert($table, \%values)
+=item $skin->find_or_insert($table, \%values)
 
 find_or_create method alias.
 
-=item $skinny->search($table_name, [\%search_condition, [\%search_attr]])
+=item $skin->search($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
 search method get DBIx::Skin::Iterator's instance object.
@@ -704,27 +704,27 @@ get rows:
 
 See L</ATTRIBUTES> for more information for \%search_attr.
 
-=item $skinny->search_rs($table_name, [\%search_condition, [\%search_attr]])
+=item $skin->search_rs($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
 search_rs method always get DBIx::Skin::Iterator's instance object.
 
 This method does the same exact thing as search() except it will always return a iterator, even in list context.
 
-=item $skinny->single($table_name, \%search_condition)
+=item $skin->single($table_name, \%search_condition)
 
 get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
     my $row = Your::Model->single('user',{id =>1});
 
-=item $skinny->count($table_name, $target_column, [\%search_condition])
+=item $skin->count($table_name, $target_column, [\%search_condition])
 
 get simple count
 
     my $cnt = Your::Model->count('user' => 'id', {age => 30});
 
-=item $skinny->search_named($sql, [\%bind_values, [\@sql_parts, [$table_name]]])
+=item $skin->search_named($sql, [\%bind_values, [\@sql_parts, [$table_name]]])
 
 execute named query
 
@@ -745,7 +745,7 @@ If you give \@sql_parts,
 
 If you give table_name. It is assumed the hint that makes DBIx::Skin::Row's Object.
 
-=item $skinny->search_by_sql($sql, [\@bind_vlues, [$table_name]])
+=item $skin->search_by_sql($sql, [\@bind_vlues, [$table_name]])
 
 execute your SQL
 
@@ -761,7 +761,7 @@ execute your SQL
 If $table is specified, it set table infomation to result iterator.
 So, you can use table row class to search_by_sql result.
 
-=item $skinny->txn_scope
+=item $skin->txn_scope
 
 get transaction scope object.
 
@@ -784,33 +784,33 @@ about calling L</txn_rollback> at the right places. Note that since there
 is no defined code closure, there will be no retries and other magic upon
 database disconnection.
 
-=item $skinny->do($sql, [$option, $bind_values])
+=item $skin->do($sql, [$option, $bind_values])
 
 execute your query.
 
 See) L<http://search.cpan.org/dist/DBI/DBI.pm#do>
 
-=item $skinny->dbh
+=item $skin->dbh
 
 get database handle.
 
-=item $skinny->connect([\%connection_info])
+=item $skin->connect([\%connection_info])
 
 connect database handle.
 
 If you give \%connection_info, create new database connection.
 
-=item $skinny->reconnect(\%connection_info)
+=item $skin->reconnect(\%connection_info)
 
 re connect database handle.
 
 If you give \%connection_info, create new database connection.
 
-=item $skinny->disconnect()
+=item $skin->disconnect()
 
 Disconnects from the currently connected database.
 
-=item $skinny->suppress_row_objects($flag)
+=item $skin->suppress_row_objects($flag)
 
 set row object creation mode.
 
@@ -894,7 +894,7 @@ tokuhirom: Tokuhiro Matsuno
 
 =head1 REPOSITORY
 
-  git clone git://github.com/nekokak/p5-dbix-skinny.git  
+  git clone git://github.com/nekokak/p5-dbix-skin.git  
 
 =head1 LICENCE AND COPYRIGHT
 

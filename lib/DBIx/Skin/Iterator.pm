@@ -34,10 +34,10 @@ sub next {
     } else {
         $obj = $self->{row_class}->new(
             {
-                sql            => $self->{sql},
-                row_data       => $row,
-                skinny         => $self->{skinny},
-                table_name     => $self->{table_name},
+                sql        => $self->{sql},
+                row_data   => $row,
+                skin       => $self->{skin},
+                table_name => $self->{table_name},
             }
         );
     }
@@ -63,7 +63,7 @@ DBIx::Skin::Iterator
 
 =head1 DESCRIPTION
 
-skinny iteration class.
+skin iteration class.
 
 =head1 SYNOPSIS
 

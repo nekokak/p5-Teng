@@ -25,7 +25,7 @@ sub _lazy_get_data {
         my $cache = $self->{_get_column_cached};
         my $data = $cache->{$col};
         if (! $data) { 
-            $data = $cache->{$col} = $self->{skinny}->schema->call_inflate(
+            $data = $cache->{$col} = $self->{skin}->schema->call_inflate(
                 $self->{table_name}, $col, $self->get_column($col)
             );
         }
@@ -33,8 +33,7 @@ sub _lazy_get_data {
     };
 }
 
-# FIXME: rename skinny by nekokak@20110111
-sub handle { $_[0]->{skinny} }
+sub handle { $_[0]->{skin} }
 
 sub get_column {
     my ($self, $col) = @_;
@@ -68,7 +67,7 @@ sub set_column {
         $self->{_untrusted_row_data}->{$col} = 1;
     } else {
         # XXX Skip deflate
-#        $self->{row_data}->{$col} = $self->{skinny}->schema->call_deflate($col, $val);
+#        $self->{row_data}->{$col} = $self->{skin}->schema->call_deflate($col, $val);
         $self->{row_data}->{$col} = $val;
         $self->{_get_column_cached}->{$col} = $val;
         $self->{_dirty_columns}->{$col} = 1;
@@ -99,7 +98,7 @@ sub update {
     # FIXME: set_columns first. by nekokak@20110111
     $args ||= $self->get_dirty_columns;
 
-    my $result = $self->{skinny}->update($table_name, $args, $self->_where_cond($table_name));
+    my $result = $self->{skin}->update($table_name, $args, $self->_where_cond($table_name));
     $self->set_columns($args);
 
     return $result;
@@ -109,19 +108,19 @@ sub delete {
     my ($self, $table_name) = @_;
 
     $table_name ||= $self->{table_name};
-    $self->{skinny}->delete($table_name, $self->_where_cond($table_name));
+    $self->{skin}->delete($table_name, $self->_where_cond($table_name));
 }
 
 sub refetch {
     my ($self, $table_name) = @_;
     $table_name ||= $self->{table_name};
-    $self->{skinny}->single($table_name, $self->_where_cond($table_name));
+    $self->{skin}->single($table_name, $self->_where_cond($table_name));
 }
 
 sub _where_cond {
     my ($self, $table_name) = @_;
 
-    my $table = $self->{skinny}->schema->get_table( $table_name );
+    my $table = $self->{skin}->schema->get_table( $table_name );
     unless ($table) {
         Carp::croak("Unknown table: $table_name");
     }
@@ -219,7 +218,7 @@ refetch record from database. get new row object.
 
 =item $row->handle
 
-get skinny object.
+get skin object.
 
     $row->handle->single('table', {id => 1});
 
