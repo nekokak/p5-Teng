@@ -136,7 +136,7 @@ sub _execute {
         $sth->execute(@{$binds || []});
     };
     if ($@) {
-        $self->handle_error($sth, $sql, $binds, $@);
+        $self->handle_error($sql, $binds, $@);
     }
 
     if (! defined wantarray ) {
@@ -328,7 +328,7 @@ sub do {
     my $ret;
     eval { $ret = $self->dbh->do($sql, $attr, @bind_vars) };
     if ($@) {
-        $self->handle_error('', $sql, @bind_vars ? \@bind_vars : '', $@);
+        $self->handle_error($sql, @bind_vars ? \@bind_vars : '', $@);
     }
     $ret;
 }
@@ -419,14 +419,9 @@ sub find_or_create {
     $self->insert($table, $args)->refetch;
 }
 
-# stack trace
 sub handle_error {
-    my ($self, $sth, $stmt, $bind, $reason) = @_;
+    my ($self, $stmt, $bind, $reason) = @_;
     require Data::Dumper;
-
-    if ($sth) {
-        $sth->finish;
-    }
 
     $stmt =~ s/\n/\n          /gm;
     Carp::croak sprintf <<"TRACE", $reason, $stmt, Data::Dumper::Dumper($bind);
