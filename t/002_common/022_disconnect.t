@@ -26,7 +26,7 @@ subtest 'disconnect' => sub {
 
 subtest 'insert after disconnect trigger a connect' => sub {
     my $db = Mock::Basic->new({dbh => t::Utils->setup_dbh($file)});
-    my $row = $db->create('mock_basic',{
+    my $row = $db->insert('mock_basic',{
         id   => 2,
         name => 'ruby',
     });

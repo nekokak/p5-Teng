@@ -184,8 +184,6 @@ sub _insert_or_replace {
     $obj;
 }
 
-# XXX: need alias? by nekokak@20110111
-*create = \*insert;
 sub insert {
     my ($self, $table, $args) = @_;
     $self->_insert_or_replace('INSERT', $table, $args);
