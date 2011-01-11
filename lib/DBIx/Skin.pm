@@ -130,8 +130,14 @@ sub _guess_table_name {
 sub _execute {
     my ($self, $sql, $binds, $table) = @_;
     my $dbh = $self->dbh;
-    my $sth = $dbh->prepare($sql);
-    $sth->execute(@{$binds || []});
+    my $sth;
+    eval {
+        $sth = $dbh->prepare($sql);
+        $sth->execute(@{$binds || []});
+    };
+    if ($@) {
+        $self->handle_error($sth, $sql, $binds, $@);
+    }
 
     if (! defined wantarray ) {
         $sth->finish;
@@ -322,7 +328,7 @@ sub do {
     my $ret;
     eval { $ret = $self->dbh->do($sql, $attr, @bind_vars) };
     if ($@) {
-        $self->_stack_trace('', $sql, @bind_vars ? \@bind_vars : '', $@);
+        $self->handle_error('', $sql, @bind_vars ? \@bind_vars : '', $@);
     }
     $ret;
 }
@@ -414,7 +420,7 @@ sub find_or_create {
 }
 
 # stack trace
-sub _stack_trace {
+sub handle_error {
     my ($self, $sth, $stmt, $bind, $reason) = @_;
     require Data::Dumper;
 
