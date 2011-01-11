@@ -1,6 +1,7 @@
 use strict;
 use Test::More;
 use t::Utils;
+plan skip_all => 'trigger is removed. use C::M::M?';
 
 use_ok "Mock::Trigger";
 
