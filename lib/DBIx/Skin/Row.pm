@@ -33,6 +33,7 @@ sub _lazy_get_data {
     };
 }
 
+# FIXME: rename skinny by nekokak@20110111
 sub handle { $_[0]->{skinny} }
 
 sub get_column {
@@ -95,6 +96,7 @@ sub update {
     my ($self, $args, $table_name) = @_;
 
     $table_name ||= $self->{table_name};
+    # FIXME: set_columns first. by nekokak@20110111
     $args ||= $self->get_dirty_columns;
 
     my $result = $self->{skinny}->update($table_name, $args, $self->_where_cond($table_name));

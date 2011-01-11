@@ -184,13 +184,16 @@ sub _insert_or_replace {
     $obj;
 }
 
+# XXX: need alias? by nekokak@20110111
 *create = \*insert;
 sub insert {
     my ($self, $table, $args) = @_;
 
     my $schema = $self->schema;
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger( pre_insert => $self, $table, $args );
     my $obj = $self->_insert_or_replace('INSERT', $table, $args);
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger( post_insert => $self, $table, $obj );
 
     $obj;
@@ -200,8 +203,10 @@ sub replace {
     my ($self, $table, $args) = @_;
 
     my $schema = $self->schema;
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger('pre_insert', $self, $table, $args);
     my $obj = $self->_insert_or_replace('REPLACE', $table, $args);
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger('post_insert', $self, $table, $obj);
 
     $obj;
@@ -252,6 +257,7 @@ sub update {
     my ($self, $table, $args, $where) = @_;
 
     my $schema = $self->schema;
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger('pre_update', $self, $table, $args);
 
     my $values = {};
@@ -265,6 +271,7 @@ sub update {
     my $rows = $sth->rows;
     $sth->finish;
 
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger('post_update', $self, $table, $rows);
 
     return $rows;
@@ -274,6 +281,7 @@ sub delete {
     my ($self, $table, $where) = @_;
 
     my $schema = $self->schema;
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger('pre_delete', $self, $table, $where);
 
     my $builder = $self->sql_builder;
@@ -281,6 +289,7 @@ sub delete {
     my $sth = $self->_execute($sql, \@binds, $table);
     my $rows = $sth->rows;
 
+    # FIXME: remove? by nekokak@20110111
     $schema->call_trigger('post_delete', $self, $table, $rows);
     $sth->finish;
 
@@ -289,17 +298,9 @@ sub delete {
 
 #--------------------------------------------------------------------------------
 # for transaction
-
 sub txn_manager  {
     my $self = shift;
-
-    $self->{txn_manager} ||= do {
-        my $dbh = $self->dbh;
-        unless ($dbh) { # XXX this assertion is maybe trash. -- tokuhirom@20110107
-            Carp::croak("dbh is not found.");
-        }
-        DBIx::TransactionManager->new($dbh);
-    };
+    $self->{txn_manager} ||= DBIx::TransactionManager->new($self->dbh);
 }
 
 sub txn_scope    { $_[0]->txn_manager->txn_scope    }
@@ -310,7 +311,6 @@ sub txn_end      { $_[0]->txn_manager->txn_end      }
 
 #--------------------------------------------------------------------------------
 # db handling
-
 sub reconnect {
     my $self = shift;
     $self->disconnect();
@@ -319,7 +319,7 @@ sub reconnect {
 
 sub disconnect {
     my $self = shift;
-    $self->{dbh} = undef;
+    $self->dbh(undef);
 }
 
 #--------------------------------------------------------------------------------
@@ -333,6 +333,7 @@ sub do {
     $ret;
 }
 
+# XXX: need? by nekokak@2011011
 sub count {
     my ($self, $table, $column, $where) = @_;
 
@@ -356,6 +357,7 @@ sub search {
     return wantarray ? $iter->all : $iter;
 }
 
+# XXX: i wish modify IF by nekokak@20110111
 sub search_named {
     my ($self, $sql, $args, $opts, $table) = @_;
 
@@ -395,6 +397,7 @@ sub _last_insert_id {
     }
 }
 
+# XXX: provide from mixin? by nekoakk@20110111
 sub bulk_insert {
     my ($self, $table, $args) = @_;
 
@@ -411,6 +414,7 @@ sub bulk_insert {
     }
 }
 
+# XXX: provide from mixin? by nekoakk@20110111
 *find_or_insert = \*find_or_create;
 sub find_or_create {
     my ($self, $table, $args) = @_;
