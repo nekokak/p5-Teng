@@ -321,23 +321,6 @@ sub do {
     $ret;
 }
 
-# XXX: for mixin? by nekokak@2011011
-sub count {
-    my ($self, $table, $column, $where) = @_;
-
-    my $select = $self->sql_builder->new_select();
-
-    $select->add_select(\"COUNT($column)");
-    $select->add_from($table);
-    $select->add_where($_ => $where->{$_}) for keys %{ $where || {} };
-
-    my $sql = $select->as_sql();
-    my @bind = $select->bind();
-
-    my ($cnt) = $self->dbh->selectrow_array($sql, {}, @bind);
-    return $cnt;
-}
-
 sub search {
     my ($self, $table_name, $where, $opt) = @_;
 

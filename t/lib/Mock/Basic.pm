@@ -2,6 +2,8 @@ package Mock::Basic;
 use base qw(DBIx::SkinTest);
 use Mock::Basic::Schema;
 
+__PACKAGE__->load_plugin('Count');
+
 sub create_sqlite {
     my ($class, $dbh) = @_;
     $dbh->do(q{
