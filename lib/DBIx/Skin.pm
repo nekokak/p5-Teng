@@ -25,6 +25,23 @@ use Class::Accessor::Lite
 
 our $VERSION = '0.0732';
 
+sub load_plugin {
+    my ($class, $pkg, $opt) = @_;
+    $pkg = $pkg =~ s/^\+// ? $pkg : "DBIx::Skin::Plugin::$pkg";
+    Class::Load::load_class($pkg);
+
+    no strict 'refs';
+    for my $meth ( @{"${pkg}::EXPORT"} ) {
+        my $dest_meth =
+          ( $opt->{alias} && $opt->{alias}->{$meth} )
+          ? $opt->{alias}->{$meth}
+          : $meth;
+        *{"${class}::${dest_meth}"} = *{"${pkg}::$meth"};
+    }
+
+    $pkg->init($pkg) if $pkg->can('init');
+}
+
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
@@ -368,32 +385,6 @@ sub _last_insert_id {
     }
 }
 
-# XXX: provide from mixin? by nekoakk@20110111
-sub bulk_insert {
-    my ($self, $table, $args) = @_;
-
-    if ($self->dbh->{Driver}->{Name} eq 'mysql') {
-        $self->insert_multi($table, $args);
-    } else {
-        # use transaction for better performance and atomicity.
-        my $txn = $self->txn_scope();
-        for my $arg (@$args) {
-            # do not run trigger for consistency with mysql.
-            $self->_insert_or_replace('INSERT', $table, $arg);
-        }
-        $txn->commit;
-    }
-}
-
-# XXX: provide from mixin? by nekoakk@20110111
-*find_or_insert = \*find_or_create;
-sub find_or_create {
-    my ($self, $table, $args) = @_;
-    my $row = $self->single($table, $args);
-    return $row if $row;
-    $self->insert($table, $args)->refetch;
-}
-
 sub handle_error {
     my ($self, $stmt, $bind, $reason) = @_;
     require Data::Dumper;
@@ -585,31 +576,6 @@ or
         id   => 1,
         name => 'tokuhirom',
     });
-
-=item $skin->bulk_insert($table_name, \@rows_data)
-
-Accepts either an arrayref of hashrefs.
-each hashref should be a structure suitable
-forsubmitting to a Your::Model->insert(...) method.
-
-insert many record by bulk.
-
-example:
-
-    Your::Model->bulk_insert('user',[
-        {
-            id   => 1,
-            name => 'nekokak',
-        },
-        {
-            id   => 2,
-            name => 'yappo',
-        },
-        {
-            id   => 3,
-            name => 'walf443',
-        },
-    ]);
 
 =item $skin->update($table_name, \%update_row_data, [\%update_condition])
 

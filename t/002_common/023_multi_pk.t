@@ -6,6 +6,8 @@ use MyGuard;
     package Mock::MultiPK;
     use parent 'DBIx::Skin';
 
+    __PACKAGE__->load_plugin('FindOrCreate');
+
     sub setup_test_db {
         my $self = shift;
 

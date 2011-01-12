@@ -6,6 +6,7 @@ use Test::More;
 my $dbh = t::Utils->setup_dbh;
 my $db_basic = Mock::Basic->new({dbh => $dbh});
 $db_basic->setup_test_db;
+Mock::Basic->load_plugin('BulkInsert');
 
 =pod
 my $db_trigger = Mock::Trigger->new({dbh => $dbh});
