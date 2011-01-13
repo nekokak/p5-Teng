@@ -1,5 +1,6 @@
 package DBIx::Skin::Schema::Declare;
 use strict;
+use warnings;
 use DBIx::Skin::Schema;
 use DBIx::Skin::Schema::Table;
 use Scalar::Util ();

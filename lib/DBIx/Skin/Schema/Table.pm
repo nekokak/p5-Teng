@@ -1,6 +1,6 @@
 package DBIx::Skin::Schema::Table;
 use strict;
-use DBIx::Skin::Util ();
+use warnings;
 use Class::Accessor::Lite
     rw => [ qw(
         name
@@ -23,7 +23,7 @@ sub new {
     # load row class
     my $row_class = $self->row_class;
     if (!defined $row_class) {
-        $row_class = DBIx::Skin::Util::camelize( $self->name );
+        $row_class = _camelize( $self->name );
     }
     if ( $row_class !~ s/^\+// ) { # I want to remove '+' things -- tokuhirom@20110109
         my $caller;
@@ -77,4 +77,10 @@ sub call_inflate {
     return $col_value;
 }
 
+sub _camelize {
+    my $s = shift;
+    join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
+}
+
 1;
+

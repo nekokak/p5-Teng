@@ -477,7 +477,7 @@ If you want to define methods to be performed by your row objects, simply create
     package MyApp::Model::Row::Camelizedtable_name;
     use base qw(DBIx::Skin::Row);
 
-Note that your table name will be camelized using String::CamelCase.
+Note that your table name will be camelized.
 
 =head1 METHODS
 
