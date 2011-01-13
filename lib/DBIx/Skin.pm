@@ -210,7 +210,7 @@ sub _insert_or_replace {
 
     return $values if $self->suppress_row_objects;
 
-    my $row_class = $schema->get_row_class($self, $table_name);
+    my $row_class = $schema->get_row_class($table_name);
 
     my $obj = $row_class->new(
         {
@@ -345,7 +345,7 @@ sub search_by_sql {
         skin         => $self,
         sth            => $sth,
         sql            => $sql,
-        row_class      => (defined($table_name) && $self->schema->get_table($table_name)) ? $self->schema->get_row_class($self, $table_name) : 'DBIx::Skin::Row',
+        row_class      => $self->schema->get_row_class($table_name),
         table_name     => $table_name,
         suppress_objects => $self->suppress_row_objects,
     );

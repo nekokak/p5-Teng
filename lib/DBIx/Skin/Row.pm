@@ -11,6 +11,7 @@ sub new {
     $self->{select_columns} = [keys %{$self->{row_data}}];
     $self->{_get_column_cached} = {};
     $self->{_dirty_columns} = {};
+    $self->{table} = $self->{skin}->schema->get_table($self->{table_name});
     return $self;
 }
 
@@ -26,9 +27,7 @@ sub _lazy_get_data {
         my $cache = $self->{_get_column_cached};
         my $data = $cache->{$col};
         if (! $data) { 
-            $data = $cache->{$col} = $self->{skin}->schema->get_table($self->{table_name}) ? $self->{skin}->schema->call_inflate(
-                $self->{table_name}, $col, $self->get_column($col)
-            ) : $self->get_column($col);
+            $data = $cache->{$col} = $self->{table} ? $self->{table}->call_inflate($col, $self->get_column($col)) : $self->get_column($col);
         }
         return $data;
     };

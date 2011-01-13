@@ -38,20 +38,19 @@ sub add_table {
 
 sub get_table {
     my ($self, $name) = @_;
-    if ( ! $name ) {
-        Carp::confess( "No name provided for get_table()" );
-    }
+    return unless $name;
     $self->tables->{$name};
 }
 
 sub get_row_class {
-    my ($self, $db, $table_name) = @_;
+    my ($self, $table_name) = @_;
 
     my $table = $self->get_table($table_name);
-    if (! $table) {
-        Carp::croak( "No table object associated with $table_name" );
+    if ($table) {
+        return $table->row_class;
+    } else {
+        return 'DBIx::Skin::Row';
     }
-    return $table->row_class;
 }
 
 sub call_deflate {
