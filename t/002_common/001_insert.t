@@ -15,4 +15,14 @@ subtest 'insert mock_basic data/ insert method' => sub {
     is $row->name, 'perl';
 };
 
+subtest 'insert with suppress_row_objects off' => sub {
+    $db->suppress_row_objects(1);
+    my $row = $db->insert('mock_basic',{
+        id   => 2,
+        name => 'xs',
+    });
+    isa_ok $row, 'HASH';
+    is $row->{name}, 'xs';
+};
+
 done_testing;
