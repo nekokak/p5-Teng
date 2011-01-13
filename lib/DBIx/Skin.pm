@@ -345,7 +345,7 @@ sub search_by_sql {
         skin         => $self,
         sth            => $sth,
         sql            => $sql,
-        row_class      => defined($table_name) ? $self->schema->get_row_class($self, $table_name) : 'DBIx::Skin::AnonRow',
+        row_class      => (defined($table_name) && $self->schema->get_table($table_name)) ? $self->schema->get_row_class($self, $table_name) : 'DBIx::Skin::Row',
         table_name     => $table_name,
         suppress_objects => $self->suppress_row_objects,
     );

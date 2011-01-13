@@ -40,9 +40,10 @@ subtest 'search_named' => sub {
 
 subtest 'search_named with arrayref' => sub {
 
-    my $org_code = Mock::Basic->can('search_by_sql');
+    my $org_code = DBIx::Skin->can('search_by_sql');
     my ($query, $bind);
-    local *Mock::Basic::search_by_sql = sub {
+    no warnings 'redefine';
+    local *DBIx::Skin::search_by_sql = sub {
         $query = $_[1];
         $bind  = $_[2];
         $org_code->(@_);

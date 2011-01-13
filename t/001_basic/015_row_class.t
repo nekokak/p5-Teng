@@ -146,4 +146,28 @@ subtest 'handle' => sub {
     can_ok $row->handle, 'single';
 };
 
+subtest 'AUTOLOAD' => sub {
+    my $row = $db_basic->search_by_sql(q{select id as mock_basic_id from mock_basic where id = 1})->next;
+    isa_ok $row, 'DBIx::Skin::Row';
+    is $row->mock_basic_id, 1;
+};
+
+subtest 'can not use (update|delete) method' => sub {
+    $db_basic->do('create table test_db (id integer)');
+    $db_basic->do('insert into test_db (id) values (1)');
+    my $row = $db_basic->search_by_sql(q{select id from test_db where id = 1})->next;
+    isa_ok $row, 'DBIx::Skin::Row';
+    is $row->id, 1;
+    eval {
+        $row->update;
+    };
+    like $@, qr/can't update from basic DBIx::Skin::Row class./;
+    $@ = undef;
+    eval {
+        $row->delete;
+    };
+    like $@, qr/can't delete from basic DBIx::Skin::Row class./;
+    $db_basic->do('drop table test_db');
+};
+
 done_testing;

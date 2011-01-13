@@ -2,6 +2,7 @@ package DBIx::Skin::Row;
 use strict;
 use warnings;
 use Carp ();
+our $AUTOLOAD;
 
 sub new {
     my ($class, $args) = @_;
@@ -25,9 +26,9 @@ sub _lazy_get_data {
         my $cache = $self->{_get_column_cached};
         my $data = $cache->{$col};
         if (! $data) { 
-            $data = $cache->{$col} = $self->{skin}->schema->call_inflate(
+            $data = $cache->{$col} = $self->{skin}->schema->get_table($self->{table_name}) ? $self->{skin}->schema->call_inflate(
                 $self->{table_name}, $col, $self->get_column($col)
-            );
+            ) : $self->get_column($col);
         }
         return $data;
     };
@@ -94,6 +95,10 @@ sub get_dirty_columns {
 sub update {
     my ($self, $args, $table_name) = @_;
 
+    if (ref($self) eq 'DBIx::Skin::Row') {
+        Carp::croak q{can't update from basic DBIx::Skin::Row class.};
+    }
+
     $table_name ||= $self->{table_name};
     # FIXME: set_columns first. by nekokak@20110111
     $args ||= $self->get_dirty_columns;
@@ -106,6 +111,10 @@ sub update {
 
 sub delete {
     my ($self, $table_name) = @_;
+
+    if (ref($self) eq 'DBIx::Skin::Row') {
+        Carp::croak q{can't delete from basic DBIx::Skin::Row class.};
+    }
 
     $table_name ||= $self->{table_name};
     $self->{skin}->delete($table_name, $self->_where_cond($table_name));
@@ -148,6 +157,15 @@ sub _where_cond {
         return +{ $pk => $self->$pk };
     }
 }
+
+sub AUTOLOAD{
+    my $self = shift;
+    my($method) = ($AUTOLOAD =~ /([^:']+$)/);
+    $self->_lazy_get_data($method)->($self);
+}
+
+### don't autoload this
+sub DESTROY { 1 };
 
 1;
 
