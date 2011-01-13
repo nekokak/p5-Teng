@@ -65,13 +65,11 @@ sub set_column {
 
     if (ref($val) eq 'SCALAR') {
         $self->{_untrusted_row_data}->{$col} = 1;
-    } else {
-        # XXX Skip deflate
-#        $self->{row_data}->{$col} = $self->{skin}->schema->call_deflate($col, $val);
-        $self->{row_data}->{$col} = $val;
-        $self->{_get_column_cached}->{$col} = $val;
-        $self->{_dirty_columns}->{$col} = 1;
     }
+
+    $self->{row_data}->{$col} = $val;
+    $self->{_get_column_cached}->{$col} = $val;
+    $self->{_dirty_columns}->{$col} = 1;
 }
 
 sub set_columns {
@@ -92,20 +90,16 @@ sub get_dirty_columns {
 }
 
 sub update {
-    my ($self, $args, $table_name) = @_;
+    my ($self, $upd, $table_name) = @_;
 
     if (ref($self) eq 'DBIx::Skin::Row') {
         Carp::croak q{can't update from basic DBIx::Skin::Row class.};
     }
 
     $table_name ||= $self->{table_name};
-    # FIXME: set_columns first. by nekokak@20110111
-    $args ||= $self->get_dirty_columns;
+    $self->set_columns($upd);
 
-    my $result = $self->{skin}->update($table_name, $args, $self->_where_cond($table_name));
-    $self->set_columns($args);
-
-    return $result;
+    $self->{skin}->update($table_name, $self->get_dirty_columns, $self->_where_cond($table_name));
 }
 
 sub delete {

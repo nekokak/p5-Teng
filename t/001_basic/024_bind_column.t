@@ -38,6 +38,8 @@ subtest 'schema information' => sub {
     ;
 };
 
+TODO : {
+  todo_skip 'no not yet...',0;
 # XXX 2011/01/08 19:40 時点でsqltypesをSchema::Tableに格納するように
 # 変更したが、まだsqltype自体を使用してないのにこのテストは通ってしまった！
 # sqltypesのテストとして機能してないのでは？？？
@@ -122,6 +124,7 @@ subtest 'insert data' => sub {
     ok +$db->do('delete from mock_basic_bind_column where id = ?',{}, 6);
 
     ok not +$db->search_by_sql('select * from mock_basic_bind_column where id = ?',[4])->next;
+};
 };
 
 done_testing;
