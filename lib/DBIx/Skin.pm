@@ -111,6 +111,17 @@ sub connect {
     return $self;
 }
 
+sub reconnect {
+    my $self = shift;
+    $self->disconnect();
+    $self->connect(@_);
+}
+
+sub disconnect {
+    my $self = shift;
+    $self->dbh(undef);
+}
+
 sub _prepare_from_dbh {
     my ($self, $dbh) = @_;
 
@@ -136,15 +147,6 @@ sub _prepare_from_dbh {
     return $self;
 }
 
-sub _guess_table_name {
-    my ($class, $sql) = @_;
-
-    if ($sql =~ /\sfrom\s+([\w]+)\s*/si) {
-        return $1;
-    }
-    return;
-}
-
 sub _execute {
     my ($self, $sql, $binds, $table) = @_;
     my $dbh = $self->dbh;
@@ -162,6 +164,24 @@ sub _execute {
         return;
     }
     return $sth;
+}
+
+sub _last_insert_id {
+    my ($self, $table) = @_;
+
+    my $dbh = $self->dbh;
+    my $driver = $self->driver_name;
+    if ( $driver eq 'mysql' ) {
+        return $dbh->{mysql_insertid};
+    } elsif ( $driver eq 'Pg' ) {
+        return $dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table, 'id', 'seq' ) } );
+    } elsif ( $driver eq 'SQLite' ) {
+        return $dbh->func('last_insert_rowid');
+    } elsif ( $driver eq 'Oracle' ) {
+        return;
+    } else {
+        Carp::croak "Don't know how to get last insert id for $driver";
+    }
 }
 
 sub _insert_or_replace {
@@ -213,28 +233,6 @@ sub replace {
     $self->_insert_or_replace('REPLACE', $table, $args);
 }
 
-sub single {
-    my ($self, $table_name, $where, $opt) = @_;
-    $opt->{limit} = 1;
-    $self->search($table_name, $where, $opt)->next;
-}
-
-sub search_by_sql {
-    my ($self, $sql, $bind, $table_name) = @_;
-
-    $table_name ||= $self->_guess_table_name( $sql );
-    my $sth = $self->_execute($sql, $bind);
-    my $itr = DBIx::Skin::Iterator->new(
-        skin         => $self,
-        sth            => $sth,
-        sql            => $sql,
-        row_class      => defined($table_name) ? $self->schema->get_row_class($self, $table_name) : 'DBIx::Skin::AnonRow',
-        table_name     => $table_name,
-        suppress_objects => $self->suppress_row_objects,
-    );
-    return wantarray ? $itr->all : $itr;
-}
-
 sub update {
     my ($self, $table, $args, $where) = @_;
 
@@ -282,19 +280,7 @@ sub txn_commit   { $_[0]->txn_manager->txn_commit   }
 sub txn_end      { $_[0]->txn_manager->txn_end      }
 
 #--------------------------------------------------------------------------------
-# db handling
-sub reconnect {
-    my $self = shift;
-    $self->disconnect();
-    $self->connect(@_);
-}
 
-sub disconnect {
-    my $self = shift;
-    $self->dbh(undef);
-}
-
-#--------------------------------------------------------------------------------
 sub do {
     my ($self, $sql, $attr, @bind_vars) = @_;
     my $ret;
@@ -346,22 +332,35 @@ sub search_named {
     $self->search_by_sql($sql, \@bind, $table);
 }
 
-sub _last_insert_id {
-    my ($self, $table) = @_;
+sub single {
+    my ($self, $table_name, $where, $opt) = @_;
+    $opt->{limit} = 1;
+    $self->search($table_name, $where, $opt)->next;
+}
 
-    my $dbh = $self->dbh;
-    my $driver = $self->driver_name;
-    if ( $driver eq 'mysql' ) {
-        return $dbh->{mysql_insertid};
-    } elsif ( $driver eq 'Pg' ) {
-        return $dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table, 'id', 'seq' ) } );
-    } elsif ( $driver eq 'SQLite' ) {
-        return $dbh->func('last_insert_rowid');
-    } elsif ( $driver eq 'Oracle' ) {
-        return;
-    } else {
-        Carp::croak "Don't know how to get last insert id for $driver";
+sub search_by_sql {
+    my ($self, $sql, $bind, $table_name) = @_;
+
+    $table_name ||= $self->_guess_table_name( $sql );
+    my $sth = $self->_execute($sql, $bind);
+    my $itr = DBIx::Skin::Iterator->new(
+        skin         => $self,
+        sth            => $sth,
+        sql            => $sql,
+        row_class      => defined($table_name) ? $self->schema->get_row_class($self, $table_name) : 'DBIx::Skin::AnonRow',
+        table_name     => $table_name,
+        suppress_objects => $self->suppress_row_objects,
+    );
+    return wantarray ? $itr->all : $itr;
+}
+
+sub _guess_table_name {
+    my ($class, $sql) = @_;
+
+    if ($sql =~ /\sfrom\s+([\w]+)\s*/si) {
+        return $1;
     }
+    return;
 }
 
 sub handle_error {
