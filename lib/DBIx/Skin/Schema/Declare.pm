@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use DBIx::Skin::Schema;
 use DBIx::Skin::Schema::Table;
-use Scalar::Util ();
 use base qw(Exporter);
 
 our @EXPORT = qw(
@@ -33,14 +32,17 @@ sub row_namespace ($) {
 }
 
 sub _current_schema {
-    
-    my $class = $CURRENT_SCHEMA_CLASS || __PACKAGE__;
+    my $class = __PACKAGE__;
     my $schema_class;
 
-    my $i = 1;
-    while ( $schema_class = caller($i++) ) {
-        if ( ! $schema_class->isa( $class ) ) {
-            last;
+    if ( $CURRENT_SCHEMA_CLASS ) {
+        $schema_class = $CURRENT_SCHEMA_CLASS;
+    } else {
+        my $i = 1;
+        while ( $schema_class = caller($i++) ) {
+            if ( ! $schema_class->isa( $class ) ) {
+                last;
+            }
         }
     }
 
@@ -78,20 +80,20 @@ sub table(&) {
     );
     no warnings 'redefine';
     
-    my $schema_class = Scalar::Util::blessed($current);
+    my $dest_class = caller();
     no strict 'refs';
     no warnings 'once';
-    local *{"$schema_class\::name"}      = sub ($) { 
+    local *{"$dest_class\::name"}      = sub ($) { 
         $table_name = shift;
         $row_class  = row_namespace($table_name);
     };
-    local *{"$schema_class\::pk"}        = sub (@) { @table_pk = @_ };
-    local *{"$schema_class\::columns"}   = sub (@) { @table_columns = @_ };
-    local *{"$schema_class\::row_class"} = sub (@) { $row_class = shift };
-    local *{"$schema_class\::inflate"} = sub ($&) {
+    local *{"$dest_class\::pk"}        = sub (@) { @table_pk = @_ };
+    local *{"$dest_class\::columns"}   = sub (@) { @table_columns = @_ };
+    local *{"$dest_class\::row_class"} = sub (@) { $row_class = shift };
+    local *{"$dest_class\::inflate"} = sub ($&) {
         $inflate{ $_[0] } = $_[1];
     };
-    local *{"$schema_class\::deflate"} = sub ($&) {
+    local *{"$dest_class\::deflate"} = sub ($&) {
         $deflate{ $_[0] } = $_[1];
     };
 

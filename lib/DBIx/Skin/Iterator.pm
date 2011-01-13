@@ -1,7 +1,6 @@
 package DBIx::Skin::Iterator;
 use strict;
 use warnings;
-use Scalar::Util qw(blessed);
 use Carp ();
 use Class::Accessor::Lite (
     rw => [qw/suppress_objects/],
