@@ -1,7 +1,6 @@
 package DBIx::Skin::Schema;
 use strict;
 use warnings;
-use Scalar::Util ();
 use DBIx::Skin::Row ();
 use Class::Accessor::Lite
     rw => [ qw(
