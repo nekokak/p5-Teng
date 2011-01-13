@@ -11,7 +11,6 @@ our @EXPORT = qw(
     table
     pk
     columns
-    trigger
     row_class
     inflate
     deflate
@@ -52,12 +51,6 @@ sub _current_schema {
     $schema_class->instance();
 }
 
-sub trigger($&) {
-    my ($trigger_name, $callback) = @_;
-    my $current = _current_schema();
-    $current->add_trigger( $trigger_name, $callback );
-}
-
 sub pk(@);
 sub columns(@);
 sub name ($);
@@ -71,7 +64,6 @@ sub table(&) {
         $table_name,
         @table_pk,
         @table_columns,
-        %table_triggers,
         %inflate,
         %deflate,
         $row_class,
@@ -85,13 +77,6 @@ sub table(&) {
     local *{"$schema_class\::pk"}        = sub (@) { @table_pk = @_ };
     local *{"$schema_class\::columns"}   = sub (@) { @table_columns = @_ };
     local *{"$schema_class\::row_class"} = sub (@) { $row_class = shift };
-    local *{"$schema_class\::trigger"} = sub ($&) {
-        my $list = $table_triggers{$_[0]};
-        if (! $list) {
-            $table_triggers{$_[0]} = $list = [];
-        }
-        push @$list, $_[1]
-    };
     local *{"$schema_class\::inflate"} = sub ($&) {
         $inflate{ $_[0] } = $_[1];
     };
@@ -119,7 +104,6 @@ sub table(&) {
             name         => $table_name,
             primary_keys => \@table_pk,
             sql_types    => \%sql_types,
-            triggers     => \%table_triggers,
             inflators    => \%inflate,
             deflators    => \%deflate,
             row_class    => $row_class,

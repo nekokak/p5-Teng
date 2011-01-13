@@ -8,7 +8,6 @@ use Class::Accessor::Lite
         columns
         sql_types
         row_class
-        triggers
         inflators
         deflators
     ) ]
@@ -18,7 +17,6 @@ use Class::Load ();
 sub new {
     my ($class, %args) = @_;
     my $self = bless {
-        triggers => {},
         %args
     }, $class;
 
@@ -53,20 +51,6 @@ sub new {
     $self->row_class($row_class);
 
     return $self;
-}
-
-sub add_trigger {
-    my ($self, $trigger_name, $callback) = @_;
-    my $triggers = $self->triggers->{ $trigger_name } || [];
-    push @$triggers, $callback;
-}
-
-sub call_trigger {
-    my ($self, $db, $trigger_name, $args) = @_;
-    my $triggers = $self->triggers->{ $trigger_name } || [];
-    for my $code (@$triggers) {
-        $code->($db, $args, $self->name);
-    }
 }
 
 sub get_sql_type {
