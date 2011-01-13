@@ -114,6 +114,7 @@ sub connect {
 sub _prepare_from_dbh {
     my ($self, $dbh) = @_;
 
+# TODO:  nekokak@20110113
 # copied from old ->connect.
 #    if ( $self->{owner_pid} != $$ ) {
 #        $self->{owner_pid} = $$;
@@ -168,6 +169,7 @@ sub _insert_or_replace {
 
     my $schema = $self->schema;
 
+    # TODO: Is it good in this place? nekokak@20110113
     my $values = {};
     for my $col (keys %{$args}) {
         $values->{$col} = $schema->call_deflate($table_name, $col, $args->{$col});
@@ -211,6 +213,7 @@ sub replace {
     $self->_insert_or_replace('REPLACE', $table, $args);
 }
 
+# XXX: Abolition schedule nekokak@20110113
 sub search_rs {
     my ($self, $table_name, $where, $opt) = @_;
 
@@ -257,6 +260,7 @@ sub update {
 
     my $schema = $self->schema;
 
+    # TODO: Is it good in this place? nekokak@20110113
     my $values = {};
     for my $col (keys %{$args}) {
        $values->{$col} = $schema->call_deflate($table, $col, $args->{$col});
@@ -328,7 +332,7 @@ sub search {
     return wantarray ? $iter->all : $iter;
 }
 
-# XXX: i wish modify IF by nekokak@20110111
+# TODO: i wish modify IF by nekokak@20110111
 sub search_named {
     my ($self, $sql, $args, $opts, $table) = @_;
 
@@ -789,51 +793,19 @@ use L<Devel::KYTProf>.
 
 =head2 TRIGGER
 
-    my $row = $db->insert($args);
-    # pre_insert: ($db, $args, $table_name)
-    # post_insert: ($db, $row, $table_name)
-
-    my $updated_rows_count = $db->update($args);
-    my $updated_rows_count = $row->update(); # example $args: +{ id => $row->id }
-    # pre_update: ($db, $args, $table_name)
-    # post_update: ($db, $updated_rows_count, $table_name)
-
-    my $deleted_rows_count = $db->delete($args);
-    my $deleted_rows_count = $row->delete(); # example $args: +{ id => $row->id }
-    # pre_delete: ($db, $args, $table_name)
-    # post_delete: ($db, $deleted_rows_count, $table_name)
+use L<Class::Method::Modifiers>
 
 =head1 BUGS AND LIMITATIONS
 
 No bugs have been reported.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Atsushi Kobayashi  C<< <nekokak __at__ gmail.com> >>
 
-=head1 CONTRIBUTORS
+Tokuhiro Matsuno E<lt>tokuhirom@gmail.comE<gt>
 
-walf443 : Keiji Yoshimi
-
-TBONE : Terrence Brannon
-
-nekoya : Ryo Miyake
-
-oinume: Kazuhiro Oinuma
-
-fujiwara: Shunichiro Fujiwara
-
-pjam: Tomoyuki Misonou
-
-magicalhat
-
-Makamaka Hannyaharamitu
-
-nihen: Masahiro Chiba
-
-lestrrat: Daisuke Maki
-
-tokuhirom: Tokuhiro Matsuno
+Daisuke Maki C<< <daisuke@endeworks.jp> >>
 
 =head1 SUPPORT
 
@@ -847,7 +819,7 @@ tokuhirom: Tokuhiro Matsuno
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2010, Atsushi Kobayashi C<< <nekokak __at__ gmail.com> >>. All rights reserved.
+Copyright (c) 2010, the DBIx::Skin L</AUTHOR>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
