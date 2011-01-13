@@ -74,4 +74,14 @@ subtest 'search_named with arrayref' => sub {
     is_deeply $bind, [qw/1 2 3/];
 };
 
+subtest 'search_named with non existent bind' => sub {
+    eval {
+        my $itr = $db->search_named(
+            q{SELECT * FROM mock_basic WHERE id = :id OR name = :name},
+            { id => 1 }
+        );
+    };
+    like $@, qr/'name' does not exist in bind hash/;
+};
+
 done_testing;
