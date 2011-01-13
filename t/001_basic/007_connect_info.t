@@ -20,4 +20,14 @@ subtest 'bad connect info' => sub {
     like $@, qr/Connection error: install_driver\(NoSuchDriver\) failed/;
 };
 
+subtest 'bad on_connect_do' => sub {
+    eval {
+        my $db = Mock::Basic->new(
+            connect_info => [ 'dbi:SQLite:' ],
+            on_connect_do => \1
+        );
+    };
+    like $@, qr/Invalid on_connect_do: SCALAR/;
+};
+
 done_testing;
