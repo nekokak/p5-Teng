@@ -5,7 +5,6 @@ all_from 'lib/DBIx/Skin.pm';
 requires 'Carp';
 requires 'DBI';
 requires 'Scalar::Util';
-requires 'IO::Handle';
 requires 'Class::Accessor::Lite' => 0.05;
 requires 'DBIx::TransactionManager' => '1.02';
 requires 'Class::Load';
