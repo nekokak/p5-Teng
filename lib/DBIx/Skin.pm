@@ -125,16 +125,15 @@ sub disconnect {
 sub _prepare_from_dbh {
     my ($self, $dbh) = @_;
 
-# TODO:  nekokak@20110113
-# copied from old ->connect.
-#    if ( $self->{owner_pid} != $$ ) {
-#        $self->{owner_pid} = $$;
-#        $dbh->{InactiveDestroy} = 1;
-#        $dbh = $self->reconnect;
-#    }
-#    unless ($dbh && $dbh->FETCH('Active') && $dbh->ping) {
-#        $dbh = $self->reconnect;
-#    }
+    if ( $self->owner_pid != $$ ) {
+        $self->owner_pid($$);
+        $dbh->{InactiveDestroy} = 1;
+        $self->reconnect;
+    }
+
+    unless ($dbh && $dbh->FETCH('Active') && $dbh->ping) {
+        $self->reconnect;
+    }
 
     $self->driver_name($dbh->{Driver}->{Name});
     my $builder = $self->sql_builder;
