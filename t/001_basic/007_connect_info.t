@@ -14,9 +14,10 @@ subtest 'basic' => sub {
 
 subtest 'bad connect info' => sub {
     eval {
-        my $db = Mock::Basic->new( connect_info => [ 'dbi:NoSuchDriver:' ] );
+        my $db = Mock::Basic->new(
+            connect_info => [ 'dbi:NoSuchDriver:' ] );
     };
-    like $@, qr/install_driver\(NoSuchDriver\) failed/;
+    like $@, qr/Connection error: install_driver\(NoSuchDriver\) failed/;
 };
 
 done_testing;

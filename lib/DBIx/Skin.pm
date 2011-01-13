@@ -91,8 +91,8 @@ sub connect {
         %{ $connect_info->[3] || {} },
     };
 
-    my $dbh = DBI->connect(@$connect_info)
-        or Carp::croak("Connection error: " . $DBI::errstr);
+    my $dbh = eval { DBI->connect(@$connect_info) }
+        or Carp::croak("Connection error: " . ($@ || $DBI::errstr));
 
     $self->dbh( $dbh );
 
