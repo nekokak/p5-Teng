@@ -384,6 +384,18 @@ DBIx::Skin - simple DBI wrapper/ORMapper
 
 =head1 SYNOPSIS
 
+    my $db = MyDB->new({ connect_info => [ 'dbi:SQLite:' ] });
+    my $row = $db->insert( 'table' => {
+        col1 => $value
+    } );
+
+=head1 DESCRIPTION
+
+DBIx::Skin is simple DBI wrapper and simple O/R Mapper.
+It aims to be lightweight, with minimal dependencies so it's easier to install. 
+
+=head1 BASIC USAGE
+
 create your db model base class.
 
     package Your::Model;
@@ -394,7 +406,7 @@ create your db schema class.
 See DBIx::Skin::Schema for docs on defining schema class.
 
     package Your::Model::Schema;
-    use DBIx::Skin::Schema;
+    use DBIx::Skin::Schema::Declare;
     table {
         name 'user';
         pk 'id';
@@ -418,11 +430,6 @@ in your script.
     $row = $skin->search_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
     $row->delete('user');
 
-=head1 DESCRIPTION
-
-DBIx::Skin is simple DBI wrapper and simple O/R Mapper.
-It aims to be lightweight, with minimal dependencies so it's easier to install. 
-
 =head1 ARCHITECTURE
 
 DBIx::Skin classes are comprised of three distinct components:
@@ -443,9 +450,10 @@ The C<schema> is a simple class that describes your table definitions. Note that
 In DBIx::Skin, you simply use DBIx::Skin::Schema's domain specific languaage to define a set of tables
 
     package MyApp::Model::Schema;
-    use DBIx::Skin::Schema;
+    use DBIx::Skin::Schema::Declare;
 
-    install_table $table_name => schema {
+    table {
+        name $table_name;
         pk $primary_key_column;
         columns qw(
             column1
