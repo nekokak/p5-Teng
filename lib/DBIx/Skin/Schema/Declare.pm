@@ -25,6 +25,13 @@ sub schema (&;$) {
     _current_schema();
 }
 
+sub row_namespace ($) {
+    my $table_name = shift;
+
+    (my $caller = caller(1)) =~ s/::Schema$//;
+    join '::', $caller, 'Row', _camelize($table_name);
+}
+
 sub _current_schema {
     
     my $class = $CURRENT_SCHEMA_CLASS || __PACKAGE__;
@@ -74,7 +81,10 @@ sub table(&) {
     my $schema_class = Scalar::Util::blessed($current);
     no strict 'refs';
     no warnings 'once';
-    local *{"$schema_class\::name"}      = sub ($) { $table_name = shift };
+    local *{"$schema_class\::name"}      = sub ($) { 
+        $table_name = shift;
+        $row_class  = row_namespace($table_name);
+    };
     local *{"$schema_class\::pk"}        = sub (@) { @table_pk = @_ };
     local *{"$schema_class\::columns"}   = sub (@) { @table_columns = @_ };
     local *{"$schema_class\::row_class"} = sub (@) { $row_class = shift };
@@ -110,6 +120,11 @@ sub table(&) {
             row_class    => $row_class,
         )
     ); 
+}
+
+sub _camelize {
+    my $s = shift;
+    join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
 }
 
 1;

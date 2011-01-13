@@ -22,22 +22,6 @@ sub new {
 
     # load row class
     my $row_class = $self->row_class;
-    if (!defined $row_class) {
-        $row_class = _camelize( $self->name );
-    }
-    if ( $row_class !~ s/^\+// ) { # I want to remove '+' things -- tokuhirom@20110109
-        my $caller;
-        for my $i (0..10) {
-            $caller = caller($i);
-            last if $caller !~ /^DBIx::Skin/;
-        }
-        $caller =~ s/::Schema//;
-        $row_class = join '::',
-            $caller,
-            'Row',
-            $row_class
-        ;
-    }
     Class::Load::load_optional_class($row_class) or do {
         # make row class automatically
         no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
@@ -75,11 +59,6 @@ sub call_inflate {
         return $code->($col_value);
     }
     return $col_value;
-}
-
-sub _camelize {
-    my $s = shift;
-    join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
 }
 
 1;

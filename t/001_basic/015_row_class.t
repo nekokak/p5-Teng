@@ -35,7 +35,7 @@ use Test::More;
             id
             name
         /;
-        row_class '+Mock::BasicRow::FooRow';
+        row_class 'Mock::BasicRow::FooRow';
     };
 
     package Mock::BasicRow::FooRow;
