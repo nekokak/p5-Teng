@@ -213,30 +213,10 @@ sub replace {
     $self->_insert_or_replace('REPLACE', $table, $args);
 }
 
-# XXX: Abolition schedule nekokak@20110113
-sub search_rs {
-    my ($self, $table_name, $where, $opt) = @_;
-
-    my $builder = $self->sql_builder;
-    my $table = $self->schema->get_table( $table_name );
-    if (! $table) {
-        Carp::croak("No such table $table_name");
-    }
-
-    my ($sql, @binds) = $builder->select(
-        $table_name,
-        $table->columns,
-        $where,
-        $opt
-    );
-
-    return scalar($self->search_by_sql($sql, \@binds, $table_name));
-}
-
 sub single {
     my ($self, $table_name, $where, $opt) = @_;
     $opt->{limit} = 1;
-    $self->search_rs($table_name, $where, $opt)->next;
+    $self->search($table_name, $where, $opt)->next;
 }
 
 sub search_by_sql {
@@ -328,8 +308,20 @@ sub do {
 sub search {
     my ($self, $table_name, $where, $opt) = @_;
 
-    my $iter = $self->search_rs($table_name, $where, $opt);
-    return wantarray ? $iter->all : $iter;
+    my $builder = $self->sql_builder;
+    my $table = $self->schema->get_table( $table_name );
+    if (! $table) {
+        Carp::croak("No such table $table_name");
+    }
+
+    my ($sql, @binds) = $builder->select(
+        $table_name,
+        $table->columns,
+        $where,
+        $opt
+    );
+
+    $self->search_by_sql($sql, \@binds, $table_name);
 }
 
 # TODO: i wish modify IF by nekokak@20110111
@@ -656,13 +648,6 @@ get rows:
     my @rows = Your::Model->search('user',{id => 1},{order_by => 'id'});
 
 See L</ATTRIBUTES> for more information for \%search_attr.
-
-=item $skin->search_rs($table_name, [\%search_condition, [\%search_attr]])
-
-simple search method.
-search_rs method always get DBIx::Skin::Iterator's instance object.
-
-This method does the same exact thing as search() except it will always return a iterator, even in list context.
 
 =item $skin->single($table_name, \%search_condition)
 
