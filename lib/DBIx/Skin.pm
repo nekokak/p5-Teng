@@ -310,11 +310,9 @@ sub search {
     $self->search_by_sql($sql, \@binds, $table_name);
 }
 
-# TODO: i wish modify IF by nekokak@20110111
 sub search_named {
-    my ($self, $sql, $args, $opts, $table) = @_;
+    my ($self, $sql, $args, $table) = @_;
 
-    $sql = sprintf($sql, @{$opts||[]});
     my %named_bind = %{$args};
     my @bind;
     $sql =~ s{:([A-Za-z_][A-Za-z0-9_]*)}{
@@ -661,7 +659,7 @@ get simple count
 
     my $cnt = Your::Model->count('user' => 'id', {age => 30});
 
-=item $skin->search_named($sql, [\%bind_values, [\@sql_parts, [$table_name]]])
+=item $skin->search_named($sql, [\%bind_values, [$table_name]])
 
 execute named query
 
@@ -673,12 +671,6 @@ It's useful in case use IN statement.
     # SELECT * FROM user WHERE id IN (?,?,?);
     # bind [1,2,3]
     my $itr = Your::Model->search_named(q{SELECT * FROM user WHERE id IN :ids}, {id => [1, 2, 3]});
-
-If you give \@sql_parts,
-
-    # SELECT * FROM user WHERE id IN (?,?,?) AND unsubscribed_at IS NOT NULL;
-    # bind [1,2,3]
-    my $itr = Your::Model->search_named(q{SELECT * FROM user WHERE id IN :ids %s}, {id => [1, 2, 3]}, ['AND unsubscribed_at IS NOT NULL']);
 
 If you give table_name. It is assumed the hint that makes DBIx::Skin::Row's Object.
 

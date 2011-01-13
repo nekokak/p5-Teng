@@ -38,28 +38,6 @@ subtest 'search_named' => sub {
     is $row[1]->name, 'ruby';
 };
 
-subtest 'search_named' => sub {
-
-    my $org_code = Mock::Basic->can('search_by_sql');
-    my ($query, $bind);
-    local *Mock::Basic::search_by_sql = sub {
-        $query = $_[1];
-        $bind  = $_[2];
-        $org_code->(@_);
-    };
-
-    my $itr = $db->search_named(q{SELECT * FROM mock_basic WHERE id = :id limit %d}, {id => 1},[100]);
-    isa_ok $itr, 'DBIx::Skin::Iterator';
-
-    my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
-    is $row->id , 1;
-    is $row->name, 'perl';
-
-    is $query, 'SELECT * FROM mock_basic WHERE id = ? limit 100';
-    is_deeply $bind, [1];
-};
-
 subtest 'search_named with arrayref' => sub {
 
     my $org_code = Mock::Basic->can('search_by_sql');
