@@ -4,11 +4,12 @@ all_from 'lib/Teng.pm';
 
 requires 'parent';
 requires 'Carp';
-requires 'DBI';
 requires 'Class::Accessor::Lite' => 0.05;
-requires 'DBIx::TransactionManager' => '1.02';
-requires 'DBIx::Inspector' => '0.03';
 requires 'Class::Load';
+requires 'Data::Page';
+requires 'DBI';
+requires 'DBIx::Inspector' => '0.03';
+requires 'DBIx::TransactionManager' => '1.02';
 requires 'SQL::Maker' => 0.08;
 
 author_tests('xt');
