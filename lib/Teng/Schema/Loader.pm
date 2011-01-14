@@ -67,8 +67,6 @@ This is the method to load schema from DB. It returns instance of L<Teng::Scehem
 
 The arguments are:
 
-=over 4
-
 =item dbh
 
 Database handle from DBI.
@@ -76,8 +74,6 @@ Database handle from DBI.
 =item namespace
 
 your project name space.
-
-=back
 
 =back
 
