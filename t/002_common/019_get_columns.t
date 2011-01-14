@@ -11,7 +11,7 @@ subtest 'get_columns' => sub {
         id   => 1,
         name => 'perl',
     });
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     my $data = $row->get_columns;
     ok $data;
@@ -24,7 +24,7 @@ subtest 'get_columns multi line' => sub {
         id   => 2,
         name => 'ruby',
     });
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     my $data = [map {$_->get_columns} $db->search('mock_basic')->all];
     is_deeply $data, [

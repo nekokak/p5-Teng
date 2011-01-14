@@ -26,10 +26,10 @@ subtest "$db_file ok" => sub {
     );
     
     my $itr = $db->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->id , 1;
     is $row->name, 'perl';
 };
@@ -50,10 +50,10 @@ subtest 'db2.db ok' => sub {
     );
 
     my $itr = $db->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->id , 1;
     is $row->name, 'ruby';
 };
@@ -66,10 +66,10 @@ $db->reconnect(
 
 subtest "$db_file ok" => sub {
     my $itr = $db->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->id , 1;
     is $row->name, 'perl';
 };
@@ -78,10 +78,10 @@ $db->reconnect();
 
 subtest "$db_file ok" => sub {
     my $itr = $db->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->id , 1;
     is $row->name, 'perl';
 };

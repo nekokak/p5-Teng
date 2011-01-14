@@ -1,5 +1,5 @@
 package Mock::ExplicitSchema;
-use DBIx::Skin 
+use Teng
     schema => 'Mock::ExplicitSchemaSchema';
 
 sub setup_test_db {

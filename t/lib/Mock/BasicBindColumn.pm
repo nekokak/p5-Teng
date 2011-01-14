@@ -1,6 +1,6 @@
 package Mock::BasicBindColumn;
 use strict;
-use parent qw/DBIx::Skin/;
+use parent qw/Teng/;
 
 sub setup_test_db {
     shift->do(q{

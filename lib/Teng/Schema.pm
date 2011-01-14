@@ -1,7 +1,7 @@
-package DBIx::Skin::Schema;
+package Teng::Schema;
 use strict;
 use warnings;
-use DBIx::Skin::Row ();
+use Teng::Row ();
 use Class::Accessor::Lite
     rw => [ qw(
         tables
@@ -49,7 +49,7 @@ sub get_row_class {
     if ($table) {
         return $table->row_class;
     } else {
-        return 'DBIx::Skin::Row';
+        return 'Teng::Row';
     }
 }
 
@@ -72,12 +72,12 @@ __END__
 
 =head1 NAME
 
-DBIx::Skin::Schema - Schema DSL for DBIx::Skin
+Teng::Schema - Schema DSL for Teng
 
 =head1 SYNOPSIS
 
     package Your::Model;
-    use DBIx::Skin connect_info => +{
+    use Teng connect_info => +{
         dsn => 'dbi:SQLite:',
         username => '',
         password => '',
@@ -85,7 +85,7 @@ DBIx::Skin::Schema - Schema DSL for DBIx::Skin
     1;
     
     package Your::Model::Schema:
-    use DBIx::Skin::Schema;
+    use Teng::Schema;
     
     # set user table schema settings
     install_table user => schema {

@@ -1,4 +1,4 @@
-package DBIx::Skin::Iterator;
+package Teng::Iterator;
 use strict;
 use warnings;
 use Carp ();
@@ -58,7 +58,7 @@ sub all {
 __END__
 =head1 NAME
 
-DBIx::Skin::Iterator
+Teng::Iterator
 
 =head1 DESCRIPTION
 

@@ -26,10 +26,10 @@ $db->insert('mock_basic',{
 
 subtest 'search' => sub {
     my $itr = $db->search('mock_basic',{id => 1});
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
@@ -46,10 +46,10 @@ subtest 'do new' => sub {
         }
     );
     my $itr = $model->search('mock_basic');
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
@@ -72,10 +72,10 @@ subtest 'do new other connection' => sub {
     });
 
     my $itr = $model->search('mock_basic');
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';
@@ -97,10 +97,10 @@ subtest 'do new with dbh' => sub {
     });
 
     my $itr = $model->search('mock_basic');
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     is $row->id, 1;
     is $row->name, 'perl';

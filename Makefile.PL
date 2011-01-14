@@ -1,6 +1,6 @@
 use inc::Module::Install;
-name 'DBIx-Skin';
-all_from 'lib/DBIx/Skin.pm';
+name 'Teng';
+all_from 'lib/Teng.pm';
 
 requires 'Carp';
 requires 'DBI';

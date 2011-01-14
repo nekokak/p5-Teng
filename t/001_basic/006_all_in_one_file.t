@@ -5,7 +5,7 @@ use Test::More;
 
 {
     package Mock::BasicALLINONE;
-    use parent 'DBIx::Skin';
+    use parent 'Teng';
 
     sub setup_test_db {
         shift->do(q{
@@ -22,7 +22,7 @@ use Test::More;
 {
     package Mock::BasicALLINONE::Schema;
     use utf8;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
     schema {
         table {
             name 'mock_basic';
@@ -40,7 +40,7 @@ use Test::More;
     package Mock::BasicALLINONE::Row::MockBasic;
     use strict;
     use warnings;
-    use base 'DBIx::Skin::Row';
+    use base 'Teng::Row';
 }
 
 my $db = Mock::BasicALLINONE->new(connect_info => ['dbi:SQLite:', '','']);
@@ -52,7 +52,7 @@ $db->insert('mock_basic',{
 });
 
 my $itr = $db->search_by_sql(q{SELECT * FROM mock_basic WHERE id = ?}, [1]);
-isa_ok $itr, 'DBIx::Skin::Iterator';
+isa_ok $itr, 'Teng::Iterator';
 
 my $row = $itr->next;
 isa_ok $row, 'Mock::BasicALLINONE::Row::MockBasic';

@@ -4,7 +4,7 @@ use Test::More;
 {
     package Mock::BasicOnConnectDo;
     our $CONNECTION_COUNTER;
-    use parent qw/DBIx::Skin/;
+    use parent qw/Teng/;
 
     sub setup_test_db {
         shift->do(q{
@@ -18,7 +18,7 @@ use Test::More;
 
     package Mock::BasicOnConnectDo::Schema;
     use utf8;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
 
     table {
         name 'mock_basic';

@@ -13,7 +13,7 @@ $db->insert('mock_basic',{
 
 subtest 'single' => sub {
     my $row = $db->single('mock_basic',{id => 1});
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->id, 1;
     is $row->name, 'perl';
 };

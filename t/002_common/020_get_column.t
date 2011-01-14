@@ -11,7 +11,7 @@ subtest 'get_column' => sub {
         id   => 1,
         name => 'perl',
     });
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     is($row->get_column('name') => 'perl', 'get_column ok');
 
@@ -32,7 +32,7 @@ subtest 'get_column' => sub {
     my $row = $db->search_by_sql(
         q{SELECT id FROM mock_basic LIMIT 1}
     )->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 
     eval {
         $row->get_column('name');

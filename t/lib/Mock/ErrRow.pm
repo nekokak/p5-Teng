@@ -1,5 +1,5 @@
 package Mock::ErrRow;
-use DBIx::Skin connect_info => +{
+use Teng connect_info => +{
     dsn => 'dbi:SQLite:',
     username => '',
     password => '',

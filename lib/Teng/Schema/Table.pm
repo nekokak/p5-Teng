@@ -1,4 +1,4 @@
-package DBIx::Skin::Schema::Table;
+package Teng::Schema::Table;
 use strict;
 use warnings;
 use Class::Accessor::Lite
@@ -24,7 +24,7 @@ sub new {
     my $row_class = $self->row_class;
     Class::Load::load_optional_class($row_class) or do {
         # make row class automatically
-        no strict 'refs'; @{"$row_class\::ISA"} = ('DBIx::Skin::Row');
+        no strict 'refs'; @{"$row_class\::ISA"} = ('Teng::Row');
     };
     for my $col (@{$self->columns}) {
         no strict 'refs';

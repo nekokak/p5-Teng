@@ -1,6 +1,6 @@
 package Mock::Basic::Schema;
 use utf8;
-use DBIx::Skin::Schema::Declare;
+use Teng::Schema::Declare;
 
 table {
     name 'mock_basic';

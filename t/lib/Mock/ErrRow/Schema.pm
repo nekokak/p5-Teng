@@ -1,6 +1,6 @@
 package Mock::ErrRow::Schema;
 use utf8;
-use DBIx::Skin::Schema;
+use Teng::Schema;
 
 install_table mock_err_row => schema {
     pk 'id';

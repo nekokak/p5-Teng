@@ -1,11 +1,11 @@
-This is Perl module DBIx::Skin.
+This is Perl module Teng.
 
 INSTALLATION
 
-DBIx::Skin installation is straightforward. If your CPAN shell is set up,
+Teng installation is straightforward. If your CPAN shell is set up,
 you should just be able to do
 
-    % cpan DBIx::Skin
+    % cpan Teng
 
 Download it, unpack it, then build it as per the usual:
 
@@ -18,9 +18,9 @@ Then install it:
 
 DOCUMENTATION
 
-DBIx::Skin documentation is available as in POD. So you can do:
+Teng documentation is available as in POD. So you can do:
 
-    % perldoc DBIx::Skin
+    % perldoc Teng
 
 to read the documentation online with your favorite pager.
 

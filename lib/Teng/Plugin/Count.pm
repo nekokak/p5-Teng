@@ -1,4 +1,4 @@
-package DBIx::Skin::Plugin::Count;
+package Teng::Plugin::Count;
 use strict;
 use warnings;
 use utf8;
@@ -27,12 +27,12 @@ __END__
 
 =head1 NAME
 
-DBIx::Skin::Plugin::Count - Count rows in database.
+Teng::Plugin::Count - Count rows in database.
 
 =head1 NAME
 
     package MyDB;
-    use parent qw/DBIx::Skin/;
+    use parent qw/Teng/;
     __PACKAGE__->load_plugin('Count');
 
     package main;

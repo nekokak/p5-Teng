@@ -15,13 +15,13 @@ subtest 'update mock_basic data' => sub {
     ok $db->update('mock_basic',{name => 'python'},{id => 1});
     my $row = $db->single('mock_basic',{id => 1});
 
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->name, 'python';
 };
 
 subtest 'row object update' => sub {
     my $row = $db->single('mock_basic',{id => 1});
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->name, 'python';
 
     ok $row->update({name => 'perl'});
@@ -32,7 +32,7 @@ subtest 'row object update' => sub {
 
 subtest 'row data set and update' => sub {
     my $row = $db->single('mock_basic',{id => 1});
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->name, 'perl';
 
     $row->set_columns({name => 'ruby'});

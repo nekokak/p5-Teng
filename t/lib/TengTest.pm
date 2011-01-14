@@ -1,6 +1,6 @@
-package DBIx::SkinTest;
+package TengTest;
 use strict;
-use parent qw(DBIx::Skin);
+use parent qw(Teng);
 
 sub prepare_db {
     my ( $class, $dbh ) = @_;

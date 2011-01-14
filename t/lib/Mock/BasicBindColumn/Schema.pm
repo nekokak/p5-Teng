@@ -1,7 +1,7 @@
 package Mock::BasicBindColumn::Schema;
 use strict;
 use warnings;
-use DBIx::Skin::Schema::Declare;
+use Teng::Schema::Declare;
 
 table {
     name 'mock_basic_bind_column';

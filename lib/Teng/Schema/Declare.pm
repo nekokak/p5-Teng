@@ -1,8 +1,8 @@
-package DBIx::Skin::Schema::Declare;
+package Teng::Schema::Declare;
 use strict;
 use warnings;
-use DBIx::Skin::Schema;
-use DBIx::Skin::Schema::Table;
+use Teng::Schema;
+use Teng::Schema::Table;
 use base qw(Exporter);
 
 our @EXPORT = qw(
@@ -51,9 +51,9 @@ sub _current_schema {
     }
 
     no warnings 'once';
-    if (! $schema_class->isa( 'DBIx::Skin::Schema' ) ) {
+    if (! $schema_class->isa( 'Teng::Schema' ) ) {
         no strict 'refs';
-        push @{ "$schema_class\::ISA" }, 'DBIx::Skin::Schema';
+        push @{ "$schema_class\::ISA" }, 'Teng::Schema';
         my $schema = $schema_class->new();
         $schema_class->set_default_instance( $schema );
     }
@@ -112,7 +112,7 @@ sub table(&) {
     }
 
     $current->add_table(
-        DBIx::Skin::Schema::Table->new(
+        Teng::Schema::Table->new(
             columns      => \@col_names,
             name         => $table_name,
             primary_keys => \@table_pk,
@@ -135,13 +135,13 @@ __END__
 
 =head1 NAME
 
-DBIx::Skin::Schema::Declare - DSL For Declaring DBIx::Skin Schema
+Teng::Schema::Declare - DSL For Declaring Teng Schema
 
 =head1 NORMAL USE
 
     package MyDB::Schema;
     use strict;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
 
     table {
         name "your_table_name";
@@ -151,7 +151,7 @@ DBIx::Skin::Schema::Declare - DSL For Declaring DBIx::Skin Schema
 
 =head1 INLINE DECLARATION
 
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
     my $schema = schema {
         table {
             name "your_table_name";

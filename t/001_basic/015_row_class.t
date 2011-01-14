@@ -4,7 +4,7 @@ use Test::More;
 
 {
     package Mock::BasicRow;
-    use base qw(DBIx::Skin);
+    use base qw(Teng);
 
     sub setup_test_db {
         shift->do(q{
@@ -17,7 +17,7 @@ use Test::More;
 
     package Mock::BasicRow::Schema;
     use utf8;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
 
     table {
         name 'mock_basic_row';
@@ -41,12 +41,12 @@ use Test::More;
     package Mock::BasicRow::FooRow;
     use strict;
     use warnings;
-    use base 'DBIx::Skin::Row';
+    use base 'Teng::Row';
 
     package Mock::BasicRow::Row::MockBasicRow;
     use strict;
     use warnings;
-    use base 'DBIx::Skin::Row';
+    use base 'Teng::Row';
 
     sub foo {
         'foo'
@@ -55,7 +55,7 @@ use Test::More;
 
 {
     package Mock::ExRow;
-    use base qw(DBIx::Skin);
+    use base qw(Teng);
 
     sub setup_test_db {
         shift->do(q{
@@ -68,7 +68,7 @@ use Test::More;
 
     package Mock::ExRow::Schema;
     use utf8;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
 
     table {
         name 'mock_ex_row';
@@ -82,7 +82,7 @@ use Test::More;
     package Mock::ExRow::Row;
     use strict;
     use warnings;
-    use base 'DBIx::Skin::Row';
+    use base 'Teng::Row';
 
     sub foo {'foo'}
 }
@@ -115,7 +115,7 @@ $db_ex_row->insert('mock_ex_row',{
 
 subtest 'no your row class' => sub {
     my $row = $db_basic->single('mock_basic',{id => 1});
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
 };
 
 subtest 'your row class' => sub {
@@ -148,7 +148,7 @@ subtest 'handle' => sub {
 
 subtest 'AUTOLOAD' => sub {
     my $row = $db_basic->search_by_sql(q{select id as mock_basic_id from mock_basic where id = 1})->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->mock_basic_id, 1;
 };
 
@@ -156,17 +156,17 @@ subtest 'can not use (update|delete) method' => sub {
     $db_basic->do('create table test_db (id integer)');
     $db_basic->do('insert into test_db (id) values (1)');
     my $row = $db_basic->search_by_sql(q{select id from test_db where id = 1})->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->id, 1;
     eval {
         $row->update;
     };
-    like $@, qr/can't update from basic DBIx::Skin::Row class./;
+    like $@, qr/can't update from basic Teng::Row class./;
     $@ = undef;
     eval {
         $row->delete;
     };
-    like $@, qr/can't delete from basic DBIx::Skin::Row class./;
+    like $@, qr/can't delete from basic Teng::Row class./;
     $db_basic->do('drop table test_db');
 };
 

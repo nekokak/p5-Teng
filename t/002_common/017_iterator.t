@@ -24,7 +24,7 @@ subtest 'all' => sub {
 
 subtest 'iterator with no cache all/count' => sub {
     my $itr = $db->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my @rows = $itr->all;
     is scalar(@rows), 2, "rows count";
@@ -34,19 +34,19 @@ subtest 'iterator with no cache all/count' => sub {
 
 subtest 'iterator with no cache' => sub {
     my $itr = $db->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row1 = $itr->next;
-    isa_ok $row1, 'DBIx::Skin::Row';
+    isa_ok $row1, 'Teng::Row';
     my $row2 = $itr->next;
-    isa_ok $row2, 'DBIx::Skin::Row';
+    isa_ok $row2, 'Teng::Row';
 
     ok !$itr->next, 'no more row';
 };
 
 subtest 'iterator with suppress_objects on to off' => sub {
     my $itr = $db->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
     $itr->suppress_objects(1);
 
     my $row = $itr->next;
@@ -59,7 +59,7 @@ subtest 'iterator with suppress_objects on to off' => sub {
 
     $itr->suppress_objects(0);
     $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     my $dat = $row->get_columns;
     is_deeply $dat, {
           id        => 2,
@@ -71,7 +71,7 @@ subtest 'iterator with suppress_objects on to off' => sub {
 subtest 'iterator with suppress_row_objects on to off' => sub {
     $db->suppress_row_objects(1);
     my $itr = $db->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
     is ref($row), 'HASH';
@@ -83,9 +83,9 @@ subtest 'iterator with suppress_row_objects on to off' => sub {
 
     $db->suppress_row_objects(0);
     $itr = $db->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
     $row = $itr->next;
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     my $dat = $row->get_columns;
     is_deeply $dat, {
           id        => 1,
@@ -97,7 +97,7 @@ subtest 'iterator with suppress_row_objects on to off' => sub {
 subtest 'iterator with suppress_row_objects on with cache' => sub {
     $db->suppress_row_objects(1);
     my $itr = $db->search("mock_basic");
-    isa_ok $itr, 'DBIx::Skin::Iterator';
+    isa_ok $itr, 'Teng::Iterator';
 
     my $row = $itr->next;
     is ref($row), 'HASH';

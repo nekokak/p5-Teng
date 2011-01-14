@@ -1,5 +1,5 @@
 package Mock::DeprecatedSetup;
-use DBIx::Skin setup => +{
+use Teng setup => +{
     dsn => 'dbi:SQLite:',
     username => '',
     password => '',

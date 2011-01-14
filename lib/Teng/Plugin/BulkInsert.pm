@@ -1,4 +1,4 @@
-package DBIx::Skin::Plugin::BulkInsert;
+package Teng::Plugin::BulkInsert;
 use strict;
 use warnings;
 use utf8;
@@ -26,7 +26,7 @@ __END__
 
 =head1 NAME
 
-DBIx::Skin::Plugin::BulkInsert - bulk insert helper
+Teng::Plugin::BulkInsert - bulk insert helper
 
 =head1 PROVIDED METHODS
 

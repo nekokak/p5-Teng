@@ -1,7 +1,7 @@
 package Mock::Inflate::Schema;
 use strict;
 use warnings;
-use DBIx::Skin::Schema::Declare;
+use Teng::Schema::Declare;
 use Mock::Inflate::Name;
 
 table {

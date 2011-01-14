@@ -3,7 +3,7 @@ use Test::More;
 
 {
     package Mock::DBH;
-    use base qw(DBIx::Skin);
+    use base qw(Teng);
 
     sub setup_test_db {
         shift->do(q{
@@ -16,7 +16,7 @@ use Test::More;
 
     package Mock::DBH::Schema;
     use utf8;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
 
     table {
         name 'mock_dbh';

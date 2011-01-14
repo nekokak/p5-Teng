@@ -1,10 +1,10 @@
-package DBIx::Skin::Plugin::Pager;
+package Teng::Plugin::Pager;
 use strict;
 use warnings;
 use utf8;
 use Carp ();
 use DBI;
-use DBIx::Skin::Iterator;
+use Teng::Iterator;
 
 our @EXPORT = qw/search_with_pager/;
 
@@ -33,7 +33,7 @@ sub search_with_pager {
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
 
-    my $ret = [ DBIx::Skin::Iterator->new(
+    my $ret = [ Teng::Iterator->new(
         skin             => $self,
         sth              => $sth,
         sql              => $sql,
@@ -45,7 +45,7 @@ sub search_with_pager {
     my $has_next = ( $rows + 1 == scalar(@$ret) ) ? 1 : 0;
     if ($has_next) { pop @$ret }
 
-    my $pager = DBIx::Skin::Plugin::Pager::Page->new(
+    my $pager = Teng::Plugin::Pager::Page->new(
         entries_per_page     => $rows,
         current_page         => $page,
         has_next             => $has_next,
@@ -55,7 +55,7 @@ sub search_with_pager {
     return ($ret, $pager);
 }
 
-package DBIx::Skin::Plugin::Pager::Page;
+package Teng::Plugin::Pager::Page;
 use Class::Accessor::Lite (
     ro => [qw/entries_per_page current_page has_next entries_on_this_page/],
 );
@@ -85,12 +85,12 @@ my ($dbh, $c);
 
 =head1 NAME
 
-DBIx::Skin::Plugin::Pager - Pager
+Teng::Plugin::Pager - Pager
 
 =head1 SYNOPSIS
 
     package MyApp::DB;
-    use parent qw/DBIx::Skin/;
+    use parent qw/Teng/;
     __PACKAGE__->load_plugin('Pager');
 
     package main;
@@ -126,13 +126,13 @@ The number of entries per page.
 
 =back
 
-This method returns ArrayRef[DBIx::Skin::Row] and instance of L<DBIx::Skin::Plugin::Pager::Page>.
+This method returns ArrayRef[Teng::Row] and instance of L<Teng::Plugin::Pager::Page>.
 
 =back
 
-=head1 DBIx::Skin::Plugin::Pager::Page
+=head1 Teng::Plugin::Pager::Page
 
-B<search_with_pager> method returns the instance of DBIx::Skin::Plugin::Pager::Page. It gives paging information.
+B<search_with_pager> method returns the instance of Teng::Plugin::Pager::Page. It gives paging information.
 
 =head2 METHODS
 

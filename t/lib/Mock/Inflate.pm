@@ -1,6 +1,6 @@
 package Mock::Inflate;
 use strict;
-use parent qw/DBIx::Skin/;
+use parent qw/Teng/;
 
 sub setup_test_db {
     my $skinny = shift;

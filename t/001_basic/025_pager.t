@@ -6,7 +6,7 @@ my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
 # use fully qualified package name for coverage
-Mock::Basic->load_plugin('+DBIx::Skin::Plugin::Pager');
+Mock::Basic->load_plugin('+Teng::Plugin::Pager');
 
 for my $i (1..32) {
     $db->insert(mock_basic => { id => $i, name => 'name_'.$i });

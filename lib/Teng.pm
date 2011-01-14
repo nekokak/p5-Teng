@@ -1,14 +1,14 @@
-package DBIx::Skin;
+package Teng;
 use strict;
 use warnings;
 use Carp ();
 use Class::Load ();
 use DBI;
-use DBIx::Skin::Row;
-use DBIx::Skin::Iterator;
-use DBIx::Skin::Schema;
+use Teng::Row;
+use Teng::Iterator;
+use Teng::Schema;
 use DBIx::TransactionManager 1.02;
-use DBIx::Skin::QueryBuilder;
+use Teng::QueryBuilder;
 use Class::Accessor::Lite
    rw => [ qw(
         connect_info
@@ -27,7 +27,7 @@ our $VERSION = '0.0732';
 
 sub load_plugin {
     my ($class, $pkg, $opt) = @_;
-    $pkg = $pkg =~ s/^\+// ? $pkg : "DBIx::Skin::Plugin::$pkg";
+    $pkg = $pkg =~ s/^\+// ? $pkg : "Teng::Plugin::$pkg";
     Class::Load::load_class($pkg);
 
     no strict 'refs';
@@ -139,7 +139,7 @@ sub _prepare_from_dbh {
     my $builder = $self->sql_builder;
     if (! $builder ) {
         # XXX Hackish
-        $builder = DBIx::Skin::QueryBuilder->new(driver => $self->driver_name );
+        $builder = Teng::QueryBuilder->new(driver => $self->driver_name );
         $self->sql_builder( $builder );
     }
 
@@ -340,7 +340,7 @@ sub search_by_sql {
 
     $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->_execute($sql, $bind);
-    my $itr = DBIx::Skin::Iterator->new(
+    my $itr = Teng::Iterator->new(
         skin         => $self,
         sth            => $sth,
         sql            => $sql,
@@ -367,7 +367,7 @@ sub handle_error {
     $stmt =~ s/\n/\n          /gm;
     Carp::croak sprintf <<"TRACE", $reason, $stmt, Data::Dumper::Dumper($bind);
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@ DBIx::Skin 's Exception @@@@@
+@@@@@ Teng 's Exception @@@@@
 Reason  : %s
 SQL     : %s
 BIND    : %s
@@ -403,10 +403,10 @@ create your db model base class.
     1;
     
 create your db schema class.
-See DBIx::Skin::Schema for docs on defining schema class.
+See Teng::Schema for docs on defining schema class.
 
     package Your::Model::Schema;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
     table {
         name 'user';
         pk 'id';
@@ -439,18 +439,18 @@ DBIx::Skin classes are comprised of three distinct components:
 The C<model> is where you say 
 
     package MyApp::Model;
-    use DBIx::Skin;
+    use Teng;
 
-This is the entry point to using DBIx::Skin. You connect, insert, update, delete, select stuff using this object.
+This is the entry point to using Teng. You connect, insert, update, delete, select stuff using this object.
 
 =head2 SCHEMA
 
-The C<schema> is a simple class that describes your table definitions. Note that this is different from DBIx::Class terms. DBIC's schema is equivalent to DBIx::Skin's model + schema, where the actual schema information is scattered across the result classes.
+The C<schema> is a simple class that describes your table definitions. Note that this is different from DBIx::Class terms. DBIC's schema is equivalent to Teng's model + schema, where the actual schema information is scattered across the result classes.
 
-In DBIx::Skin, you simply use DBIx::Skin::Schema's domain specific languaage to define a set of tables
+In Teng, you simply use Teng::Schema's domain specific languaage to define a set of tables
 
     package MyApp::Model::Schema;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
 
     table {
         name $table_name;
@@ -466,7 +466,7 @@ In DBIx::Skin, you simply use DBIx::Skin::Schema's domain specific languaage to 
 
 =head2 ROW
 
-Unlike DBIx::Class, you don't need to have a set of classes that represent a row type (i.e. "result" classes in DBIC terms). In DBIx::Skin, the row objects are blessed into anonymous classes that inherit from DBIx::Skin::Row, so you don't have to create these classes if you just want to use some simple queries.
+Unlike DBIx::Class, you don't need to have a set of classes that represent a row type (i.e. "result" classes in DBIC terms). In Teng, the row objects are blessed into anonymous classes that inherit from Teng::Row, so you don't have to create these classes if you just want to use some simple queries.
 
 If you want to define methods to be performed by your row objects, simply create a row class like so:
 
@@ -574,7 +574,7 @@ example:
 
 or 
 
-    # see) DBIx::Skin::Row's POD
+    # see) Teng::Row's POD
     my $row = Your::Model->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
@@ -590,7 +590,7 @@ example:
 
 or
 
-    # see) DBIx::Skin::Row's POD
+    # see) Teng::Row's POD
     my $row = Your::Model->single('user', {id => 1});
     $row->delete
 
@@ -598,7 +598,7 @@ or
 
 create record if not exsists record.
 
-return DBIx::Skin::Row's instance object.
+return Teng::Row's instance object.
 
 example:
 
@@ -639,7 +639,7 @@ find_or_create method alias.
 =item $skin->search($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
-search method get DBIx::Skin::Iterator's instance object.
+search method get Teng::Iterator's instance object.
 
 see L<DBIx::Skin::Iterator>
 
@@ -679,7 +679,7 @@ It's useful in case use IN statement.
     # bind [1,2,3]
     my $itr = Your::Model->search_named(q{SELECT * FROM user WHERE id IN :ids}, {id => [1, 2, 3]});
 
-If you give table_name. It is assumed the hint that makes DBIx::Skin::Row's Object.
+If you give table_name. It is assumed the hint that makes Teng::Row's Object.
 
 =item $skin->search_by_sql($sql, [\@bind_vlues, [$table_name]])
 
@@ -802,7 +802,7 @@ Daisuke Maki C<< <daisuke@endeworks.jp> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2010, the DBIx::Skin L</AUTHOR>. All rights reserved.
+Copyright (c) 2010, the Teng L</AUTHOR>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

@@ -1,9 +1,9 @@
 use strict;
 use Test::More;
-use DBIx::Skin::Schema::Declare;
+use Teng::Schema::Declare;
 
 subtest 'edge cases' => sub {
-    my $klass = "DBIx::Skin::TestFor::Declare002Schema";
+    my $klass = "Teng::TestFor::Declare002Schema";
     my $schema = schema {
         table {
             name 'foo';

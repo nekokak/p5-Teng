@@ -1,9 +1,9 @@
-package DBIx::Skin::Plugin::Pager::MySQLFoundRows;
+package Teng::Plugin::Pager::MySQLFoundRows;
 use strict;
 use warnings;
 use utf8;
 use Data::Page;
-use DBIx::Skin::Iterator;
+use Teng::Iterator;
 use Carp ();
 
 our @EXPORT = qw/search_with_pager/;
@@ -31,7 +31,7 @@ sub search_with_pager {
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
     my $total_entries = $self->dbh->selectrow_array(q{SELECT FOUND_ROWS()});
 
-    my $itr = DBIx::Skin::Iterator->new(
+    my $itr = Teng::Iterator->new(
         skin             => $self,
         sth              => $sth,
         sql              => $sql,
@@ -56,12 +56,12 @@ my ($c, $dbh);
 
 =head1 NAME
 
-DBIx::Skin::Plugin::Pager::MySQLFoundRows - Paginate with SQL_CALC_FOUND_ROWS
+Teng::Plugin::Pager::MySQLFoundRows - Paginate with SQL_CALC_FOUND_ROWS
 
 =head1 SYNOPSIS
 
     package MyApp::DB;
-    use parent qw/DBIx::Skin/;
+    use parent qw/Teng/;
     __PACKAGE__->load_plugin('Pager::MySQLFoundRows');
 
     package main;
@@ -96,7 +96,7 @@ The number of entries per page.
 
 =back
 
-This method returns ArrayRef[DBIx::Skin::Row] and instance of L<DBIx::Skin::Plugin::Pager::Page>.
+This method returns ArrayRef[Teng::Row] and instance of L<Teng::Plugin::Pager::Page>.
 
 =back
 

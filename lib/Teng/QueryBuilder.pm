@@ -1,4 +1,4 @@
-package DBIx::Skin::QueryBuilder;
+package Teng::QueryBuilder;
 use strict;
 use warnings;
 use utf8;

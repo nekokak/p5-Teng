@@ -1,4 +1,4 @@
-package DBIx::Skin::Plugin::FindOrCreate;
+package Teng::Plugin::FindOrCreate;
 use strict;
 use warnings;
 use utf8;

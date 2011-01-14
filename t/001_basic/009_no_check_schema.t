@@ -6,7 +6,7 @@ TODO: {
 
 {
     package Mock::NoCheckSchema;
-    use DBIx::Skin;
+    use Teng;
 }
 
 my $db = Mock::NoCheckSchema->new(

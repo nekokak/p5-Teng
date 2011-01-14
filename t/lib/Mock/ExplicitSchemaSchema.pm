@@ -1,5 +1,5 @@
 package Mock::ExplicitSchemaSchema;
-use DBIx::Skin::Schema;
+use Teng::Schema;
 
 install_table mock_explicitschema => schema {
     pk 'id';

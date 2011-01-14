@@ -4,7 +4,7 @@ use MyGuard;
 
 {
     package Mock::MultiPK;
-    use parent 'DBIx::Skin';
+    use parent 'Teng';
 
     __PACKAGE__->load_plugin('FindOrCreate');
 
@@ -39,7 +39,7 @@ use MyGuard;
 
     package Mock::MultiPK::Schema;
     use utf8;
-    use DBIx::Skin::Schema::Declare;
+    use Teng::Schema::Declare;
 
     table {
         name 'a_multi_pk_table';

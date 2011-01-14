@@ -11,7 +11,7 @@ subtest 'insert mock_basic data/ insert method' => sub {
         id   => 1,
         name => 'perl',
     });
-    isa_ok $row, 'DBIx::Skin::Row';
+    isa_ok $row, 'Teng::Row';
     is $row->name, 'perl';
 };
 

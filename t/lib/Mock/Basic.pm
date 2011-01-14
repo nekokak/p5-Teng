@@ -1,5 +1,5 @@
 package Mock::Basic;
-use base qw(DBIx::SkinTest);
+use base qw(TengTest);
 use Mock::Basic::Schema;
 
 __PACKAGE__->load_plugin('Count');

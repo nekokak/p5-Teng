@@ -1,4 +1,4 @@
-package DBIx::Skin::Row;
+package Teng::Row;
 use strict;
 use warnings;
 use Carp ();
@@ -92,8 +92,8 @@ sub get_dirty_columns {
 sub update {
     my ($self, $upd, $table_name) = @_;
 
-    if (ref($self) eq 'DBIx::Skin::Row') {
-        Carp::croak q{can't update from basic DBIx::Skin::Row class.};
+    if (ref($self) eq 'Teng::Row') {
+        Carp::croak q{can't update from basic Teng::Row class.};
     }
 
     $table_name ||= $self->{table_name};
@@ -105,8 +105,8 @@ sub update {
 sub delete {
     my ($self, $table_name) = @_;
 
-    if (ref($self) eq 'DBIx::Skin::Row') {
-        Carp::croak q{can't delete from basic DBIx::Skin::Row class.};
+    if (ref($self) eq 'Teng::Row') {
+        Carp::croak q{can't delete from basic Teng::Row class.};
     }
 
     $table_name ||= $self->{table_name};
@@ -165,7 +165,7 @@ sub DESTROY { 1 };
 __END__
 =head1 NAME
 
-DBIx::Skin::Row - DBIx::Skin's Row class
+Teng::Row - Teng's Row class
 
 =head1 METHODS
 
