@@ -1,9 +1,9 @@
 package Teng::Schema::Declare;
 use strict;
 use warnings;
+use parent qw(Exporter);
 use Teng::Schema;
 use Teng::Schema::Table;
-use base qw(Exporter);
 
 our @EXPORT = qw(
     schema

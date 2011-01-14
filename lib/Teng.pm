@@ -471,7 +471,7 @@ Unlike DBIx::Class, you don't need to have a set of classes that represent a row
 If you want to define methods to be performed by your row objects, simply create a row class like so:
 
     package MyApp::Model::Row::Camelizedtable_name;
-    use base qw(DBIx::Skin::Row);
+    use parent qw(DBIx::Skin::Row);
 
 Note that your table name will be camelized.
 

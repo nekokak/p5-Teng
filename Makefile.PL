@@ -2,6 +2,7 @@ use inc::Module::Install;
 name 'Teng';
 all_from 'lib/Teng.pm';
 
+requires 'parent';
 requires 'Carp';
 requires 'DBI';
 requires 'Class::Accessor::Lite' => 0.05;
