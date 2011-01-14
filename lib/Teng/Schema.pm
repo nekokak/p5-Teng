@@ -66,6 +66,11 @@ sub call_inflate {
     $table->call_inflate($col_name, $col_value);
 }
 
+sub camelize {
+    my $s = shift;
+    join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
+}
+
 1;
 
 __END__

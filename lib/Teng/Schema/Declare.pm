@@ -28,7 +28,7 @@ sub row_namespace ($) {
     my $table_name = shift;
 
     (my $caller = caller(1)) =~ s/::Schema$//;
-    join '::', $caller, 'Row', _camelize($table_name);
+    join '::', $caller, 'Row', Teng::Schema::camelize($table_name);
 }
 
 sub _current_schema {
@@ -122,11 +122,6 @@ sub table(&) {
             row_class    => $row_class,
         )
     ); 
-}
-
-sub _camelize {
-    my $s = shift;
-    join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
 }
 
 1;
