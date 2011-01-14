@@ -183,9 +183,10 @@ sub _last_insert_id {
     }
 }
 
-sub _insert_or_replace {
-    my ($self, $prefix, $table_name, $args) = @_;
+sub insert {
+    my ($self, $table_name, $args, $prefix) = @_;
 
+    $prefix ||= 'INSERT';
     my $schema = $self->schema;
 
     # TODO: Is it good in this place? nekokak@20110113
@@ -222,14 +223,9 @@ sub _insert_or_replace {
     $obj;
 }
 
-sub insert {
-    my ($self, $table, $args) = @_;
-    $self->_insert_or_replace('INSERT', $table, $args);
-}
-
 sub replace {
     my ($self, $table, $args) = @_;
-    $self->_insert_or_replace('REPLACE', $table, $args);
+    $self->insert($table, $args, 'REPLACE');
 }
 
 sub update {

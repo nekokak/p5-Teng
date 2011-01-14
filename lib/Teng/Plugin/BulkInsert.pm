@@ -15,7 +15,7 @@ sub bulk_insert {
         my $txn = $self->txn_scope();
         for my $arg (@$args) {
             # do not run trigger for consistency with mysql.
-            $self->_insert_or_replace('INSERT', $table, $arg);
+            $self->insert($table, $arg);
         }
         $txn->commit;
     }
