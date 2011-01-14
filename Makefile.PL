@@ -6,6 +6,7 @@ requires 'Carp';
 requires 'DBI';
 requires 'Class::Accessor::Lite' => 0.05;
 requires 'DBIx::TransactionManager' => '1.02';
+requires 'DBIx::Inspector' => '0.03';
 requires 'Class::Load';
 requires 'SQL::Maker' => 0.08;
 
