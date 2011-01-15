@@ -13,7 +13,6 @@ use Class::Accessor::Lite
    rw => [ qw(
         connect_info
         on_connect_do
-        dbh
         schema
         schema_class
         suppress_row_objects
@@ -62,14 +61,14 @@ sub new {
         $self->schema( $schema );
     }
 
-    unless ($self->connect_info || $self->dbh) {
+    unless ($self->connect_info || $self->{dbh}) {
         Carp::croak("'dbh' or 'connect_info' is required.");
     }
 
-    if ( ! $self->dbh ) {
+    if ( ! $self->{dbh} ) {
         $self->connect;
     } else {
-        $self->_prepare_from_dbh( $self->dbh );
+        $self->_prepare_from_dbh;
     }
 
     return $self;
@@ -91,10 +90,8 @@ sub connect {
         %{ $connect_info->[3] || {} },
     };
 
-    my $dbh = eval { DBI->connect(@$connect_info) }
+    $self->{dbh} = eval { DBI->connect(@$connect_info) }
         or Carp::croak("Connection error: " . ($@ || $DBI::errstr));
-
-    $self->dbh( $dbh );
 
     my $on_connect_do = $self->on_connect_do;
     if (not ref($on_connect_do)) {
@@ -107,8 +104,7 @@ sub connect {
         Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
     }
 
-    $self->_prepare_from_dbh( $dbh );
-    return $self;
+    $self->_prepare_from_dbh;
 }
 
 sub reconnect {
@@ -119,31 +115,36 @@ sub reconnect {
 
 sub disconnect {
     my $self = shift;
-    $self->dbh(undef);
+    $self->{dbh} = undef;
 }
 
 sub _prepare_from_dbh {
-    my ($self, $dbh) = @_;
+    my $self = shift;
 
-    if ( $self->owner_pid != $$ ) {
-        $self->owner_pid($$);
-        $dbh->{InactiveDestroy} = 1;
-        $self->reconnect;
-    }
-
-    unless ($dbh && $dbh->FETCH('Active') && $dbh->ping) {
-        $self->reconnect;
-    }
-
-    $self->driver_name($dbh->{Driver}->{Name});
+    $self->driver_name($self->{dbh}->{Driver}->{Name});
     my $builder = $self->sql_builder;
     if (! $builder ) {
         # XXX Hackish
         $builder = Teng::QueryBuilder->new(driver => $self->driver_name );
         $self->sql_builder( $builder );
     }
+}
 
-    return $self;
+sub dbh {
+    my $self = shift;
+
+    if ( $self->owner_pid != $$ ) {
+        $self->owner_pid($$);
+        $self->{dbh}->{InactiveDestroy} = 1;
+        $self->reconnect;
+        return $self->{dbh};
+    }
+
+    unless ($self->{dbh} && $self->{dbh}->FETCH('Active') && $self->{dbh}->ping) {
+        $self->reconnect;
+    }
+
+    $self->{dbh};
 }
 
 sub _execute {
