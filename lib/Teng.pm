@@ -148,10 +148,10 @@ sub _prepare_from_dbh {
 
 sub _execute {
     my ($self, $sql, $binds, $table) = @_;
-    my $dbh = $self->dbh;
+
     my $sth;
     eval {
-        $sth = $dbh->prepare($sql);
+        $sth = $self->dbh->prepare($sql);
         $sth->execute(@{$binds || []});
     };
     if ($@) {
@@ -166,16 +166,15 @@ sub _execute {
 }
 
 sub _last_insert_id {
-    my ($self, $table) = @_;
+    my ($self, $table_name) = @_;
 
-    my $dbh = $self->dbh;
     my $driver = $self->driver_name;
     if ( $driver eq 'mysql' ) {
-        return $dbh->{mysql_insertid};
+        return $self->dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
-        return $dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table, 'id', 'seq' ) } );
+        return $self->dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table_name, 'id', 'seq' ) } );
     } elsif ( $driver eq 'SQLite' ) {
-        return $dbh->func('last_insert_rowid');
+        return $self->dbh->func('last_insert_rowid');
     } elsif ( $driver eq 'Oracle' ) {
         return;
     } else {
@@ -189,39 +188,32 @@ sub insert {
     $prefix ||= 'INSERT';
     my $table = $self->schema->get_table($table_name);
 
-    my $values = {};
     for my $col (keys %{$args}) {
-        $values->{$col} = $table->call_deflate($col, $args->{$col});
+        $args->{$col} = $table->call_deflate($col, $args->{$col});
     }
 
-    my ( $sql, @binds ) =
-      $self->sql_builder->insert( $table_name, $values,
-        { prefix => $prefix } );
-
+    my ($sql, @binds) = $self->sql_builder->insert( $table_name, $args, { prefix => $prefix } );
     $self->_execute($sql, \@binds, $table_name);
 
     my $pk = $table->primary_keys();
-
-    if (scalar(@$pk) == 1 && not defined $values->{$pk->[0]}) {
-        $values->{$pk->[0]} = $self->_last_insert_id($table_name);
+    if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {
+        $args->{$pk->[0]} = $self->_last_insert_id($table_name);
     }
 
-    return $values if $self->suppress_row_objects;
+    return $args if $self->suppress_row_objects;
 
-    my $obj = $table->row_class->new(
+    $table->row_class->new(
         {
-            row_data   => $values,
-            skin     => $self,
+            row_data   => $args,
+            skin       => $self,
             table_name => $table_name,
         }
     );
-
-    $obj;
 }
 
 sub replace {
-    my ($self, $table, $args) = @_;
-    $self->insert($table, $args, 'REPLACE');
+    my ($self, $table_name, $args) = @_;
+    $self->insert($table_name, $args, 'REPLACE');
 }
 
 sub update {
@@ -229,12 +221,11 @@ sub update {
 
     my $table = $self->schema->get_table($table_name);
 
-    my $values = {};
     for my $col (keys %{$args}) {
-       $values->{$col} = $table->call_deflate($col, $args->{$col});
+       $args->{$col} = $table->call_deflate($col, $args->{$col});
     }
 
-    my ($sql, @binds) = $self->sql_builder->update( $table_name, $values, $where );
+    my ($sql, @binds) = $self->sql_builder->update( $table_name, $args, $where );
     my $sth = $self->_execute($sql, \@binds, $table_name);
     my $rows = $sth->rows;
     $sth->finish;
@@ -243,10 +234,10 @@ sub update {
 }
 
 sub delete {
-    my ($self, $table, $where) = @_;
+    my ($self, $table_name, $where) = @_;
 
-    my ( $sql, @binds ) = $self->sql_builder->delete( $table, $where );
-    my $sth = $self->_execute($sql, \@binds, $table);
+    my ($sql, @binds) = $self->sql_builder->delete( $table_name, $where );
+    my $sth = $self->_execute($sql, \@binds, $table_name);
     my $rows = $sth->rows;
     $sth->finish;
 
