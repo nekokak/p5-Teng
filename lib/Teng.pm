@@ -187,12 +187,11 @@ sub insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $prefix ||= 'INSERT';
-    my $schema = $self->schema;
+    my $table = $self->schema->get_table($table_name);
 
-    # TODO: Is it good in this place? nekokak@20110113
     my $values = {};
     for my $col (keys %{$args}) {
-        $values->{$col} = $schema->call_deflate($table_name, $col, $args->{$col});
+        $values->{$col} = $table->call_deflate($col, $args->{$col});
     }
 
     my ( $sql, @binds ) =
@@ -201,7 +200,6 @@ sub insert {
 
     $self->_execute($sql, \@binds, $table_name);
 
-    my $table = $schema->get_table($table_name);
     my $pk = $table->primary_keys();
 
     if (scalar(@$pk) == 1 && not defined $values->{$pk->[0]}) {
@@ -210,9 +208,7 @@ sub insert {
 
     return $values if $self->suppress_row_objects;
 
-    my $row_class = $schema->get_row_class($table_name);
-
-    my $obj = $row_class->new(
+    my $obj = $table->row_class->new(
         {
             row_data   => $values,
             skin     => $self,
@@ -229,33 +225,29 @@ sub replace {
 }
 
 sub update {
-    my ($self, $table, $args, $where) = @_;
+    my ($self, $table_name, $args, $where) = @_;
 
-    my $schema = $self->schema;
+    my $table = $self->schema->get_table($table_name);
 
-    # TODO: Is it good in this place? nekokak@20110113
     my $values = {};
     for my $col (keys %{$args}) {
-       $values->{$col} = $schema->call_deflate($table, $col, $args->{$col});
+       $values->{$col} = $table->call_deflate($col, $args->{$col});
     }
 
-    my $builder = $self->sql_builder;
-    my ($sql, @binds) = $builder->update( $table, $values, $where );
-    my $sth = $self->_execute($sql, \@binds, $table);
+    my ($sql, @binds) = $self->sql_builder->update( $table_name, $values, $where );
+    my $sth = $self->_execute($sql, \@binds, $table_name);
     my $rows = $sth->rows;
     $sth->finish;
 
-    return $rows;
+    $rows;
 }
 
 sub delete {
     my ($self, $table, $where) = @_;
 
-    my $builder = $self->sql_builder;
-    my ( $sql, @binds ) = $builder->delete( $table, $where );
+    my ( $sql, @binds ) = $self->sql_builder->delete( $table, $where );
     my $sth = $self->_execute($sql, \@binds, $table);
     my $rows = $sth->rows;
-
     $sth->finish;
 
     $rows;

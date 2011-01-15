@@ -53,19 +53,6 @@ sub get_row_class {
     }
 }
 
-sub call_deflate {
-    my ($self, $table_name, $col_name, $col_value) = @_;
-    my $table = $self->get_table($table_name)
-        or Carp::croak("No table object associated with '$table_name'");
-    $table->call_deflate($col_name, $col_value);
-}
-
-sub call_inflate {
-    my ($self, $table_name, $col_name, $col_value) = @_;
-    my $table = $self->get_table($table_name);
-    $table->call_inflate($col_name, $col_value);
-}
-
 sub camelize {
     my $s = shift;
     join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
