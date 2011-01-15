@@ -376,7 +376,7 @@ TRACE
 __END__
 =head1 NAME
 
-DBIx::Skin - simple DBI wrapper/ORMapper
+Teng - simple DBI wrapper/ORMapper
 
 =head1 SYNOPSIS
 
@@ -387,7 +387,7 @@ DBIx::Skin - simple DBI wrapper/ORMapper
 
 =head1 DESCRIPTION
 
-DBIx::Skin is simple DBI wrapper and simple O/R Mapper.
+Teng is simple DBI wrapper and simple O/R Mapper.
 It aims to be lightweight, with minimal dependencies so it's easier to install. 
 
 =head1 BASIC USAGE
@@ -395,7 +395,7 @@ It aims to be lightweight, with minimal dependencies so it's easier to install.
 create your db model base class.
 
     package Your::Model;
-    use parent 'DBIx::Skin';
+    use parent 'Teng';
     1;
     
 create your db schema class.
@@ -428,7 +428,7 @@ in your script.
 
 =head1 ARCHITECTURE
 
-DBIx::Skin classes are comprised of three distinct components:
+Teng classes are comprised of three distinct components:
 
 =head2 MODEL
 
@@ -467,13 +467,13 @@ Unlike DBIx::Class, you don't need to have a set of classes that represent a row
 If you want to define methods to be performed by your row objects, simply create a row class like so:
 
     package MyApp::Model::Row::Camelizedtable_name;
-    use parent qw(DBIx::Skin::Row);
+    use parent qw(Teng::Row);
 
 Note that your table name will be camelized.
 
 =head1 METHODS
 
-DBIx::Skin provides a number of methods to all your classes, 
+Teng provides a number of methods to all your classes, 
 
 =over
 
@@ -637,7 +637,7 @@ find_or_create method alias.
 simple search method.
 search method get Teng::Iterator's instance object.
 
-see L<DBIx::Skin::Iterator>
+see L<Teng::Iterator>
 
 get iterator:
 
@@ -706,7 +706,7 @@ get transaction scope object.
     }
 
 An alternative way of transaction handling based on
-L<DBIx::Skin::Transaction>.
+L<DBIx::TransactionManager>.
 
 If an exception occurs, or the guard object otherwise leaves the scope
 before C<< $txn->commit >> is called, the transaction will be rolled
