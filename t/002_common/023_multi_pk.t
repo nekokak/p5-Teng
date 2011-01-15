@@ -135,11 +135,6 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         is_deeply( $row->get_columns, { id_a => 3, id_b => 40 } );
 
-        TODO: {
-            todo_skip( "XXX What is this supposed to do?!", 2 );
-        $row->insert(); # find_or_create => find
-
-            # ここからもTODOに入ってるのはおまけ
         @rows = $teng->search( 'a_multi_pk_table', { id_a => 3 } );
         is( 0+@rows, 4 );
 
@@ -147,7 +142,6 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         @rows = $teng->search( 'a_multi_pk_table', { id_a => 3 } );
         is( 0+@rows, 3 );
-        };
     };
 }
 
@@ -222,11 +216,6 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         is_deeply( $row->get_columns, { id_c => 3, id_d => 40 } );
 
-        TODO: {
-            todo_skip( "XXX What is this supposed to do?!", 2 );
-        $row->insert(); # find_or_create => find
-
-            # ここからもTODOに入ってるのはおまけ
         @rows = $teng->search( 'c_multi_pk_table', { id_c => 3 } );
         is( 0+@rows, 4 );
 
@@ -234,7 +223,6 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         @rows = $teng->search( 'c_multi_pk_table', { id_c => 3 } );
         is( 0+@rows, 3 );
-        };
     };
 
     subtest 'multi pk find_or_create' => sub {

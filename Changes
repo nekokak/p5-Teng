@@ -2,4 +2,4 @@ Revision history for Perl extension Teng
 
 0.01
     XXXX-XX-XX
-        - original version
+        - forked from DBIx::Skinny.
