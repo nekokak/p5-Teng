@@ -16,17 +16,6 @@ table {
         my ($col_value) = @_;
         return ref $col_value ? $col_value->name : $col_value . '_deflate';
     };
-
-#    inflate_rule qr/^name$/,
-#        inflate => sub {
-#            my ($table, $col, $col_value) = @_;
-#            return Mock::Inflate::Name->new(name => $value);
-#        },
-#        delfate => sub {
-#            my ($table, $col, $col_value) = @_;
-#            return ref $value ? $value->name : $value . '_deflate';
-#        }
-#    ;
 };
 
 1;

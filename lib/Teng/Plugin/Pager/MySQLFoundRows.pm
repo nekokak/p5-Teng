@@ -32,7 +32,7 @@ sub search_with_pager {
     my $total_entries = $self->dbh->selectrow_array(q{SELECT FOUND_ROWS()});
 
     my $itr = Teng::Iterator->new(
-        skin             => $self,
+        teng             => $self,
         sth              => $sth,
         sql              => $sql,
         row_class        => $self->schema->get_row_class($table_name),

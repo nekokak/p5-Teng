@@ -28,24 +28,6 @@ subtest 'update/delete error: no table info' => sub {
     like $@, qr/can't get primary columns in your query/;
 };
 
-subtest 'update/delete error: table name typo' => sub {
-    my $row = $db->single('mock_basic',{id => 1});
-
-    isa_ok $row, 'Teng::Row';
-
-    eval {
-        $row->update({name => 'python'}, 'mock_basick');
-    };
-    ok $@;
-    like $@, qr/Unknown table: mock_basick/;
-
-    eval {
-        $row->delete('mock_basick');
-    };
-    ok $@;
-    like $@, qr/Unknown table: mock_basick/;
-};
-
 subtest 'update/delete error: table have no pk' => sub {
     my $table = $db->schema->get_table('mock_basic');
     local $table->{primary_keys};

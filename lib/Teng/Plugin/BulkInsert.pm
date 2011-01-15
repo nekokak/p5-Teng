@@ -32,7 +32,7 @@ Teng::Plugin::BulkInsert - bulk insert helper
 
 =over 4
 
-=item $skin->bulk_insert($table_name, \@rows_data)
+=item $teng->bulk_insert($table_name, \@rows_data)
 
 Accepts either an arrayref of hashrefs.
 each hashref should be a structure suitable

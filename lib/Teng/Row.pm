@@ -7,12 +7,13 @@ our $AUTOLOAD;
 sub new {
     my ($class, $args) = @_;
 
-    my $self = bless {%$args}, $class;
-    $self->{select_columns} = [keys %{$self->{row_data}}];
-    $self->{_get_column_cached} = {};
-    $self->{_dirty_columns} = {};
-    $self->{table} = $self->{skin}->schema->get_table($self->{table_name});
-    return $self;
+    bless {
+        select_columns     => [keys %{$args->{row_data}}],
+        table              => $args->{teng}->schema->get_table($args->{table_name}),
+        _get_column_cached => {},
+        _dirty_columns     => {},
+        %$args,
+    }, $class;
 }
 
 sub _lazy_get_data {
@@ -33,7 +34,7 @@ sub _lazy_get_data {
     };
 }
 
-sub handle { $_[0]->{skin} }
+sub handle { $_[0]->{teng} }
 
 sub get_column {
     my ($self, $col) = @_;
@@ -42,9 +43,8 @@ sub get_column {
         Carp::croak('please specify $col for first argument');
     }
 
-    my $row_data = $self->{row_data};
-    if ( exists $row_data->{$col} ) {
-        return $row_data->{$col};
+    if ( exists $self->{row_data}->{$col} ) {
+        return $self->{row_data}->{$col};
     } else {
         Carp::croak("$col no selected column. SQL: " . ( $self->{sql} || 'unknown' ) );
     }
@@ -90,39 +90,35 @@ sub get_dirty_columns {
 }
 
 sub update {
-    my ($self, $upd, $table_name) = @_;
+    my ($self, $upd) = @_;
 
     if (ref($self) eq 'Teng::Row') {
         Carp::croak q{can't update from basic Teng::Row class.};
     }
 
-    $table_name ||= $self->{table_name};
     $self->set_columns($upd);
-
-    $self->{skin}->update($table_name, $self->get_dirty_columns, $self->_where_cond($table_name));
+    $self->{teng}->update($self->{table_name}, $self->get_dirty_columns, $self->_where_cond($self->{table_name}));
 }
 
 sub delete {
-    my ($self, $table_name) = @_;
+    my $self = shift;
 
     if (ref($self) eq 'Teng::Row') {
         Carp::croak q{can't delete from basic Teng::Row class.};
     }
 
-    $table_name ||= $self->{table_name};
-    $self->{skin}->delete($table_name, $self->_where_cond($table_name));
+    $self->{teng}->delete($self->{table_name}, $self->_where_cond($self->{table_name}));
 }
 
 sub refetch {
-    my ($self, $table_name) = @_;
-    $table_name ||= $self->{table_name};
-    $self->{skin}->single($table_name, $self->_where_cond($table_name));
+    my $self = shift;
+    $self->{teng}->single($self->{table_name}, $self->_where_cond($self->{table_name}));
 }
 
 sub _where_cond {
     my ($self, $table_name) = @_;
 
-    my $table = $self->{skin}->schema->get_table( $table_name );
+    my $table = $self->{teng}->schema->get_table( $table_name );
     unless ($table) {
         Carp::croak("Unknown table: $table_name");
     }
@@ -229,7 +225,7 @@ refetch record from database. get new row object.
 
 =item $row->handle
 
-get skin object.
+get teng object.
 
     $row->handle->single('table', {id => 1});
 

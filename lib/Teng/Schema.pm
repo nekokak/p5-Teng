@@ -1,7 +1,7 @@
 package Teng::Schema;
 use strict;
 use warnings;
-use Teng::Row ();
+use Teng::Row;
 use Class::Accessor::Lite
     rw => [ qw(
         tables
@@ -10,11 +10,10 @@ use Class::Accessor::Lite
 
 sub new {
     my ($class, %args) = @_;
-    my $self = bless {
+    bless {
         tables => {},
         %args,
     }, $class;
-    return $self;
 }
 
 sub set_default_instance {
@@ -64,40 +63,25 @@ __END__
 
 =head1 NAME
 
-Teng::Schema - Schema DSL for Teng
+Teng::Schema - Schema API for Teng
 
-=head1 SYNOPSIS
+=head1 METHODS
 
-    package Your::Model;
-    use Teng connect_info => +{
-        dsn => 'dbi:SQLite:',
-        username => '',
-        password => '',
-    };
-    1;
-    
-    package Your::Model::Schema:
-    use Teng::Schema;
-    
-    # set user table schema settings
-    install_table user => schema {
-        pk 'id';
-        columns qw/id name created_at/;
+=over 4
 
-        row_class 'Your::Model::Row::User';
-    };
+=item $schema->add_table($table);
 
-    install_inflate_rule '^name$' => callback {
-        inflate {
-            my $value = shift;
-            # inflate hook
-        };
-        deflate {
-            my $value = shift;
-            # deflate hook
-        };
-    };
-    
-    1;
+add Teng::Schema::Table's object.
 
+=item my $table = $schema->get_table($table_name);
+
+get Teng::Schema::Table's object.
+
+=item my $row_class = $schema->get_row_class($table_name);
+
+get your table row class or Teng::Row class.
+
+=back
+
+=cut
 

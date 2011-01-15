@@ -27,21 +27,18 @@ sub next {
         return;
     }
 
-    my $obj;
     if ($self->suppress_objects) {
-        $obj = $row;
+        return $row;
     } else {
-        $obj = $self->{row_class}->new(
+        return $self->{row_class}->new(
             {
                 sql        => $self->{sql},
                 row_data   => $row,
-                skin       => $self->{skin},
+                teng       => $self->{teng},
                 table_name => $self->{table_name},
             }
         );
     }
-
-    return $obj;
 }
 
 sub all {
@@ -62,7 +59,7 @@ Teng::Iterator
 
 =head1 DESCRIPTION
 
-skin iteration class.
+Teng iteration class.
 
 =head1 SYNOPSIS
 

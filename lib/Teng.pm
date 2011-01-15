@@ -206,7 +206,7 @@ sub insert {
     $table->row_class->new(
         {
             row_data   => $args,
-            skin       => $self,
+            teng       => $self,
             table_name => $table_name,
         }
     );
@@ -273,13 +273,12 @@ sub do {
 sub search {
     my ($self, $table_name, $where, $opt) = @_;
 
-    my $builder = $self->sql_builder;
     my $table = $self->schema->get_table( $table_name );
     if (! $table) {
         Carp::croak("No such table $table_name");
     }
 
-    my ($sql, @binds) = $builder->select(
+    my ($sql, @binds) = $self->sql_builder->select(
         $table_name,
         $table->columns,
         $where,
@@ -290,7 +289,7 @@ sub search {
 }
 
 sub search_named {
-    my ($self, $sql, $args, $table) = @_;
+    my ($self, $sql, $args, $table_name) = @_;
 
     my %named_bind = %{$args};
     my @bind;
@@ -306,7 +305,7 @@ sub search_named {
         }
     }ge;
 
-    $self->search_by_sql($sql, \@bind, $table);
+    $self->search_by_sql($sql, \@bind, $table_name);
 }
 
 sub single {
@@ -321,11 +320,11 @@ sub search_by_sql {
     $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->_execute($sql, $bind);
     my $itr = Teng::Iterator->new(
-        skin         => $self,
-        sth            => $sth,
-        sql            => $sql,
-        row_class      => $self->schema->get_row_class($table_name),
-        table_name     => $table_name,
+        teng             => $self,
+        sth              => $sth,
+        sql              => $sql,
+        row_class        => $self->schema->get_row_class($table_name),
+        table_name       => $table_name,
         suppress_objects => $self->suppress_row_objects,
     );
     return wantarray ? $itr->all : $itr;
@@ -398,16 +397,16 @@ in your script.
 
     use Your::Model;
     
-    my $skin = Your::Model->new(\%args);
+    my $teng = Your::Model->new(\%args);
     # insert new record.
-    my $row = $skin->insert('user',
+    my $row = $teng->insert('user',
         {
             id   => 1,
         }
     );
     $row->update({name => 'nekokak'});
 
-    $row = $skin->search_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
+    $row = $teng->search_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
     $row->delete('user');
 
 =head1 ARCHITECTURE
@@ -461,9 +460,9 @@ Teng provides a number of methods to all your classes,
 
 =over
 
-=item $skin->new([\%connection_info])
+=item $teng->new([\%connection_info])
 
-create your skin instance.
+create your teng instance.
 It is possible to use it even by the class method.
 
 $connection_info is optional argment.
@@ -495,7 +494,7 @@ or
         dbh => $dbh,
     });
 
-=item $skin->insert($table_name, \%row_data)
+=item $teng->insert($table_name, \%row_data)
 
 insert new record and get inserted row object.
 
@@ -517,11 +516,11 @@ or
         name => 'nekokak',
     });
 
-=item $skin->create($table_name, \%row_data)
+=item $teng->create($table_name, \%row_data)
 
 insert method alias.
 
-=item $skin->replace($table_name, \%row_data)
+=item $teng->replace($table_name, \%row_data)
 
 The data that already exists is replaced. 
 
@@ -540,7 +539,7 @@ or
         name => 'tokuhirom',
     });
 
-=item $skin->update($table_name, \%update_row_data, [\%update_condition])
+=item $teng->update($table_name, \%update_row_data, [\%update_condition])
 
 $update_condition is optional argment.
 
@@ -558,7 +557,7 @@ or
     my $row = Your::Model->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
-=item $skin->delete($table, \%delete_condition)
+=item $teng->delete($table, \%delete_condition)
 
 delete record. return delete row count.
 
@@ -574,7 +573,7 @@ or
     my $row = Your::Model->single('user', {id => 1});
     $row->delete
 
-=item $skin->find_or_create($table, \%values)
+=item $teng->find_or_create($table, \%values)
 
 create record if not exsists record.
 
@@ -612,11 +611,11 @@ If you want to do the same thing in this case,
 
 Because the interchangeable rear side is lost, it doesn't mend. 
 
-=item $skin->find_or_insert($table, \%values)
+=item $teng->find_or_insert($table, \%values)
 
 find_or_create method alias.
 
-=item $skin->search($table_name, [\%search_condition, [\%search_attr]])
+=item $teng->search($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
 search method get Teng::Iterator's instance object.
@@ -633,20 +632,20 @@ get rows:
 
 See L</ATTRIBUTES> for more information for \%search_attr.
 
-=item $skin->single($table_name, \%search_condition)
+=item $teng->single($table_name, \%search_condition)
 
 get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
     my $row = Your::Model->single('user',{id =>1});
 
-=item $skin->count($table_name, $target_column, [\%search_condition])
+=item $teng->count($table_name, $target_column, [\%search_condition])
 
 get simple count
 
     my $cnt = Your::Model->count('user' => 'id', {age => 30});
 
-=item $skin->search_named($sql, [\%bind_values, [$table_name]])
+=item $teng->search_named($sql, [\%bind_values, [$table_name]])
 
 execute named query
 
@@ -661,7 +660,7 @@ It's useful in case use IN statement.
 
 If you give table_name. It is assumed the hint that makes Teng::Row's Object.
 
-=item $skin->search_by_sql($sql, [\@bind_vlues, [$table_name]])
+=item $teng->search_by_sql($sql, [\@bind_vlues, [$table_name]])
 
 execute your SQL
 
@@ -677,7 +676,7 @@ execute your SQL
 If $table is specified, it set table infomation to result iterator.
 So, you can use table row class to search_by_sql result.
 
-=item $skin->txn_scope
+=item $teng->txn_scope
 
 get transaction scope object.
 
@@ -700,33 +699,33 @@ about calling L</txn_rollback> at the right places. Note that since there
 is no defined code closure, there will be no retries and other magic upon
 database disconnection.
 
-=item $skin->do($sql, [$option, $bind_values])
+=item $teng->do($sql, [$option, $bind_values])
 
 execute your query.
 
 See) L<http://search.cpan.org/dist/DBI/DBI.pm#do>
 
-=item $skin->dbh
+=item $teng->dbh
 
 get database handle.
 
-=item $skin->connect([\%connection_info])
+=item $teng->connect([\%connection_info])
 
 connect database handle.
 
 If you give \%connection_info, create new database connection.
 
-=item $skin->reconnect(\%connection_info)
+=item $teng->reconnect(\%connection_info)
 
 re connect database handle.
 
 If you give \%connection_info, create new database connection.
 
-=item $skin->disconnect()
+=item $teng->disconnect()
 
 Disconnects from the currently connected database.
 
-=item $skin->suppress_row_objects($flag)
+=item $teng->suppress_row_objects($flag)
 
 set row object creation mode.
 
@@ -772,13 +771,13 @@ Daisuke Maki C<< <daisuke@endeworks.jp> >>
 
 =head1 SUPPORT
 
-  irc: #dbix-skinny@irc.perl.org
+  irc: #dbix-tengny@irc.perl.org
 
-  ML: http://groups.google.com/group/dbix-skinny
+  ML: http://groups.google.com/group/dbix-tengny
 
 =head1 REPOSITORY
 
-  git clone git://github.com/nekokak/p5-dbix-skin.git  
+  git clone git://github.com/nekokak/p5-dbix-teng.git  
 
 =head1 LICENCE AND COPYRIGHT
 

@@ -136,12 +136,22 @@ Teng::Schema::Declare - DSL For Declaring Teng Schema
 
     package MyDB::Schema;
     use strict;
+    use warnings;
     use Teng::Schema::Declare;
 
     table {
-        name "your_table_name";
-        pk "primary_key";
+        name    "your_table_name";
+        pk      "primary_key";
         columns qw( col1 col2 col3 );
+        inflate 'col1' => sub {
+            my ($col_value) = @_;
+            return MyDB::Class->new(name => $col_value);
+        };
+        deflate 'col1' => sub {
+            my ($col_value) = @_;
+            return ref $col_value ? $col_value->name : $col_value;
+        };
+        row_class 'MyDB::Row'; # optional
     };
 
 =head1 INLINE DECLARATION
@@ -155,3 +165,4 @@ Teng::Schema::Declare - DSL For Declaring Teng Schema
     } "MyDB::Schema";
 
 =cut
+

@@ -3,21 +3,21 @@ use strict;
 use parent qw/Teng/;
 
 sub setup_test_db {
-    my $skinny = shift;
+    my $teng = shift;
 
-    my $dbd = $skinny->{driver_name};
+    my $dbd = $teng->{driver_name};
     if ($dbd eq 'SQLite') {
-        $skinny->do(q{
+        $teng->do(q{
             CREATE TABLE mock_inflate (
                 id   INT,
                 name TEXT
             )
         });
     } elsif ($dbd eq 'mysql') {
-        $skinny->do(
+        $teng->do(
             q{DROP TABLE IF EXISTS mock_inflate}
         );
-        $skinny->do(q{
+        $teng->do(q{
             CREATE TABLE mock_inflate (
                 id        INT auto_increment,
                 name      TEXT,

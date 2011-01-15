@@ -34,7 +34,7 @@ sub search_with_pager {
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
 
     my $ret = [ Teng::Iterator->new(
-        skin             => $self,
+        teng             => $self,
         sth              => $sth,
         sql              => $sql,
         row_class        => $self->schema->get_row_class($table_name),
