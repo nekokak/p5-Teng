@@ -46,18 +46,23 @@ Teng::Schema::Loader - Dynamic Schema Loader
 
 =head1 SYNOPSIS
 
-    package MyApp::DB;
-    use parent qw/Teng/;
-    1;
+    use Teng;
     use Teng::Schema::Loader;
-    my $schema = Teng::Schema::Loader->load(dbh => $dbh, namespace => 'MyAPP::DB');
-    my $teng   = MyAPP::DB->new(dbh => $dbh, schema => $schema);
+
+    my $schema = Teng::Schema::Loader->load(
+        dbh       => $dbh,
+        namespace => 'MyAPP::DB'
+    );
+    my $teng = Teng->new(
+        dbh    => $dbh,
+        schema => $schema
+    );
 
 =head1 DESCRIPTION
 
 L<Teng::Schema::Loader> loads schema directly from DB.
 
-=head1 METHODS
+=head1 CLASS METHODS
 
 =over 4
 
