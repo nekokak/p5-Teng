@@ -212,11 +212,6 @@ sub insert {
     );
 }
 
-sub replace {
-    my ($self, $table_name, $args) = @_;
-    $self->insert($table_name, $args, 'REPLACE');
-}
-
 sub update {
     my ($self, $table_name, $args, $where) = @_;
 
