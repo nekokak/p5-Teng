@@ -183,7 +183,7 @@ sub _last_insert_id {
     }
 }
 
-sub insert {
+sub _insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $prefix ||= 'INSERT';
@@ -195,7 +195,21 @@ sub insert {
 
     my ($sql, @binds) = $self->sql_builder->insert( $table_name, $args, { prefix => $prefix } );
     $self->_execute($sql, \@binds, $table_name);
+}
 
+sub fast_insert {
+    my ($self, $table_name, $args, $prefix) = @_;
+
+    $self->_insert($table_name, $args, $prefix);
+    $self->_last_insert_id($table_name);
+}
+
+sub insert {
+    my ($self, $table_name, $args, $prefix) = @_;
+
+    $self->_insert($table_name, $args, $prefix);
+
+    my $table = $self->schema->get_table($table_name);
     my $pk = $table->primary_keys();
     if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {
         $args->{$pk->[0]} = $self->_last_insert_id($table_name);

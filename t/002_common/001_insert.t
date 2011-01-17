@@ -25,4 +25,12 @@ subtest 'insert with suppress_row_objects off' => sub {
     is $row->{name}, 'xs';
 };
 
+subtest 'fast_insert' => sub {
+    my $last_insert_id = $db->fast_insert('mock_basic',{
+        id   => 3,
+        name => 'ruby',
+    });
+    is $last_insert_id, 3;
+};
+
 done_testing;
