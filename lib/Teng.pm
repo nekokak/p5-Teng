@@ -368,7 +368,7 @@ TRACE
 __END__
 =head1 NAME
 
-Teng - simple DBI wrapper/ORMapper
+Teng - very simple DBI wrapper/ORMapper
 
 =head1 SYNOPSIS
 
@@ -379,7 +379,7 @@ Teng - simple DBI wrapper/ORMapper
 
 =head1 DESCRIPTION
 
-Teng is simple DBI wrapper and simple O/R Mapper.
+Teng is very simple DBI wrapper and simple O/R Mapper.
 It aims to be lightweight, with minimal dependencies so it's easier to install. 
 
 =head1 BASIC USAGE
@@ -416,7 +416,7 @@ in your script.
     $row->update({name => 'nekokak'});
 
     $row = $teng->search_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
-    $row->delete('user');
+    $row->delete();
 
 =head1 ARCHITECTURE
 
@@ -427,13 +427,14 @@ Teng classes are comprised of three distinct components:
 The C<model> is where you say 
 
     package MyApp::Model;
-    use Teng;
+    use parent 'Teng';
 
 This is the entry point to using Teng. You connect, insert, update, delete, select stuff using this object.
 
 =head2 SCHEMA
 
-The C<schema> is a simple class that describes your table definitions. Note that this is different from DBIx::Class terms. DBIC's schema is equivalent to Teng's model + schema, where the actual schema information is scattered across the result classes.
+The C<schema> is a simple class that describes your table definitions. Note that this is different from DBIx::Class terms.
+DBIC's schema is equivalent to Teng's model + schema, where the actual schema information is scattered across the result classes.
 
 In Teng, you simply use Teng::Schema's domain specific languaage to define a set of tables
 
@@ -454,7 +455,9 @@ In Teng, you simply use Teng::Schema's domain specific languaage to define a set
 
 =head2 ROW
 
-Unlike DBIx::Class, you don't need to have a set of classes that represent a row type (i.e. "result" classes in DBIC terms). In Teng, the row objects are blessed into anonymous classes that inherit from Teng::Row, so you don't have to create these classes if you just want to use some simple queries.
+Unlike DBIx::Class, you don't need to have a set of classes that represent a row type (i.e. "result" classes in DBIC terms).
+In Teng, the row objects are blessed into anonymous classes that inherit from Teng::Row,
+so you don't have to create these classes if you just want to use some simple queries.
 
 If you want to define methods to be performed by your row objects, simply create a row class like so:
 
@@ -469,24 +472,9 @@ Teng provides a number of methods to all your classes,
 
 =over
 
-=item $teng->new([\%connection_info])
+=item $teng = Teng->new(\%args)
 
 create your teng instance.
-It is possible to use it even by the class method.
-
-$connection_info is optional argment.
-
-When $connection_info is specified,
-new method connect new DB connection from $connection_info.
-
-When $connection_info is not specified,
-it becomes use already setup connection or it doesn't do at all.
-
-example:
-
-    my $db = Your::Model->new;
-
-or
 
     # connect new database connection.
     my $db = Your::Model->new(+{
@@ -496,59 +484,52 @@ or
         connect_options => $connect_options,
     });
 
-or
+=over
 
-    my $dbh = DBI->connect();
-    my $db = Your::Model->new(+{
-        dbh => $dbh,
-    });
+=item * C<connect_info>
 
-=item $teng->insert($table_name, \%row_data)
+connect_info is [$dsn, $user, $password, $options].
+
+=item * C<schema>
+
+specific your schema instance.
+
+by default auto load {YOUR_MODEL_CLASS}::Schema
+
+=item * C<schema_class>
+
+specific your schema class name space.
+
+by default. {YOUR_MODEL_CLASS}::Schema
+
+=item * C<suppress_row_objects>
+
+set row object creation mode.
+
+if you set off, no creation row object.
+
+=item * C<sql_builder>
+
+specific your sql builder instance.
+
+=back
+
+=item $row = $teng->insert($table_name, \%row_data)
 
 insert new record and get inserted row object.
 
-if insert to table has auto increment then return $row object with fill in key column by last_insert_id.
-
-example:
-
-    my $row = Your::Model->insert('user',{
-        id   => 1,
-        name => 'nekokak',
-    });
-    say $row->id; # show last_insert_id()
-
-or
-
-    my $db = Your::Model->new;
-    my $row = $db->insert('user',{
+    my $row = $teng->insert('user',{
         id   => 1,
         name => 'nekokak',
     });
 
-=item $teng->create($table_name, \%row_data)
+=item $last_insert_id = $teng->fast_insert($table_name, \%row_data);
 
-insert method alias.
+insert new record and get last_insert_id.
 
-=item $teng->replace($table_name, \%row_data)
+no creation row object.
 
-The data that already exists is replaced. 
-
-example:
-
-    Your::Model->replace('user',{
-        id   => 1,
-        name => 'tokuhirom',
-    });
-
-or 
-
-    my $db = Your::Model->new;
-    my $row = $db->replace('user',{
-        id   => 1,
-        name => 'tokuhirom',
-    });
-
-=item $teng->update($table_name, \%update_row_data, [\%update_condition])
+=item $update_row_count = $teng->update($table_name, \%update_row_data, [\%update_condition])
 
 $update_condition is optional argment.
 
@@ -556,75 +537,38 @@ update record.
 
 example:
 
-    my $update_row_count = Your::Model->update('user',{
-        name => 'nomaneko',
-    },{ id => 1 });
+    my $update_row_count = $teng->update('user',
+        {
+            name => 'nomaneko',
+        },
+        {
+            id => 1
+        }
+    );
 
 or 
 
-    # see) Teng::Row's POD
-    my $row = Your::Model->single('user',{id => 1});
+    my $row = $teng->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
-=item $teng->delete($table, \%delete_condition)
+=item $delete_row_count = $teng->delete($table, \%delete_condition)
 
 delete record. return delete row count.
 
 example:
 
-    my $delete_row_count = Your::Model->delete('user',{
-        id => 1,
-    });
+    my $delete_row_count = $teng->delete('user',
+        {
+            id => 1,
+        }
+    );
 
 or
 
-    # see) Teng::Row's POD
-    my $row = Your::Model->single('user', {id => 1});
+    my $row = $teng->single('user', {id => 1});
     $row->delete
 
-=item $teng->find_or_create($table, \%values)
-
-create record if not exsists record.
-
-return Teng::Row's instance object.
-
-example:
-
-    my $row = Your::Model->find_or_create('usr',{
-        id   => 1,
-        name => 'nekokak',
-    });
-
-NOTICE: find_or_create has bug.
-
-reproduction example:
-
-    my $row = Your::Model->find_or_create('user',{
-        id   => 1,
-        name => undef,
-    });
-
-In this case, it becomes an error by insert.
-
-If you want to do the same thing in this case,
-
-    my $row = Your::Model->single('user', {
-        id   => 1,
-        name => \'IS NULL',
-    })
-    unless ($row) {
-        Your::Model->insert('user', {
-            id => 1,
-        });
-    }
-
-Because the interchangeable rear side is lost, it doesn't mend. 
-
-=item $teng->find_or_insert($table, \%values)
-
-find_or_create method alias.
-
-=item $teng->search($table_name, [\%search_condition, [\%search_attr]])
+=item $itr = $teng->search($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
 search method get Teng::Iterator's instance object.
@@ -633,47 +577,39 @@ see L<Teng::Iterator>
 
 get iterator:
 
-    my $itr = Your::Model->search('user',{id => 1},{order_by => 'id'});
+    my $itr = $teng->search('user',{id => 1},{order_by => 'id'});
 
 get rows:
 
-    my @rows = Your::Model->search('user',{id => 1},{order_by => 'id'});
+    my @rows = $teng->search('user',{id => 1},{order_by => 'id'});
 
-See L</ATTRIBUTES> for more information for \%search_attr.
-
-=item $teng->single($table_name, \%search_condition)
+=item $row = $teng->single($table_name, \%search_condition)
 
 get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
-    my $row = Your::Model->single('user',{id =>1});
+    my $row = $teng->single('user',{id =>1});
 
-=item $teng->count($table_name, $target_column, [\%search_condition])
-
-get simple count
-
-    my $cnt = Your::Model->count('user' => 'id', {age => 30});
-
-=item $teng->search_named($sql, [\%bind_values, [$table_name]])
+=item $itr = $teng->search_named($sql, [\%bind_values, [$table_name]])
 
 execute named query
 
-    my $itr = Your::Model->search_named(q{SELECT * FROM user WHERE id = :id}, {id => 1});
+    my $itr = $teng->search_named(q{SELECT * FROM user WHERE id = :id}, {id => 1});
 
 If you give ArrayRef to value, that is expanded to "(?,?,?,?)" in SQL.
 It's useful in case use IN statement.
 
     # SELECT * FROM user WHERE id IN (?,?,?);
     # bind [1,2,3]
-    my $itr = Your::Model->search_named(q{SELECT * FROM user WHERE id IN :ids}, {id => [1, 2, 3]});
+    my $itr = $teng->search_named(q{SELECT * FROM user WHERE id IN :ids}, {id => [1, 2, 3]});
 
 If you give table_name. It is assumed the hint that makes Teng::Row's Object.
 
-=item $teng->search_by_sql($sql, [\@bind_vlues, [$table_name]])
+=item $itr = $teng->search_by_sql($sql, [\@bind_vlues, [$table_name]])
 
 execute your SQL
 
-    my $itr = Your::Model->search_by_sql(q{
+    my $itr = $teng->search_by_sql(q{
         SELECT
             id, name
         FROM
@@ -690,7 +626,7 @@ So, you can use table row class to search_by_sql result.
 get transaction scope object.
 
     do {
-        my $txn = Your::Model->txn_scope;
+        my $txn = $teng->txn_scope;
 
         $row->update({foo => 'bar'});
 
@@ -708,6 +644,26 @@ about calling L</txn_rollback> at the right places. Note that since there
 is no defined code closure, there will be no retries and other magic upon
 database disconnection.
 
+=item $txn_manager = $teng->txn_manager
+
+get DBIx::TransactionManager instance.
+
+=item $teng->txn_begin
+
+start new transaction.
+
+=item $teng->txn_commit
+
+commit transaction.
+
+=item $teng->txn_rollback
+
+rollback transaction.
+
+=item $teng->txn_end
+
+finish transaction.
+
 =item $teng->do($sql, [$option, $bind_values])
 
 execute your query.
@@ -718,17 +674,21 @@ See) L<http://search.cpan.org/dist/DBI/DBI.pm#do>
 
 get database handle.
 
-=item $teng->connect([\%connection_info])
+=item $teng->connect(\@connect_info)
 
 connect database handle.
 
-If you give \%connection_info, create new database connection.
+connect_info is [$dsn, $user, $password, $options].
 
-=item $teng->reconnect(\%connection_info)
+If you give \@connect_info, create new database connection.
+
+=item $teng->reconnect(\@connect_info)
 
 re connect database handle.
 
-If you give \%connection_info, create new database connection.
+connect_info is [$dsn, $user, $password, $options].
+
+If you give \@connection_info, create new database connection.
 
 =item $teng->disconnect()
 
@@ -738,23 +698,13 @@ Disconnects from the currently connected database.
 
 set row object creation mode.
 
-=back
+=item $teng->load_plugin();
 
-=head1 ATTRIBUTES
+load Teng::Plugin's
 
-=over
+=item $teng->handle_error
 
-=item order_by
-
-    { order_by => [ { id => 'desc' } ] }
-    # or
-    { order_by => { id => 'desc' } }
-    # or 
-    { order_by => 'name' }
-
-=item for_update
-
-    { for_update => 1 }
+handling error method.
 
 =back
 
