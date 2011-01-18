@@ -55,11 +55,11 @@ sub all {
 __END__
 =head1 NAME
 
-Teng::Iterator
+Teng::Iterator - Iterator for Teng
 
 =head1 DESCRIPTION
 
-Teng iteration class.
+This is an iterator class for L<Teng>.
 
 =head1 SYNOPSIS
 
@@ -76,21 +76,21 @@ Teng iteration class.
 
 =over
 
-=item $itr = Teng::Iterator->new
+=item $itr = Teng::Iterator->new()
 
-create new Teng::Iterator's object.
+Create new Teng::Iterator's object. You may not call this method directly.
 
-=item $itr->next
+=item my $row = $itr->next();
 
-get next row data.
+Get next row data.
 
-=item $itr->all
+=item my @ary = $itr->all;
 
-get all row data in array.
+Get all row data in array.
 
 =item $itr->suppress_objects($mode)
 
-set row object creation mode.
+Set row object creation mode.
 
 =cut
 
