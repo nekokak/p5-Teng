@@ -8,3 +8,17 @@ __PACKAGE__->load_plugin('InsertMulti');
 
 1;
 
+__END__
+=head1 NAME
+
+Teng::QueryBuilder
+
+=head1 DESCRIPTION
+
+Teng sql builder class.
+
+=head1 SEE ALSO
+
+L<SQL::Maker>
+
+=cut

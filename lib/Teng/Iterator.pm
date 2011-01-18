@@ -76,6 +76,10 @@ Teng iteration class.
 
 =over
 
+=item $itr = Teng::Iterator->new
+
+create new Teng::Iterator's object.
+
 =item $itr->next
 
 get next row data.

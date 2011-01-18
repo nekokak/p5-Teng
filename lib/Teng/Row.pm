@@ -167,6 +167,10 @@ Teng::Row - Teng's Row class
 
 =over
 
+=item $row = Teng::Row->new
+
+create new Teng::Row's instance
+
 =item $row->get_column($column_name)
 
     my $val = $row->get_column($column_name);
@@ -195,11 +199,7 @@ set column data.
 
 returns those that have been changed.
 
-=item $row->insert
-
-insert row data. call find_or_create method.
-
-=item $row->update([$arg, [$table_name]])
+=item $row->update([$arg])
 
 update is executed for instance record.
 
@@ -210,18 +210,15 @@ It works by schema in which primary key exists.
     $row->set({name => 'tokuhirom'});
     $row->update;
 
-=item $row->delete([$table_name])
+=item $row->delete
 
 delete is executed for instance record.
 
 It works by schema in which primary key exists.
 
-=item my $refetched_row = $row->refetch($table_name);
-
-$table_name is optional.
+=item my $refetched_row = $row->refetch;
 
 refetch record from database. get new row object.
-
 
 =item $row->handle
 

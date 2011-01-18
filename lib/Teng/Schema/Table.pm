@@ -63,3 +63,38 @@ sub call_inflate {
 
 1;
 
+__END__
+
+=head1 NAME
+
+Teng::Schema::Table - Teng table class.
+
+=head1 METHODS
+
+=over 4
+
+=item $table = Teng::Table->new
+
+create new Teng::Table's object.
+
+=item $table->get_sql_type
+
+get column SQL type.
+
+=item $table->get_deflator
+
+get deflate coderef.
+
+=item $table->get_inflator
+
+get inflate coderef.
+
+=item $table->call_deflate
+
+execute deflate.
+
+=item $table->call_inflate
+
+execute inflate.
+
+=back

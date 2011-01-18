@@ -164,5 +164,35 @@ Teng::Schema::Declare - DSL For Declaring Teng Schema
         };
     } "MyDB::Schema";
 
+=head1 METHODS
+
+=over 4
+
+=item schema
+
+schema data creation wrapper.
+
+=item table
+
+set table name
+
+=item pk
+
+set primary key
+
+=item columns
+
+set columns
+
+=item inflate_rule
+
+set inflate rule
+
+=item row_namespace
+
+create Row class namespace
+
+=back
+
 =cut
 

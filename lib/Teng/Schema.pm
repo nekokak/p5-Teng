@@ -69,6 +69,18 @@ Teng::Schema - Schema API for Teng
 
 =over 4
 
+=item $schema = Teng::Schema->new
+
+create new Teng::Schema's object.
+
+=item $schema = Teng::Schema->instance
+
+get Teng::Schema's instance object.
+
+=item Teng::Schema->set_default_instance($schema)
+
+set default Schema instance.
+
 =item $schema->add_table($table);
 
 add Teng::Schema::Table's object.
@@ -80,6 +92,10 @@ get Teng::Schema::Table's object.
 =item my $row_class = $schema->get_row_class($table_name);
 
 get your table row class or Teng::Row class.
+
+=item $schema->camelize($string)
+
+convert from under_score text to CamelCase one.
 
 =back
 
