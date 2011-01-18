@@ -706,11 +706,11 @@ load Teng::Plugin's
 
 handling error method.
 
-=back
-
 =item How do you use display the profiling result?
 
 use L<Devel::KYTProf>.
+
+=back
 
 =head2 TRIGGER
 
