@@ -730,13 +730,13 @@ Daisuke Maki C<< <daisuke@endeworks.jp> >>
 
 =head1 SUPPORT
 
-  irc: #dbix-tengny@irc.perl.org
+  irc: #dbix-skinny@irc.perl.org
 
-  ML: http://groups.google.com/group/dbix-tengny
+  ML: http://groups.google.com/group/dbix-skinny
 
 =head1 REPOSITORY
 
-  git clone git://github.com/nekokak/p5-dbix-teng.git  
+  git clone git://github.com/nekokak/p5-teng.git  
 
 =head1 LICENCE AND COPYRIGHT
 
