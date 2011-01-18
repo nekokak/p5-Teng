@@ -93,15 +93,16 @@ sub connect {
     $self->{dbh} = eval { DBI->connect(@$connect_info) }
         or Carp::croak("Connection error: " . ($@ || $DBI::errstr));
 
-    my $on_connect_do = $self->on_connect_do;
-    if (not ref($on_connect_do)) {
-        $self->do($on_connect_do);
-    } elsif (ref($on_connect_do) eq 'CODE') {
-        $on_connect_do->($self);
-    } elsif (ref($on_connect_do) eq 'ARRAY') {
-        $self->do($_) for @$on_connect_do;
-    } else {
-        Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
+    if ( my $on_connect_do = $self->on_connect_do ) {
+        if (not ref($on_connect_do)) {
+            $self->do($on_connect_do);
+        } elsif (ref($on_connect_do) eq 'CODE') {
+            $on_connect_do->($self);
+        } elsif (ref($on_connect_do) eq 'ARRAY') {
+            $self->do($_) for @$on_connect_do;
+        } else {
+            Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
+        }
     }
 
     $self->_prepare_from_dbh;
