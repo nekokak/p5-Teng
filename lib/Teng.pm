@@ -22,7 +22,7 @@ use Class::Accessor::Lite
     )]
 ;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub load_plugin {
     my ($class, $pkg, $opt) = @_;
@@ -382,6 +382,8 @@ Teng - very simple DBI wrapper/ORMapper
 Teng is very simple DBI wrapper and simple O/R Mapper.
 It aims to be lightweight, with minimal dependencies so it's easier to install. 
 
+B<THE SOFTWARE IS IT'S IN ALPHA QUALITY. IT MAY CHANGE THE API WITHOUT NOTICE.>
+
 =head1 BASIC USAGE
 
 create your db model base class.
@@ -715,6 +717,13 @@ use L<Devel::KYTProf>.
 =head2 TRIGGER
 
 use L<Class::Method::Modifiers>
+
+=head1 SEE ALSO
+
+=head2 Fork
+
+This module was forked from L<DBIx::Skinny>, around version 0.0732.
+many incompatible changes have been made.
 
 =head1 BUGS AND LIMITATIONS
 

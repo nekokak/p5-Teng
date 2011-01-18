@@ -1,5 +1,9 @@
 Revision history for Perl extension Teng
 
+0.02
+    2011-01-18
+        - more docs. and fixed POD. no code change.
+
 0.01
     2011-01-18
         - forked from DBIx::Skinny.
