@@ -8,10 +8,9 @@ use Class::Accessor::Lite
         columns
         sql_types
         row_class
-        inflators
-        deflators
     ) ]
 ;
+use Carp ();
 use Class::Load ();
 
 sub new {
@@ -42,8 +41,24 @@ sub get_sql_type {
     $self->sql_types->{ $column_name };
 }
 
-sub get_deflator { $_[0]->deflators->{$_[1]} }
-sub get_inflator { $_[0]->inflators->{$_[1]} }
+sub get_deflator { $_[0]->{deflators}->{$_[1]} }
+sub get_inflator { $_[0]->{inflators}->{$_[1]} }
+sub set_deflator {
+    my ($self, $col, $code) = @_;
+
+    unless (ref($code) eq 'CODE') {
+        Carp::croak('deflate code must be coderef.');
+    }
+    $self->{deflators}->{$col} = $code;
+}
+sub set_inflator {
+    my ($self, $col, $code) = @_;
+
+    unless (ref($code) eq 'CODE') {
+        Carp::croak('deflate code must be coderef.');
+    }
+    $self->{inflators}->{$col} = $code;
+}
 
 sub call_deflate {
     my ($self, $col_name, $col_value) = @_;
@@ -88,6 +103,14 @@ get deflate coderef.
 =item $table->get_inflator
 
 get inflate coderef.
+
+=item $table->set_deflator
+
+set deflate coderef.
+
+=item $table->set_inflator
+
+set inflate coderef.
 
 =item $table->call_deflate
 
