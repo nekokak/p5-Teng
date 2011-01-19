@@ -1,5 +1,10 @@
 Revision history for Perl extension Teng
 
+0.03
+    2011-01-19
+        - more docs.
+        - fixed on_connect_do's bug.
+
 0.02
     2011-01-18
         - more docs. and fixed POD. no code change.
