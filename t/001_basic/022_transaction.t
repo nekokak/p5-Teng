@@ -41,5 +41,17 @@ subtest 'do commit' => sub {
  
     ok +$db->single('mock_basic',{id => 2});
 };
+
+subtest 'error occurred in transaction' => sub {
+
+    eval {
+        local $SIG{__WARN__} = sub {};
+        my $txn = $db->txn_scope;
+        $db->{dbh} = undef;
+        $db->dbh;
+    };
+    my $e = $@;
+    like $e, qr/You're in a middle of a transaction, so I'm going to die/;
+};
  
 done_testing;
