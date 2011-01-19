@@ -5,7 +5,7 @@ all_from 'lib/Teng.pm';
 requires 'parent';
 requires 'Carp';
 requires 'Class::Accessor::Lite' => 0.05;
-requires 'Class::Load';
+requires 'Class::Load' => 0.06;
 requires 'Data::Page';
 requires 'DBI';
 requires 'DBIx::Inspector' => '0.03';
