@@ -9,7 +9,7 @@ requires 'Class::Load' => 0.06;
 requires 'Data::Page';
 requires 'DBI';
 requires 'DBIx::Inspector' => '0.03';
-requires 'DBIx::TransactionManager' => '1.02';
+requires 'DBIx::TransactionManager' => '1.03';
 requires 'SQL::Maker' => 0.08;
 
 author_tests('xt');
