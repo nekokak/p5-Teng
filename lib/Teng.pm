@@ -534,11 +534,7 @@ no creation row object.
 
 =item $update_row_count = $teng->update($table_name, \%update_row_data, [\%update_condition])
 
-$update_condition is optional argment.
-
-update record.
-
-example:
+Calls UPDATE on C<$table_name>, with values specified in C<%update_ro_data>, and returns the number of rows updated. You may optionally specify C<%update_condition> to create a conditional update query.
 
     my $update_row_count = $teng->update('user',
         {
@@ -548,25 +544,23 @@ example:
             id => 1
         }
     );
+    # Executes UPDATE user SET name = 'nomaneko' WHERE id = 1
 
-or 
+You can also call update on a row object:
 
     my $row = $teng->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
 
 =item $delete_row_count = $teng->delete($table, \%delete_condition)
 
-delete record. return delete row count.
+Deletes the specified record(s) from C<$table> and returns the number of rows deleted. You may optionally specify C<%delete_condition> to create a conditional delete query.
 
-example:
+    my $rows_deleted = $teng->delete( 'user', {
+        id => 1
+    } );
+    # Executes DELETE FROM user WHERE id = 1
 
-    my $delete_row_count = $teng->delete('user',
-        {
-            id => 1,
-        }
-    );
-
-or
+You can also call delete on a row object:
 
     my $row = $teng->single('user', {id => 1});
     $row->delete
@@ -626,7 +620,7 @@ So, you can use table row class to search_by_sql result.
 
 =item $teng->txn_scope
 
-get transaction scope object.
+Creates a new transaction scope guard object.
 
     do {
         my $txn = $teng->txn_scope;
@@ -635,9 +629,6 @@ get transaction scope object.
 
         $txn->commit;
     }
-
-An alternative way of transaction handling based on
-L<DBIx::TransactionManager>.
 
 If an exception occurs, or the guard object otherwise leaves the scope
 before C<< $txn->commit >> is called, the transaction will be rolled
@@ -649,7 +640,7 @@ database disconnection.
 
 =item $txn_manager = $teng->txn_manager
 
-get DBIx::TransactionManager instance.
+Get the DBIx::TransactionManager instance.
 
 =item $teng->txn_begin
 
@@ -667,11 +658,9 @@ rollback transaction.
 
 finish transaction.
 
-=item $teng->do($sql, [$option, $bind_values])
+=item $teng->do($sql, [\%option, \@bind_values])
 
-execute your query.
-
-See) L<http://search.cpan.org/dist/DBI/DBI.pm#do>
+Execute the query specified by C<$sql>, using C<%option> and C<@bind_values> as necessary. This pretty much a wrapper around L<http://search.cpan.org/dist/DBI/DBI.pm#do>
 
 =item $teng->dbh
 
@@ -715,9 +704,9 @@ use L<Devel::KYTProf>.
 
 =back
 
-=head2 TRIGGER
+=head1 TRIGGERS
 
-use L<Class::Method::Modifiers>
+Teng does not support triggers (NOTE: do not confuse it with SQL triggers - we're talking about Perl level triggers). If you really want to hook into the various methods, use something like L<Moose>, L<Mouse>, and L<Class::Method::Modifiers>.
 
 =head1 SEE ALSO
 
@@ -754,4 +743,6 @@ Copyright (c) 2010, the Teng L</AUTHOR>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
+
+=cut
 
