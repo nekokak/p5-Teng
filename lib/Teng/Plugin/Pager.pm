@@ -39,7 +39,7 @@ sub search_with_pager {
         sql              => $sql,
         row_class        => $self->schema->get_row_class($table_name),
         table_name       => $table_name,
-        suppress_objects => $self->suppress_row_objects,
+        suppress_object_creation => $self->suppress_row_objects,
     )->all];
 
     my $has_next = ( $rows + 1 == scalar(@$ret) ) ? 1 : 0;

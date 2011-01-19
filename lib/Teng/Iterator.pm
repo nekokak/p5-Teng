@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp ();
 use Class::Accessor::Lite (
-    rw => [qw/suppress_objects/],
+    rw => [qw/suppress_object_creation/],
 );
 
 sub new {
@@ -27,7 +27,7 @@ sub next {
         return;
     }
 
-    if ($self->suppress_objects) {
+    if ($self->suppress_object_creation) {
         return $row;
     } else {
         return $self->{row_class}->new(
@@ -88,7 +88,7 @@ Get next row data.
 
 Get all row data in array.
 
-=item $itr->suppress_objects($mode)
+=item $itr->suppress_object_creation($mode)
 
 Set row object creation mode.
 

@@ -44,10 +44,10 @@ subtest 'iterator with no cache' => sub {
     ok !$itr->next, 'no more row';
 };
 
-subtest 'iterator with suppress_objects on to off' => sub {
+subtest 'iterator with suppress_object_creation on to off' => sub {
     my $itr = $db->search("mock_basic");
     isa_ok $itr, 'Teng::Iterator';
-    $itr->suppress_objects(1);
+    $itr->suppress_object_creation(1);
 
     my $row = $itr->next;
     is ref($row), 'HASH';
@@ -57,7 +57,7 @@ subtest 'iterator with suppress_objects on to off' => sub {
         name      => 'perl',
     };
 
-    $itr->suppress_objects(0);
+    $itr->suppress_object_creation(0);
     $row = $itr->next;
     isa_ok $row, 'Teng::Row';
     my $dat = $row->get_columns;

@@ -335,7 +335,7 @@ sub search_by_sql {
         sql              => $sql,
         row_class        => $self->schema->get_row_class($table_name),
         table_name       => $table_name,
-        suppress_objects => $self->suppress_row_objects,
+        suppress_object_creation => $self->suppress_row_objects,
     );
     return wantarray ? $itr->all : $itr;
 }
