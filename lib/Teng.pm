@@ -112,7 +112,7 @@ sub reconnect {
     my $self = shift;
 
     if ($self->txn_manager->in_transaction) {
-        Carp::confess("You're in a middle of a transaction, so I'm going to die");
+        Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
     }
 
     $self->disconnect();
