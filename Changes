@@ -1,5 +1,9 @@
 Revision history for Perl extension Teng
 
+0.04
+    2011-01-19
+        - fixed Makefile.PL
+
 0.03
     2011-01-19
         - more docs.
