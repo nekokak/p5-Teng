@@ -51,7 +51,7 @@ subtest 'error occurred in transaction' => sub {
         $db->dbh;
     };
     my $e = $@;
-    like $e, qr/You're in a middle of a transaction, so I'm going to die/;
+    like $e, qr/Detected disconnected database during a transaction. Refusing to proceed at/;
 };
  
 done_testing;
