@@ -154,7 +154,7 @@ sub dbh {
 }
 
 sub _execute {
-    my ($self, $sql, $binds, $table) = @_;
+    my ($self, $sql, $binds) = @_;
 
     my $sth;
     eval {
@@ -200,7 +200,7 @@ sub _insert {
     }
 
     my ($sql, @binds) = $self->sql_builder->insert( $table_name, $args, { prefix => $prefix } );
-    $self->_execute($sql, \@binds, $table_name);
+    $self->_execute($sql, \@binds);
 }
 
 sub fast_insert {
@@ -242,7 +242,7 @@ sub update {
     }
 
     my ($sql, @binds) = $self->sql_builder->update( $table_name, $args, $where );
-    my $sth = $self->_execute($sql, \@binds, $table_name);
+    my $sth = $self->_execute($sql, \@binds);
     my $rows = $sth->rows;
     $sth->finish;
 
@@ -253,7 +253,7 @@ sub delete {
     my ($self, $table_name, $where) = @_;
 
     my ($sql, @binds) = $self->sql_builder->delete( $table_name, $where );
-    my $sth = $self->_execute($sql, \@binds, $table_name);
+    my $sth = $self->_execute($sql, \@binds);
     my $rows = $sth->rows;
     $sth->finish;
 
