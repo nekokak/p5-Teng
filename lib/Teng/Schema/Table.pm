@@ -88,9 +88,9 @@ Teng::Schema::Table - Teng table class.
 
 =over 4
 
-=item $table = Teng::Table->new
+=item $table = Teng::Schema::Table->new
 
-create new Teng::Table's object.
+create new Teng::Schema::Table's object.
 
 =item $table->get_sql_type
 
