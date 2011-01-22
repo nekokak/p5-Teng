@@ -55,7 +55,7 @@ B<THIS MODULE IS HIGHLY EXPERIMENTAL. DO NOT USE THIS FOR PRODUCTION ENVIRONMENT
 
 =over 4
 
-=item Teng::Dumper->dump(dbh => $dbh, table2class_cb => \&code);
+=item Teng::Schema::Dumper->dump(dbh => $dbh, namespace => $namespace);
 
 This is the method to generate code from DB. It returns the Perl5 code in string.
 
@@ -67,17 +67,11 @@ The arguments are:
 
 Database handle from DBI.
 
-=item table2class_cb
+=item namespace
 
-Coderef to convert table name to row class name.
-
-The method is calling with following form:
-
-    my $class_name = $code->($table_name);
-
+your project teng namespace.
 
 =back
-
 
 =back
 
