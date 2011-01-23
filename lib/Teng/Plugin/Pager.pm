@@ -49,7 +49,7 @@ sub search_with_pager {
         entries_per_page     => $rows,
         current_page         => $page,
         has_next             => $has_next,
-        entries_on_this_page => $sth->rows,
+        entries_on_this_page => scalar(@$ret),
     );
 
     return ($ret, $pager);

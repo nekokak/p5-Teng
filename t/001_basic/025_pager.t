@@ -16,6 +16,7 @@ subtest 'simple' => sub {
     my ($rows, $pager) = $db->search_with_pager(mock_basic => {}, {rows => 3, page => 1});
     is join(',', map { $_->id } @$rows), '1,2,3';
     is $pager->entries_per_page(), 3;
+    is $pager->entries_on_this_page(), 3;
     is $pager->current_page(), 1;
     is $pager->next_page, 2, 'next_page';
     ok $pager->has_next, 'has_next';
@@ -26,6 +27,7 @@ subtest 'last' => sub {
     my ($rows, $pager) = $db->search_with_pager(mock_basic => {}, {rows => 3, page => 11});
     is join(',', map { $_->id } @$rows), '31,32';
     is $pager->entries_per_page(), 3;
+    is $pager->entries_on_this_page(), 2;
     is $pager->current_page(), 11;
     is $pager->next_page, undef, 'next_page';
     ok !$pager->has_next, 'has_next';
