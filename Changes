@@ -1,5 +1,11 @@
 Revision history for Perl extension Teng
 
+0.05
+    2011-01-24
+        - fixed documents.
+        - fixed Teng::Plugin::Pager::Page->entries_on_this_page(reported by yibe++)
+        - few refactoring.
+
 0.04
     2011-01-19
         - fixed Makefile.PL
