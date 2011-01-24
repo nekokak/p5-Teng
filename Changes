@@ -1,5 +1,9 @@
 Revision history for Perl extension Teng
 
+0.06
+    2011-XX-XX
+        - add query comment at execute point.
+
 0.05
     2011-01-24
         - fixed documents.
