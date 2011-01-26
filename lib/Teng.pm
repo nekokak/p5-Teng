@@ -22,7 +22,7 @@ use Class::Accessor::Lite
     )]
 ;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub load_plugin {
     my ($class, $pkg, $opt) = @_;
@@ -111,7 +111,7 @@ sub connect {
 sub reconnect {
     my $self = shift;
 
-    if ($self->txn_manager->in_transaction) {
+    if ($self->in_transaction) {
         Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
     }
 
@@ -265,6 +265,11 @@ sub delete {
 sub txn_manager  {
     my $self = shift;
     $self->{txn_manager} ||= DBIx::TransactionManager->new($self->dbh);
+}
+
+sub in_transaction {
+    my $self = shift;
+    $self->{txn_manager} ? $self->{txn_manager}->in_transaction : undef;
 }
 
 sub txn_scope    { $_[0]->txn_manager->txn_scope    }

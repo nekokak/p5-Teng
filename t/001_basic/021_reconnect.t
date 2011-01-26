@@ -99,5 +99,17 @@ subtest '(re)connect fail' => sub {
     ok $@;
 };
 
+subtest "recursion in auto reconnect as calling db->dbh" => sub {
+    no strict 'refs';
+    no warnings 'redefine';
+    my $ping = ref($db->{dbh}) . '::ping';
+    local *$ping = sub { 0 };
+    undef $db->{txn_manager};
+
+    is $db->{dbh}->FETCH('Active'), 1, 'test premise';
+    is $db->{dbh}->ping, 0, 'test premise';
+    ok $db->dbh, 'deep recursion';
+};
+
 done_testing;
 
