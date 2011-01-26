@@ -176,10 +176,6 @@ sub _execute {
         $self->handle_error($sql, $binds, $@);
     }
 
-    if (! defined wantarray ) {
-        $sth->finish;
-        return;
-    }
     return $sth;
 }
 
