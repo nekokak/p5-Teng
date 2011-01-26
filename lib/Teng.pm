@@ -17,6 +17,7 @@ use Class::Accessor::Lite
         schema_class
         suppress_row_objects
         sql_builder
+        sql_comment
         owner_pid
         driver_name
     )]
@@ -158,6 +159,16 @@ sub _execute {
 
     my $sth;
     eval {
+        if ($ENV{TENG_SQL_COMMENT} || $self->sql_comment) {
+            my $i = 1; # optimize, as we would *NEVER* be called
+            while ( my (@caller) = caller($i++) ) {
+                next if ( $caller[0]->isa( __PACKAGE__ ) );
+                my $comment = "$caller[1] at line $caller[2]";
+                $comment =~ s/\*\// /g;
+                $sql = "/* $comment */\n$sql";
+                last;
+            }
+        }
         $sth = $self->dbh->prepare($sql);
         $sth->execute(@{$binds || []});
     };

@@ -2,7 +2,7 @@ Revision history for Perl extension Teng
 
 0.06
     2011-01-26
-        - when executing query, auto add query comment.
+        - add query comment at execute point.
         - fixed dbh deep recursion by reconnect (thanks cho45)
 
 0.05
