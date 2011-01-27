@@ -230,6 +230,10 @@ sub insert {
 
     return $args if $self->suppress_row_objects;
 
+    if (scalar(@$pk) == 1) {
+        return $self->single($table_name, {$pk->[0] => $args->{$pk->[0]}});
+    }
+
     $table->row_class->new(
         {
             row_data   => $args,

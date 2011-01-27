@@ -15,6 +15,16 @@ subtest 'insert mock_basic data/ insert method' => sub {
     is $row->name, 'perl';
 };
 
+subtest 'scalar ref' => sub {
+    $db->suppress_row_objects(0);
+    my $row = $db->insert('mock_basic',{
+        id   => 4,
+        name => \"upper('c')",
+    });
+    is $row->id, 4;
+    is $row->name, 'C';
+};
+
 subtest 'insert with suppress_row_objects off' => sub {
     $db->suppress_row_objects(1);
     my $row = $db->insert('mock_basic',{
@@ -32,5 +42,6 @@ subtest 'fast_insert' => sub {
     });
     is $last_insert_id, 3;
 };
+
 
 done_testing;
