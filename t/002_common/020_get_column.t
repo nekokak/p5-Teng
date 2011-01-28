@@ -25,7 +25,7 @@ subtest 'get_column' => sub {
         $row->get_column('bazbaz'); 
     };
     ok $@;
-    like $@, qr/Specified colum 'bazbaz' not found in row \(query: unknown\)/;
+    like $@, qr/Specified colum 'bazbaz' not found in row/;
 };
 
 subtest 'get_column' => sub {
