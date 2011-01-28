@@ -62,12 +62,12 @@ sub new {
         $self->schema( $schema );
     }
 
-    unless ($self->connect_info || $self->{dbh}) {
-        Carp::croak("'dbh' or 'connect_info' is required.");
+    unless ($self->connect_info || $self->{dbh} || ($self->{dsn} && $self->{username} && $self->{password})) {
+        Carp::croak("'dbh' or 'connect_info' or 'dsn and username and password' is required.");
     }
 
     if ( ! $self->{dbh} ) {
-        $self->connect;
+        $self->connect(@_);
     } else {
         $self->_prepare_from_dbh;
     }
@@ -78,6 +78,10 @@ sub new {
 # forcefully connect
 sub connect {
     my ($self, @args) = @_;
+
+    if (ref($args[0]) eq 'HASH') {
+        @args = ($args[0]->{dsn},$args[0]->{username},$args[0]->{password},$args[0]->{connect_options});
+    }
 
     if (@args) {
         $self->connect_info( \@args );
