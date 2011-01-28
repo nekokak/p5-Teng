@@ -15,7 +15,7 @@ sub dump {
 
     my $ret = "package ${namespace}::Schema;\n";
     $ret .= "use Teng::Schema::Declare;\n";
-    for my $table_info (sort { $_->name } $inspector->tables) {
+    for my $table_info ($inspector->tables) {
         $ret .= "table {\n";
         $ret .= sprintf("    name '%s';\n", $table_info->name);
         $ret .= sprintf("    pk %s;\n", join ',' , map { q{'}.$_->name.q{'} } $table_info->primary_key);
