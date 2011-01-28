@@ -501,12 +501,7 @@ Teng provides a number of methods to all your classes,
 create your teng instance.
 
     # connect new database connection.
-    my $db = Your::Model->new(+{
-        dsn      => $dsn,
-        username => $username,
-        password => $password,
-        connect_options => $connect_options,
-    });
+    my $db = Your::Model->new(connect_info => [$dsn,$username,$password,$connect_options]);
 
 =over
 
