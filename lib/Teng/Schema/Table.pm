@@ -41,8 +41,8 @@ sub get_sql_type {
     $self->sql_types->{ $column_name };
 }
 
-sub get_deflator { $_[0]->{deflators}->{$_[1]} }
-sub get_inflator { $_[0]->{inflators}->{$_[1]} }
+sub get_deflator { } # $_[0]->{deflators}->{$_[1]} }
+sub get_inflator { } # $_[0]->{inflators}->{$_[1]} }
 sub set_deflator {
     my ($self, $col, $code) = @_;
 
@@ -62,16 +62,30 @@ sub set_inflator {
 
 sub call_deflate {
     my ($self, $col_name, $col_value) = @_;
-    if (my $code = $self->get_deflator( $col_name )) {
-        return $code->($col_value);
+    my $rules = $self->{deflators};
+    my $i = 0;
+    my $max = @$rules;
+    while ( $i < $max ) {
+        my ($rule, $code) = @$rules[ $i, $i + 1 ];
+        if ($col_name =~ /$rule/) {
+            return $code->($col_value);
+        }
+        $i += 2;
     }
     return $col_value;
 }
 
 sub call_inflate {
     my ($self, $col_name, $col_value) = @_;
-    if (my $code = $self->get_inflator( $col_name )) {
-        return $code->($col_value);
+    my $rules = $self->{inflators};
+    my $i = 0;
+    my $max = @$rules;
+    while ( $i < $max ) {
+        my ($rule, $code) = @$rules[ $i, $i + 1 ];
+        if ($col_name =~ /$rule/) {
+            return $code->($col_value);
+        }
+        $i += 2;
     }
     return $col_value;
 }
