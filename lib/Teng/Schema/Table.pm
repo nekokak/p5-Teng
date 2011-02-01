@@ -58,9 +58,9 @@ sub add_inflator {
         $rule = qr/^\Q$rule\E$/;
     }
     unless (ref($code) eq 'CODE') {
-        Carp::croak('deflate code must be coderef.');
+        Carp::croak('inflate code must be coderef.');
     }
-    push @{ $self->{deflators} }, ( $rule, $code );
+    push @{ $self->{inflators} }, ( $rule, $code );
 }
 
 sub call_deflate {
