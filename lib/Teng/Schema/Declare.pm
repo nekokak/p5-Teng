@@ -92,14 +92,14 @@ sub table(&) {
     local *{"$dest_class\::row_class"} = sub (@) { $row_class = shift };
     local *{"$dest_class\::inflate"} = sub ($&) {
         my ($rule, $code) = @_;
-        if (ref $rule !~ /^Reg[eE]xp$/) {
+        if (ref $rule ne 'Regexp') {
             $rule = qr/^\Q$rule\E$/;
         }
         push @inflate, ($rule, $code);
     };
     local *{"$dest_class\::deflate"} = sub ($&) {
         my ($rule, $code) = @_;
-        if (ref $rule !~ /^Reg[eE]xp$/) {
+        if (ref $rule ne 'Regexp') {
             $rule = qr/^\Q$rule\E$/;
         }
         push @deflate, ($rule, $code);
