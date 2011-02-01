@@ -41,23 +41,26 @@ sub get_sql_type {
     $self->sql_types->{ $column_name };
 }
 
-sub get_deflator { } # $_[0]->{deflators}->{$_[1]} }
-sub get_inflator { } # $_[0]->{inflators}->{$_[1]} }
-sub set_deflator {
-    my ($self, $col, $code) = @_;
-
+sub add_deflator {
+    my ($self, $rule, $code) = @_;
+    if ( ref $rule ne 'Regexp' ) {
+        $rule = qr/^\Q$rule\E$/;
+    }
     unless (ref($code) eq 'CODE') {
         Carp::croak('deflate code must be coderef.');
     }
-    $self->{deflators}->{$col} = $code;
+    push @{ $self->{deflators} }, ( $rule, $code );
 }
-sub set_inflator {
-    my ($self, $col, $code) = @_;
 
+sub add_inflator {
+    my ($self, $rule, $code) = @_;
+    if ( ref $rule ne 'Regexp' ) {
+        $rule = qr/^\Q$rule\E$/;
+    }
     unless (ref($code) eq 'CODE') {
         Carp::croak('deflate code must be coderef.');
     }
-    $self->{inflators}->{$col} = $code;
+    push @{ $self->{deflators} }, ( $rule, $code );
 }
 
 sub call_deflate {
