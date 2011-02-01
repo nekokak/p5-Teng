@@ -10,7 +10,8 @@ sub setup_test_db {
         $teng->do(q{
             CREATE TABLE mock_inflate (
                 id   INT,
-                name TEXT
+                name TEXT,
+                foo  TEXT
             )
         });
     } elsif ($dbd eq 'mysql') {
@@ -21,6 +22,7 @@ sub setup_test_db {
             CREATE TABLE mock_inflate (
                 id        INT auto_increment,
                 name      TEXT,
+                foo       TEXT,
                 PRIMARY KEY  (id)
             ) ENGINE=InnoDB
         });

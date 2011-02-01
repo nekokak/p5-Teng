@@ -13,35 +13,47 @@ subtest 'insert mock_inflate data' => sub {
     my $row = $db->insert('mock_inflate',{
         id   => 1,
         name => $name,
+        foo  => $name,
     });
 
     isa_ok $row, 'Teng::Row';
     isa_ok $row->name, 'Mock::Inflate::Name';
     is $row->name->name, 'perl';
+    isa_ok $row->foo, 'Mock::Inflate::Name';
+    is $row->foo->name, 'perl';
 };
 
 subtest 'update mock_inflate data' => sub {
     my $name = Mock::Inflate::Name->new(name => 'ruby');
+    my $foo  = Mock::Inflate::Name->new(name => 'ruby');
 
-    ok +$db->update('mock_inflate',{name => $name},{id => 1});
+    ok +$db->update('mock_inflate',{name => $name, foo => $foo},{id => 1});
     my $row = $db->single('mock_inflate',{id => 1});
 
     isa_ok $row, 'Teng::Row';
     isa_ok $row->name, 'Mock::Inflate::Name';
     is $row->name->name, 'ruby';
+    isa_ok $row->foo, 'Mock::Inflate::Name';
+    is $row->foo->name, 'ruby';
 };
 
 subtest 'update row' => sub {
     my $row = $db->single('mock_inflate',{id => 1});
     my $name = $row->name;
     $name->name('perl');
-    $row->update({ name => $name });
+    my $foo = $row->foo;
+    $foo->name('perl');
+    $row->update({ name => $name, foo => $foo });
     isa_ok $row->name, 'Mock::Inflate::Name';
     is $row->name->name, 'perl';
+    isa_ok $row->foo, 'Mock::Inflate::Name';
+    is $row->foo->name, 'perl';
 
     my $updated = $db->single('mock_inflate',{id => 1});
     isa_ok $updated->name, 'Mock::Inflate::Name';
     is $updated->name->name, 'perl';
+    isa_ok $updated->foo, 'Mock::Inflate::Name';
+    is $updated->foo->name, 'perl';
 };
 
 done_testing;
