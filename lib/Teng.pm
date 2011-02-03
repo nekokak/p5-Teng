@@ -283,7 +283,11 @@ sub in_transaction {
     $self->{txn_manager} ? $self->{txn_manager}->in_transaction : undef;
 }
 
-sub txn_scope    { $_[0]->txn_manager->txn_scope    }
+sub txn_scope {
+    my @caller = caller();
+    $_[0]->txn_manager->txn_scope(caller => \@caller);
+}
+
 sub txn_begin    { $_[0]->txn_manager->txn_begin    }
 sub txn_rollback { $_[0]->txn_manager->txn_rollback }
 sub txn_commit   { $_[0]->txn_manager->txn_commit   }
