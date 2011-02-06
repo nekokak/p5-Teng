@@ -11,6 +11,7 @@ requires 'DBI';
 requires 'DBIx::Inspector' => '0.03';
 requires 'DBIx::TransactionManager' => '1.06';
 requires 'SQL::Maker' => 0.08;
+requires 'Data::Page::NoTotalEntries' => '0.02';
 
 author_tests('xt');
 

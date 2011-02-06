@@ -5,6 +5,7 @@ use utf8;
 use Carp ();
 use DBI;
 use Teng::Iterator;
+use Data::Page::NoTotalEntries;
 
 our @EXPORT = qw/search_with_pager/;
 
@@ -45,7 +46,7 @@ sub search_with_pager {
     my $has_next = ( $rows + 1 == scalar(@$ret) ) ? 1 : 0;
     if ($has_next) { pop @$ret }
 
-    my $pager = Teng::Plugin::Pager::Page->new(
+    my $pager = Data::Page::NoTotalEntries->new(
         entries_per_page     => $rows,
         current_page         => $page,
         has_next             => $has_next,
@@ -53,28 +54,6 @@ sub search_with_pager {
     );
 
     return ($ret, $pager);
-}
-
-package Teng::Plugin::Pager::Page;
-use Class::Accessor::Lite (
-    ro => [qw/entries_per_page current_page has_next entries_on_this_page/],
-);
-
-sub new {
-    my $class = shift;
-    my %args = @_==1 ? %{$_[0]} : @_;
-    bless {%args}, $class;
-}
-
-sub next_page {
-    my $self = shift;
-    $self->has_next ? $self->current_page + 1 : undef;
-}
-
-sub previous_page { shift->prev_page(@_) }
-sub prev_page {
-    my $self = shift;
-    $self->current_page > 1 ? $self->current_page - 1 : undef;
 }
 
 1;
@@ -126,44 +105,8 @@ The number of entries per page.
 
 =back
 
-This method returns ArrayRef[Teng::Row] and instance of L<Teng::Plugin::Pager::Page>.
+This method returns ArrayRef[Teng::Row] and instance of L<Data::Page::NoTotalEntries>.
 
 =back
-
-=head1 Teng::Plugin::Pager::Page
-
-B<search_with_pager> method returns the instance of Teng::Plugin::Pager::Page. It gives paging information.
-
-=head2 METHODS
-
-=over 4
-
-=item $pager->entries_per_page()
-
-The number of entries per page('rows'. you provided).
-
-=item $pager->current_page()
-
-Returns: fetched page number.
-
-=item $pager->has_next()
-
-The page has next page or not in boolean value.
-
-=item $pager->entries_on_this_page()
-
-How many entries on this page?
-
-=item $pager->next_page()
-
-The page number of next page.
-
-=item $pager->previous_page()
-
-The page number of previous page.
-
-=item $pager->prev_page()
-
-Alias for C<<< $pager->previous_page() >>>.
 
 =back
