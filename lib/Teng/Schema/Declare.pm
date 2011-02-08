@@ -74,8 +74,8 @@ sub table(&) {
         $table_name,
         @table_pk,
         @table_columns,
-        %inflate,
-        %deflate,
+        @inflate,
+        @deflate,
         $row_class,
     );
     no warnings 'redefine';
@@ -91,10 +91,18 @@ sub table(&) {
     local *{"$dest_class\::columns"}   = sub (@) { @table_columns = @_ };
     local *{"$dest_class\::row_class"} = sub (@) { $row_class = shift };
     local *{"$dest_class\::inflate"} = sub ($&) {
-        $inflate{ $_[0] } = $_[1];
+        my ($rule, $code) = @_;
+        if (ref $rule ne 'Regexp') {
+            $rule = qr/^\Q$rule\E$/;
+        }
+        push @inflate, ($rule, $code);
     };
     local *{"$dest_class\::deflate"} = sub ($&) {
-        $deflate{ $_[0] } = $_[1];
+        my ($rule, $code) = @_;
+        if (ref $rule ne 'Regexp') {
+            $rule = qr/^\Q$rule\E$/;
+        }
+        push @deflate, ($rule, $code);
     };
 
     $code->();
@@ -117,8 +125,8 @@ sub table(&) {
             name         => $table_name,
             primary_keys => \@table_pk,
             sql_types    => \%sql_types,
-            inflators    => \%inflate,
-            deflators    => \%deflate,
+            inflators    => \@inflate,
+            deflators    => \@deflate,
             row_class    => $row_class,
         )
     ); 

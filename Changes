@@ -1,9 +1,15 @@
 Revision history for Perl extension Teng
 
 0.07
+    2011-02-08
         - Create better diagnostics for transactions guards that were not
           properly dismissed
         - Depend on DBIx::TransactionManager 1.06
+        - adjustment inflate
+        - change setters to add_* and remove getters for Teng::Schema::Table
+        - fixed docs.
+        - fixed Loader's sort bug.
+        - refetch row after insert.
 
 0.06
     2011-01-26

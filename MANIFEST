@@ -62,6 +62,7 @@ t/002_common/019_get_columns.t
 t/002_common/020_get_column.t
 t/002_common/022_disconnect.t
 t/002_common/023_multi_pk.t
+t/002_common/024_txn_scope.t
 t/999_regression/bind_param.t
 t/999_regression/deflate_bug.t
 t/999_regression/guess_table_name.t
