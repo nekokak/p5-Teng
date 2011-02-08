@@ -7,7 +7,7 @@ use DBI;
 use Teng::Row;
 use Teng::Iterator;
 use Teng::Schema;
-use DBIx::TransactionManager 1.02;
+use DBIx::TransactionManager 1.06;
 use Teng::QueryBuilder;
 use Class::Accessor::Lite
    rw => [ qw(
