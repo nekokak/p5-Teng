@@ -369,7 +369,7 @@ sub _guess_table_name {
     my ($class, $sql) = @_;
 
     if ($sql =~ /\sfrom\s+("?|`?)([\w]+)("?|`?)\s*/si) {
-        return $1;
+        return $2;
     }
     return;
 }
