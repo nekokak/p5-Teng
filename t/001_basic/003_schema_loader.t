@@ -39,5 +39,8 @@ is(join(',', @{$user->columns}), 'user_id,name,email,created_on');
 my $row = $db->schema->get_row_class('user');
 is $row, 'Mock::DB::Row::User';
 
+ok $db->insert('user', { user_id => 1, name => 'inserted' });
+is $db->single('user', { user_id => 1 })->name, 'inserted';
+
 done_testing;
 
