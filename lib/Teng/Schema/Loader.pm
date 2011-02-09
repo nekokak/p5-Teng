@@ -28,8 +28,8 @@ sub load {
                 name         => $table_name,
                 primary_keys => \@table_pk,
                 sql_types    => {},
-                inflators    => {},
-                deflators    => {},
+                inflators    => [],
+                deflators    => [],
                 row_class    => join '::', $namespace, 'Row', Teng::Schema::camelize($table_name),
             )
         );
