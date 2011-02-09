@@ -96,8 +96,9 @@ sub update {
         Carp::croak q{can't update from basic Teng::Row class.};
     }
 
+    my $where = $self->_where_cond($self->{table_name});
     $self->set_columns($upd);
-    $self->{teng}->update($self->{table_name}, $self->get_dirty_columns, $self->_where_cond($self->{table_name}));
+    $self->{teng}->update($self->{table_name}, $self->get_dirty_columns, $where);
 }
 
 sub delete {
