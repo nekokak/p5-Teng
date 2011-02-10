@@ -79,6 +79,8 @@ sub new {
 sub connect {
     my ($self, @args) = @_;
 
+    $self->in_transaction_check;
+
     if (@args) {
         $self->connect_info( \@args );
     }
@@ -109,21 +111,7 @@ sub connect {
     $self->_prepare_from_dbh;
 }
 
-sub reconnect {
-    my $self = shift;
-
-    if ($self->in_transaction) {
-        Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
-    }
-
-    $self->disconnect();
-    $self->connect(@_);
-}
-
-sub disconnect {
-    my $self = shift;
-    $self->{dbh} = undef;
-}
+sub disconnect { $_[0]->{dbh} = undef }
 
 sub _prepare_from_dbh {
     my $self = shift;
@@ -137,20 +125,18 @@ sub _prepare_from_dbh {
     }
 }
 
-sub dbh {
+sub _verify_pid {
     my $self = shift;
 
     if ( $self->owner_pid != $$ ) {
-        $self->owner_pid($$);
-        $self->{dbh}->{InactiveDestroy} = 1;
-        $self->reconnect;
-        return $self->{dbh};
+        Carp::confess('this connection is no use. because fork was done.');
     }
+}
 
-    unless ($self->{dbh} && $self->{dbh}->FETCH('Active') && $self->{dbh}->ping) {
-        $self->reconnect;
-    }
+sub dbh {
+    my $self = shift;
 
+    $self->_verify_pid;
     $self->{dbh};
 }
 
@@ -275,12 +261,20 @@ sub delete {
 # for transaction
 sub txn_manager  {
     my $self = shift;
+    $self->_verify_pid;
     $self->{txn_manager} ||= DBIx::TransactionManager->new($self->dbh);
 }
 
-sub in_transaction {
+sub in_transaction_check {
     my $self = shift;
-    $self->{txn_manager} ? $self->{txn_manager}->in_transaction : undef;
+
+    return unless $self->{txn_manager};
+
+    if ( my $info = $self->{txn_manager}->in_transaction ) {
+        my $caller = $info->{caller};
+        my $pid    = $info->{pid};
+        Carp::confess("Detected transaction during a connect operation (last known transaction at $caller->[1] line $caller->[2], pid $pid). Refusing to proceed at");
+    }
 }
 
 sub txn_scope {
@@ -693,14 +687,6 @@ connect database handle.
 connect_info is [$dsn, $user, $password, $options].
 
 If you give \@connect_info, create new database connection.
-
-=item $teng->reconnect(\@connect_info)
-
-re connect database handle.
-
-connect_info is [$dsn, $user, $password, $options].
-
-If you give \@connection_info, create new database connection.
 
 =item $teng->disconnect()
 

@@ -39,11 +39,11 @@ t/001_basic/011_inflate.t
 t/001_basic/015_row_class.t
 t/001_basic/016_row_exception.t
 t/001_basic/020_on_connect_do.t
-t/001_basic/021_reconnect.t
 t/001_basic/022_transaction.t
 t/001_basic/023_bulk_insert.t
 t/001_basic/024_bind_column.t
 t/001_basic/025_pager.t
+t/001_basic/026_fork.t
 t/002_common/000_new.t
 t/002_common/001_insert.t
 t/002_common/002_update.t
@@ -65,6 +65,7 @@ t/002_common/023_multi_pk.t
 t/002_common/024_txn_scope.t
 t/999_regression/bind_param.t
 t/999_regression/deflate_bug.t
+t/999_regression/escaped_query_with_search_by_sql.t
 t/999_regression/guess_table_name.t
 t/999_regression/no_schema.t
 t/999_regression/prepare_error_handling.t
