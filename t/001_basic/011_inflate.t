@@ -56,4 +56,21 @@ subtest 'update row' => sub {
     is $updated->foo->name, 'perl';
 };
 
+subtest 'update row twice case' => sub {
+    my $row = $db->single('mock_inflate',{id => 1});
+    my $name = $row->name;
+    $name->name('perl');
+    $row->update({ name => $name });
+    isa_ok $row->name, 'Mock::Inflate::Name';
+    is $row->name->name, 'perl';
+
+    # twice update!
+    $row->update({id => 1});
+
+    # if name is row_data then incorrect
+    isa_ok $row->name, 'Mock::Inflate::Name';
+    is $row->name->name, 'perl';
+};
+
 done_testing;
+
