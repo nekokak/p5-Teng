@@ -98,7 +98,14 @@ sub update {
 
     my $where = $self->_where_cond($self->{table_name});
     $self->set_columns($upd);
-    $self->{teng}->update($self->{table_name}, $self->get_dirty_columns, $where);
+
+    $upd = $self->get_dirty_columns;
+    return 0 unless %$upd;
+
+    my $result = $self->{teng}->update($self->{table_name}, $self->get_dirty_columns, $where);
+    $self->{_dirty_columns} = {};
+
+    $result;
 }
 
 sub delete {
