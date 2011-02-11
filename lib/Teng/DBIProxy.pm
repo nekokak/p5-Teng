@@ -6,6 +6,7 @@ use Class::Accessor::Lite
         connect_info
         driver_name
         on_connect_do
+        on_disconnect_do
         sql_builder
     ) ]
 ;
@@ -79,8 +80,11 @@ sub connect {
 sub dbh {
     my $self = shift;
     my $dbh = $self->_seems_connected or return $self->_connect;
-    return $dbh if $self->{_in_run};
-    return $self->connected ? $dbh : $self->_connect;
+    my $ret = $self->connected ? $dbh : $self->_connect;
+    if (! $ret) {
+        $self->_run_on_disconnect;
+    }
+    return $ret;
 }
 
 # Just like dbh(), except it doesn't ping the server.
@@ -114,8 +118,20 @@ sub _connect {
             DBI->connect( @$connect_info );
         }
     };
+
+    if (! $dbh) {
+        # XXX - cleanup?
+        return ();
+    }
     $self->_set_dbh( $dbh );
 
+    $self->_run_on_connect();
+
+    return $dbh;
+}
+
+sub _run_on_connect {
+    my $self = shift;
     if ( my $on_connect_do = $self->on_connect_do ) {
         my $teng = $self->owner;
         if (not ref($on_connect_do)) {
@@ -128,8 +144,14 @@ sub _connect {
             Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
         }
     }
+}
 
-    return $dbh;
+sub _run_on_disconnect {
+    my $self = shift;
+    if (my $on_disconnect_do = $self->on_disconnect_do ) {
+        my $teng = $self->owner;
+        $on_disconnect_do->($teng);
+    }
 }
 
 
@@ -156,8 +178,11 @@ sub disconnect {
         # Some databases need this to stop spewing warnings, according to
         # DBIx::Class::Storage::DBI.
         $dbh->STORE(CachedKids => {});
+        if ( $self->driver_name !~ /SQLite/i ) {
         $dbh->disconnect;
+        }
         $self->{_dbh} = undef;
+        $self->_run_on_disconnect;
     }
     return $self;
 }

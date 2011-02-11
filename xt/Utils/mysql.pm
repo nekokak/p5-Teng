@@ -6,8 +6,9 @@ use Test::mysqld;
 use Test::More;
 use t::Utils;
 
-my $mysql = Test::mysqld->new
-    or plan skip_all => $Test::mysqld::errstr;
+my $mysql = Test::mysqld->new( {
+    my_cnf => { 'skip-networking' => '' }
+} ) or plan skip_all => $Test::mysqld::errstr;
 
 {
     no warnings "redefine";

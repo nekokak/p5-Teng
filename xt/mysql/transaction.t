@@ -4,7 +4,7 @@ use Test::More;
 use Mock::Basic;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::Basic->set_dbh($dbh);
+Mock::Basic->prepare_db($dbh);
 Mock::Basic->setup_test_db;
 
 subtest 'do basic transaction' => sub {

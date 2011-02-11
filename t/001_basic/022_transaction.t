@@ -46,8 +46,8 @@ subtest 'error occurred in transaction' => sub {
     eval {
         local $SIG{__WARN__} = sub {};
         my $txn = $db->txn_scope;
-        $db->{dbh} = undef;
-        $db->dbh;
+        $db->disconnect;
+        $txn->commit;
     };
     my $e = $@;
     like $e, qr/Detected disconnected database during a transaction. Refusing to proceed at/;

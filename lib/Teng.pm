@@ -4,11 +4,11 @@ use warnings;
 use Carp ();
 use Class::Load ();
 use DBI;
+use DBIx::TransactionManager 1.06;
 use Teng::DBIProxy;
 use Teng::Row;
 use Teng::Iterator;
 use Teng::Schema;
-use DBIx::TransactionManager 1.06;
 use Teng::QueryBuilder;
 use Class::Accessor::Lite
    rw => [ qw(
@@ -80,7 +80,12 @@ sub new {
         owner => $self,
         dbh => $dbh,
         connect_info => $connect_info,
-        on_connect_do => $on_connect_do
+        on_connect_do => $on_connect_do,
+        on_disconnect_do => sub {
+            if ($self && $self->in_transaction) {
+                Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
+            }
+        }
     );
 
     return $self;
