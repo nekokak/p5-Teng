@@ -179,7 +179,7 @@ sub disconnect {
         # DBIx::Class::Storage::DBI.
         $dbh->STORE(CachedKids => {});
         no warnings 'numeric';
-        if ( $self->driver_name =~ /SQLite/i &&$DBD::SQLite::VERSION >= 1.33 ) {
+        if ( $self->driver_name =~ /SQLite/i &&$DBD::SQLite::VERSION >= 1.32 ) {
             $dbh->disconnect;
         }
         $self->{_dbh} = undef;
