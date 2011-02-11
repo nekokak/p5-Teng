@@ -4,6 +4,7 @@ use Test::More;
 
 subtest 'basic' => sub {
     my $db = Mock::Basic->new( connect_info => [ 'dbi:SQLite:', '', '' ] );
+
     my $connect_info = $db->connect_info();
     is_deeply 
         $connect_info,
@@ -12,6 +13,7 @@ subtest 'basic' => sub {
     ;
 };
 
+=head1
 subtest 'bad connect info' => sub {
     eval {
         my $db = Mock::Basic->new(
@@ -29,5 +31,6 @@ subtest 'bad on_connect_do' => sub {
     };
     like $@, qr/Invalid on_connect_do: SCALAR/;
 };
+=cut
 
 done_testing;

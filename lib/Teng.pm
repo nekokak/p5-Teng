@@ -4,6 +4,7 @@ use warnings;
 use Carp ();
 use Class::Load ();
 use DBI;
+use Teng::DBIProxy;
 use Teng::Row;
 use Teng::Iterator;
 use Teng::Schema;
@@ -16,10 +17,8 @@ use Class::Accessor::Lite
         schema
         schema_class
         suppress_row_objects
-        sql_builder
         sql_comment
         owner_pid
-        driver_name
     )]
 ;
 
@@ -46,6 +45,16 @@ sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
 
+    my $connect_info = $args{connect_info};
+    $connect_info->[3] = {
+        # basic defaults
+        AutoCommit => 1,
+        PrintError => 0,
+        RaiseError => 1,
+        %{ $connect_info->[3] || {} },
+    };
+    my $on_connect_do = $args{on_connect_do};
+    my $dbh = $args{dbh};
     my $self = bless {
         schema_class => "$class\::Schema",
         %args,
@@ -62,21 +71,23 @@ sub new {
         $self->schema( $schema );
     }
 
-    unless ($self->connect_info || $self->{dbh}) {
+    unless ($connect_info || $dbh) {
         Carp::croak("'dbh' or 'connect_info' is required.");
     }
 
-    if ( ! $self->{dbh} ) {
-        $self->connect;
-    } else {
-        $self->_prepare_from_dbh;
-    }
+    $self->{dbh} = Teng::DBIProxy->new(
+        owner => $self,
+        dbh => $dbh,
+        connect_info => $connect_info,
+        on_connect_do => $on_connect_do
+    );
 
     return $self;
 }
 
 # forcefully connect
 sub connect {
+    return;
     my ($self, @args) = @_;
 
     if (@args) {
@@ -122,9 +133,14 @@ sub reconnect {
 
 sub disconnect {
     my $self = shift;
-    $self->{dbh} = undef;
+#    $self->{dbh} = undef;
+    $self->{dbh}->disconnect;
 }
 
+sub sql_builder { $_[0]->{dbh}->sql_builder }
+sub driver_name { $_[0]->{dbh}->driver_name }
+
+=head1
 sub _prepare_from_dbh {
     my $self = shift;
 
@@ -136,9 +152,12 @@ sub _prepare_from_dbh {
         $self->sql_builder( $builder );
     }
 }
-
+=cut
 sub dbh {
     my $self = shift;
+
+    $self->{dbh}->dbh;
+=head1
 
     if ( $self->owner_pid != $$ ) {
         $self->owner_pid($$);
@@ -152,6 +171,7 @@ sub dbh {
     }
 
     $self->{dbh};
+=cut
 }
 
 sub _execute {

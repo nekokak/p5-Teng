@@ -5,7 +5,7 @@ use parent qw/Teng/;
 sub setup_test_db {
     my $teng = shift;
 
-    my $dbd = $teng->{driver_name};
+    my $dbd = $teng->driver_name;
     if ($dbd eq 'SQLite') {
         $teng->do(q{
             CREATE TABLE mock_inflate (
