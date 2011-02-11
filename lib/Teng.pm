@@ -12,8 +12,6 @@ use DBIx::TransactionManager 1.06;
 use Teng::QueryBuilder;
 use Class::Accessor::Lite
    rw => [ qw(
-        connect_info
-        on_connect_do
         schema
         schema_class
         suppress_row_objects
@@ -45,16 +43,19 @@ sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
 
-    my $connect_info = $args{connect_info};
-    $connect_info->[3] = {
-        # basic defaults
-        AutoCommit => 1,
-        PrintError => 0,
-        RaiseError => 1,
-        %{ $connect_info->[3] || {} },
-    };
-    my $on_connect_do = $args{on_connect_do};
-    my $dbh = $args{dbh};
+    my $connect_info = delete $args{connect_info};
+    if ($connect_info) {
+        $connect_info->[3] = {
+            # basic defaults
+            AutoCommit => 1,
+            PrintError => 0,
+            RaiseError => 1,
+            %{ $connect_info->[3] || {} },
+        };
+    }
+
+    my $on_connect_do = delete $args{on_connect_do};
+    my $dbh = delete $args{dbh};
     my $self = bless {
         schema_class => "$class\::Schema",
         %args,
@@ -85,41 +86,6 @@ sub new {
     return $self;
 }
 
-# forcefully connect
-sub connect {
-    return;
-    my ($self, @args) = @_;
-
-    if (@args) {
-        $self->connect_info( \@args );
-    }
-    my $connect_info = $self->connect_info;
-    $connect_info->[3] = {
-        # basic defaults
-        AutoCommit => 1,
-        PrintError => 0,
-        RaiseError => 1,
-        %{ $connect_info->[3] || {} },
-    };
-
-    $self->{dbh} = eval { DBI->connect(@$connect_info) }
-        or Carp::croak("Connection error: " . ($@ || $DBI::errstr));
-
-    if ( my $on_connect_do = $self->on_connect_do ) {
-        if (not ref($on_connect_do)) {
-            $self->do($on_connect_do);
-        } elsif (ref($on_connect_do) eq 'CODE') {
-            $on_connect_do->($self);
-        } elsif (ref($on_connect_do) eq 'ARRAY') {
-            $self->do($_) for @$on_connect_do;
-        } else {
-            Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
-        }
-    }
-
-    $self->_prepare_from_dbh;
-}
-
 sub reconnect {
     my $self = shift;
 
@@ -133,46 +99,14 @@ sub reconnect {
 
 sub disconnect {
     my $self = shift;
-#    $self->{dbh} = undef;
     $self->{dbh}->disconnect;
 }
 
-sub sql_builder { $_[0]->{dbh}->sql_builder }
-sub driver_name { $_[0]->{dbh}->driver_name }
-
-=head1
-sub _prepare_from_dbh {
-    my $self = shift;
-
-    $self->driver_name($self->{dbh}->{Driver}->{Name});
-    my $builder = $self->sql_builder;
-    if (! $builder ) {
-        # XXX Hackish
-        $builder = Teng::QueryBuilder->new(driver => $self->driver_name );
-        $self->sql_builder( $builder );
-    }
-}
-=cut
-sub dbh {
-    my $self = shift;
-
-    $self->{dbh}->dbh;
-=head1
-
-    if ( $self->owner_pid != $$ ) {
-        $self->owner_pid($$);
-        $self->{dbh}->{InactiveDestroy} = 1;
-        $self->reconnect;
-        return $self->{dbh};
-    }
-
-    unless ($self->{dbh} && $self->{dbh}->FETCH('Active') && $self->{dbh}->ping) {
-        $self->reconnect;
-    }
-
-    $self->{dbh};
-=cut
-}
+sub connect_info  { $_[0]->{dbh}->connect_info }
+sub on_connect_do { $_[0]->{dbh}->on_connect_do }
+sub sql_builder   { $_[0]->{dbh}->sql_builder }
+sub driver_name   { $_[0]->{dbh}->driver_name }
+sub dbh           { $_[0]->{dbh}->dbh         }
 
 sub _execute {
     my ($self, $sql, $binds) = @_;

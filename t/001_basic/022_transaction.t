@@ -43,7 +43,6 @@ subtest 'do commit' => sub {
 };
 
 subtest 'error occurred in transaction' => sub {
-
     eval {
         local $SIG{__WARN__} = sub {};
         my $txn = $db->txn_scope;

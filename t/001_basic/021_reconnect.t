@@ -1,6 +1,6 @@
 use t::Utils;
 use Mock::Basic;
-use Test::More;
+use Test::More skip_all => "conncet() is currently disabled";
 use MyGuard;
 
 my $db_file = __FILE__;
