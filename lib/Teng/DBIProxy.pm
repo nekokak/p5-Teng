@@ -178,8 +178,9 @@ sub disconnect {
         # Some databases need this to stop spewing warnings, according to
         # DBIx::Class::Storage::DBI.
         $dbh->STORE(CachedKids => {});
-        if ( $self->driver_name !~ /SQLite/i ) {
-        $dbh->disconnect;
+        no warnings 'numeric';
+        if ( $self->driver_name =~ /SQLite/i &&$DBD::SQLite::VERSION >= 1.33 ) {
+            $dbh->disconnect;
         }
         $self->{_dbh} = undef;
         $self->_run_on_disconnect;
