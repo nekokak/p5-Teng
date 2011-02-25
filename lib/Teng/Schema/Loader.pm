@@ -20,14 +20,19 @@ sub load {
 
         my $table_name = $table_info->name;
         my @table_pk   = map { $_->name } $table_info->primary_key;
-        my @col_names  = map { $_->name } $table_info->columns;
+        my @col_names;
+        my %sql_types;
+        for my $col ($table_info->columns) {
+            push @col_names, $col->name;
+            $sql_types{$col->name} = $col->data_type;
+        }
 
         $schema->add_table(
             Teng::Schema::Table->new(
                 columns      => \@col_names,
                 name         => $table_name,
                 primary_keys => \@table_pk,
-                sql_types    => {},
+                sql_types    => \%sql_types,
                 inflators    => [],
                 deflators    => [],
                 row_class    => join '::', $namespace, 'Row', Teng::Schema::camelize($table_name),

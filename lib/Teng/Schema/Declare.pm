@@ -112,9 +112,9 @@ sub table(&) {
     while ( @table_columns ) {
         my $col_name = shift @table_columns;
         if (ref $col_name) {
-            my $sql_type = $col_name;
-            $col_name = $col_name->{ name };
-            $sql_types{ $col_name } = $sql_type;
+            my $sql_type = $col_name->{type};
+            $col_name = $col_name->{name};
+            $sql_types{$col_name} = $sql_type;
         }
         push @col_names, $col_name;
     }
