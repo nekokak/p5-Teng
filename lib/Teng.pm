@@ -122,7 +122,11 @@ sub reconnect {
 
 sub disconnect {
     my $self = shift;
-    $self->{dbh} = undef;
+    delete $self->{txn_manager};
+    if ( my $dbh = delete $self->{dbh} ) {
+        local $@;
+        eval { $dbh->disconnect };
+    }
 }
 
 sub _prepare_from_dbh {
