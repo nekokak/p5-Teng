@@ -126,8 +126,7 @@ sub disconnect {
     my $self = shift;
     delete $self->{txn_manager};
     if ( my $dbh = delete $self->{dbh} ) {
-        local $@;
-        eval { $dbh->disconnect };
+        $dbh->disconnect;
     }
 }
 
