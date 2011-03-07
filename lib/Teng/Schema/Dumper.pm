@@ -19,9 +19,15 @@ sub dump {
         $ret .= "table {\n";
         $ret .= sprintf("    name '%s';\n", $table_info->name);
         $ret .= sprintf("    pk %s;\n", join ',' , map { q{'}.$_->name.q{'} } $table_info->primary_key);
-        $ret .= "    columns qw/\n";
-        $ret .= join("\n", map { q{        }.$_->name } $table_info->columns)."\n";
-        $ret .= "    /;\n";
+        $ret .= "    columns (\n";
+        for my $col ($table_info->columns) {
+            if ($col->data_type) {
+                $ret .= sprintf("        {name => '%s', type => %s},\n", $col->name, $col->data_type);
+            } else {
+                $ret .= sprintf("        '%s',\n", $col->name);
+            }
+        }
+        $ret .= "    );\n";
         $ret .= "};\n\n";
     }
     $ret .= "1;\n";

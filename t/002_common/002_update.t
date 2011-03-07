@@ -84,5 +84,22 @@ subtest 'update primary key' => sub {
     is $row->name, 'php';
 };
 
+subtest 'empty update' => sub {
+    my $row = $db->single('mock_basic',{
+        id => 1,
+    });
+    is $row->name, 'java';
+
+    $row->set_column(name => 'perl');
+    is $row->update, 1;
+    is $row->name, 'perl';
+
+    is $row->update, 0;
+    is $row->name, 'perl';
+
+    is $row->update({}), 0;
+    is $row->name, 'perl';
+};
+
 done_testing;
 

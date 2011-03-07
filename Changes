@@ -1,7 +1,7 @@
 Revision history for Perl extension Teng
 
 0.08
-    2011-02-09
+    2011-02-24
         - fixed can't guess tablename by quote_char. (thanks hatyuki)
         - fixed Schema::Loader (in|de)flate settings. (thanks yibe)
         - fixed Row#update bind value's bug by pk.(thanks libkenta)

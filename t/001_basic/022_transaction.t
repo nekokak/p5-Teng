@@ -48,10 +48,48 @@ subtest 'error occurred in transaction' => sub {
         local $SIG{__WARN__} = sub {};
         my $txn = $db->txn_scope;
         $db->{dbh} = undef;
-        $db->dbh;
+        $db->connect;
     };
     my $e = $@;
-    like $e, qr/Detected disconnected database during a transaction. Refusing to proceed at/;
+    like $e, qr/Detected transaction during a connect operation \(last known transaction at/;
 };
- 
+
+$db  = undef;
+$dbh = undef;
+
+subtest 'call_txn_scope_after_fork' => sub {
+    my $dbh = t::Utils->setup_dbh('./fork_test.db');
+    my $db  = Mock::Basic->new({dbh => $dbh});
+    $db->setup_test_db;
+
+    if (fork) {
+        wait;
+        my $row = $db->single('mock_basic',{name => 'python'});
+        is $row->id, 3;
+        is $dbh, $db->dbh;
+
+        done_testing;
+    } else {
+        my $child_dbh = t::Utils->setup_dbh('./fork_test.db');
+        my $child_db = Mock::Basic->new({dbh => $child_dbh});
+        my $txn = $child_db->txn_scope;
+
+            isnt $dbh,       $child_db->dbh;
+            is   $child_dbh, $child_db->dbh;
+            is   $child_dbh, $txn->[1]->{dbh};
+
+            my $row = $child_db->insert('mock_basic',{
+                id   => 3,
+                name => 'python',
+            });
+            isa_ok $row, 'Teng::Row';
+            is $row->name, 'python';
+
+        $txn->commit;
+        exit;
+    }
+    unlink './fork_test.db';
+};
+
 done_testing;
+

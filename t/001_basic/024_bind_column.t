@@ -1,6 +1,7 @@
 use t::Utils;
 use Test::More;
 use Mock::BasicBindColumn;
+use DBI qw/:sql_types/;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::BasicBindColumn->new({dbh => $dbh});
@@ -11,31 +12,12 @@ subtest 'schema information' => sub {
     ok $table, "got table";
 
     ok ! $table->get_sql_type( 'id' ), "no sqltype info for column 'id'";
-    is_deeply
-        $table->get_sql_type( 'uid' ),
-        {
-            name => 'uid',
-            type => 'bigint',
-        },
-        "sqltype infor for column 'uid' matches"
-    ;
+    is $table->get_sql_type('uid'), SQL_BIGINT;
+
     ok ! $table->get_sql_type( 'name' ), "no sqltype info for column 'name'";
-    is_deeply
-        $table->get_sql_type( 'body' ),
-        {
-            name => 'body',
-            type => 'blob',
-        },
-        "sqltype infor for column 'body' matches"
-    ;
-    is_deeply
-        $table->get_sql_type( 'raw' ),
-        {
-            name => 'raw',
-            type => 'bin',
-        },
-        "sqltype infor for column 'raw' matches"
-    ;
+
+    is $table->get_sql_type('body'), SQL_BLOB;
+    is $table->get_sql_type('raw'), SQL_BLOB;
 };
 
 TODO : {

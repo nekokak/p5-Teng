@@ -15,6 +15,7 @@ requires 'Data::Page::NoTotalEntries' => '0.02';
 
 author_tests('xt');
 
+test_requires 'Test::Requires';
 test_requires 'Test::More' => '0.96';
 test_requires 'Test::SharedFork' => 0.15;
 test_requires 'Test::mysqld'     if $Module::Install::AUTHOR;
