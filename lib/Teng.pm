@@ -4,22 +4,20 @@ use warnings;
 use Carp ();
 use Class::Load ();
 use DBI;
-use Teng::Row;
+use Teng::Connector;
 use Teng::Iterator;
+use Teng::Row;
 use Teng::Schema;
 use DBIx::TransactionManager 1.06;
 use Teng::QueryBuilder;
 use Class::Accessor::Lite
    rw => [ qw(
-        connect_info
-        on_connect_do
+        connector
         schema
         schema_class
         suppress_row_objects
-        sql_builder
         sql_comment
         owner_pid
-        driver_name
     )]
 ;
 
@@ -46,6 +44,20 @@ sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
 
+    my %connargs;
+    if (! $args{connector}) {
+        %connargs = (
+            on_connect_do    => delete $args{on_connect_do},
+            on_disconnect_do => delete $args{on_disconnect_do},
+            sql_builder      => delete $args{sql_builder},
+        );
+        if ( my $dbh = delete $args{dbh} ) {
+            $connargs{dbh} = $dbh;
+        } else {
+            $connargs{connect_info} = delete $args{connect_info};
+        }
+    }
+
     my $self = bless {
         schema_class => "$class\::Schema",
         %args,
@@ -62,86 +74,20 @@ sub new {
         $self->schema( $schema );
     }
 
-    unless ($self->connect_info || $self->{dbh}) {
-        Carp::croak("'dbh' or 'connect_info' is required.");
-    }
-
-    if ( ! $self->{dbh} ) {
-        $self->connect;
-    } else {
-        $self->_prepare_from_dbh;
-    }
-
+    $self->connector( Teng::Connector->new({
+        %connargs,
+        owner => $self
+    }) );
     return $self;
 }
 
-# forcefully connect
-sub connect {
-    my ($self, @args) = @_;
-
-    $self->in_transaction_check;
-
-    if (@args) {
-        $self->connect_info( \@args );
-    }
-    my $connect_info = $self->connect_info;
-    $connect_info->[3] = {
-        # basic defaults
-        AutoCommit => 1,
-        PrintError => 0,
-        RaiseError => 1,
-        %{ $connect_info->[3] || {} },
-    };
-
-    $self->{dbh} = eval { DBI->connect(@$connect_info) }
-        or Carp::croak("Connection error: " . ($@ || $DBI::errstr));
-    delete $self->{txn_manager};
-
-    if ( my $on_connect_do = $self->on_connect_do ) {
-        if (not ref($on_connect_do)) {
-            $self->do($on_connect_do);
-        } elsif (ref($on_connect_do) eq 'CODE') {
-            $on_connect_do->($self);
-        } elsif (ref($on_connect_do) eq 'ARRAY') {
-            $self->do($_) for @$on_connect_do;
-        } else {
-            Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
-        }
-    }
-
-    $self->_prepare_from_dbh;
-}
-
-sub reconnect {
-    my $self = shift;
-
-    if ($self->in_transaction) {
-        Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
-    }
-
-    $self->disconnect();
-    $self->connect(@_);
-}
-
-sub disconnect {
-    my $self = shift;
-    delete $self->{txn_manager};
-    if ( my $dbh = delete $self->{dbh} ) {
-        $dbh->disconnect;
-    }
-}
-
-sub _prepare_from_dbh {
-    my $self = shift;
-
-    $self->driver_name($self->{dbh}->{Driver}->{Name});
-    my $builder = $self->sql_builder;
-    if (! $builder ) {
-        # XXX Hackish
-        $builder = Teng::QueryBuilder->new(driver => $self->driver_name );
-        $self->sql_builder( $builder );
-    }
-}
+sub connect       { shift->connector->connect(@_) }
+sub connect_info  { shift->connector->connect_info(@_) }
+sub dbh           { shift->connector->dbh }
+sub disconnect    { shift->connector->disconnect }
+sub driver_name   { shift->connector->driver_name(@_) }
+sub on_connect_do { shift->connector->on_connect_do(@_) }
+sub sql_builder   { shift->connector->sql_builder(@_) }
 
 sub _verify_pid {
     my $self = shift;
@@ -149,13 +95,6 @@ sub _verify_pid {
     if ( $self->owner_pid != $$ ) {
         Carp::confess('this connection is no use. because fork was done.');
     }
-}
-
-sub dbh {
-    my $self = shift;
-
-    $self->_verify_pid;
-    $self->{dbh};
 }
 
 sub _execute {
@@ -277,24 +216,7 @@ sub delete {
 
 #--------------------------------------------------------------------------------
 # for transaction
-sub txn_manager  {
-    my $self = shift;
-    $self->_verify_pid;
-    $self->{txn_manager} ||= DBIx::TransactionManager->new($self->dbh);
-}
-
-sub in_transaction_check {
-    my $self = shift;
-
-    return unless $self->{txn_manager};
-
-    if ( my $info = $self->{txn_manager}->in_transaction ) {
-        my $caller = $info->{caller};
-        my $pid    = $info->{pid};
-        Carp::confess("Detected transaction during a connect operation (last known transaction at $caller->[1] line $caller->[2], pid $pid). Refusing to proceed at");
-    }
-}
-
+sub txn_manager  { shift->connector->txn_manager }
 sub txn_scope {
     my @caller = caller();
     $_[0]->txn_manager->txn_scope(caller => \@caller);

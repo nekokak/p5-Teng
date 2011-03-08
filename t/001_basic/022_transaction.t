@@ -43,11 +43,11 @@ subtest 'do commit' => sub {
 };
 
 subtest 'error occurred in transaction' => sub {
-
+    my $db = Mock::Basic->new({ connect_info => [ 'dbi:SQLite::memory:' ]});
     eval {
         local $SIG{__WARN__} = sub {};
         my $txn = $db->txn_scope;
-        $db->{dbh} = undef;
+        delete $db->connector->{_dbh};
         $db->connect;
     };
     my $e = $@;

@@ -45,6 +45,7 @@ subtest 'global level on_connect_do / coderef' => sub {
     );
 
     is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 1, "counter should called");
+    $db->disconnect;
     $db->connect; # for do connection.
     is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 2, "called after reconnect");
 };
@@ -63,6 +64,7 @@ subtest 'instance level on_connect_do / coderef' => sub {
     );
 
     is($counter, 1, "counter should called");
+    $db->disconnect;
     $db->connect; # for do connection.
     is($counter, 2, "called after reconnect");
 };
@@ -86,6 +88,7 @@ subtest 'instance level on_connect_do / scalar' => sub {
 
     is $query, 'select * from sqlite_master';
     $query='';
+    $db->disconnect;
     $db->connect;
     is $query, 'select * from sqlite_master';
 };
@@ -109,6 +112,7 @@ subtest 'instance level on_connect_do / array' => sub {
 
     is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
     @query = ();
+    $db->disconnect;
     $db->connect; 
     is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
 };
