@@ -11,10 +11,11 @@ sub bulk_insert {
     if ($self->dbh->{Driver}->{Name} eq 'mysql') {
         my $table = $self->schema->get_table($table_name);
 
-        # XXX: check the $table->has_deflate
-        for my $row (@$args) {
-            for my $col (keys %{$row}) {
-                $row->{$col} = $table->call_deflate($col, $row->{$col});
+        if ( $table->has_deflators ) {
+            for my $row (@$args) {
+                for my $col (keys %{$row}) {
+                    $row->{$col} = $table->call_deflate($col, $row->{$col});
+                }
             }
         }
 

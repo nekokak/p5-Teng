@@ -16,6 +16,8 @@ use Class::Load ();
 sub new {
     my ($class, %args) = @_;
     my $self = bless {
+        deflators => [],
+        inflators => [],
         %args
     }, $class;
 
@@ -93,6 +95,16 @@ sub call_inflate {
     return $col_value;
 }
 
+sub has_deflators {
+    my $self = shift;
+    return scalar @{ $self->{deflators} };
+}
+
+sub has_inflators {
+    my $self = shift;
+    return scalar @{ $self->{inflators} };
+}
+
 1;
 
 __END__
@@ -136,5 +148,13 @@ execute deflate.
 =item $table->call_inflate
 
 execute inflate.
+
+=item $table->has_deflators()
+
+Returns true if there are any deflators
+
+=item $table->has_inflators();
+
+Returns true if there are any inflators
 
 =back
