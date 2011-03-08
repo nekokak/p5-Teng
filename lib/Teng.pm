@@ -95,6 +95,7 @@ sub connect {
 
     $self->{dbh} = eval { DBI->connect(@$connect_info) }
         or Carp::croak("Connection error: " . ($@ || $DBI::errstr));
+    delete $self->{txn_manager};
 
     if ( my $on_connect_do = $self->on_connect_do ) {
         if (not ref($on_connect_do)) {
@@ -513,49 +514,70 @@ Teng provides a number of methods to all your classes,
 
 =item $teng = Teng->new(\%args)
 
-create your teng instance.
+Creates a new Teng instance.
 
     # connect new database connection.
-    my $db = Your::Model->new(connect_info => [$dsn,$username,$password,$connect_options]);
+    my $db = Your::Model->new(
+        connect_info => [ $dsn, $username, $password, \%connect_options ]
+    );
+
+Arguments can be:
 
 =over
 
 =item * C<connect_info>
 
-connect_info is [$dsn, $user, $password, $options].
+Specifies the information required to connect to the database.
+The argument should be a reference to a array in the form:
+
+    [ $dsn, $user, $password, \%options ]
+
+You must pass C<connect_info> or C<dbh> to the constructor.
+
+=item * C<dbh>
+
+Specifies the database handle to use. If this value is passed without
+specifying C<connect_info>, then automatic reconnects normally provided
+by Teng is not performed (however, you are free to create a Teng
+instance using only dbh if you don't care about such features)
 
 =item * C<schema>
 
-specific your schema instance.
-
-by default auto load {YOUR_MODEL_CLASS}::Schema
+Specifies the Teng::Schema instance to use.
+If not specified, the value specified in C<schema_class> is loaded and 
+instantiated for you.
 
 =item * C<schema_class>
 
-specific your schema class name space.
-
-by default. {YOUR_MODEL_CLASS}::Schema
+Specifies the schema class to use.
+By default {YOUR_MODEL_CLASS}::Schema is used.
 
 =item * C<suppress_row_objects>
 
-set row object creation mode.
-
-if you set off, no creation row object.
+Specifies the row object creation mode. By default this value is C<true>.
+If you specifies this to a false value, no row object will be created when
+a C<SELECT> statement is issued..
 
 =item * C<sql_builder>
 
-specific your sql builder instance.
+Speficies the SQL builder object. By default SQL::Maker is used, and as such,
+if you provide your own SQL builder the interface needs to be compatible
+with SQL::Maker.
 
 =back
 
 =item $row = $teng->insert($table_name, \%row_data)
 
-insert new record and get inserted row object.
+Inserts a new record. Returns the inserted row object.
 
     my $row = $teng->insert('user',{
         id   => 1,
         name => 'nekokak',
     });
+
+If a primary key is available, it will be fetched after the insert -- so
+an INSERT followed by SELECT is performed. If you do not want this, use
+C<fast_insert>.
 
 =item $last_insert_id = $teng->fast_insert($table_name, \%row_data);
 
