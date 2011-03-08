@@ -6,6 +6,7 @@ Revision history for Perl extension Teng
           very likely affects long-running processes that use transactions
           as well. If you use transactions at all, upgrade is strongly
           recommended (lestrrat)
+        - FIXED : mysql bulk_insert method bug fixed.(thanks yappo)
 
 
 0.08
