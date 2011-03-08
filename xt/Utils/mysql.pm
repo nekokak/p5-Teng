@@ -6,7 +6,11 @@ use Test::mysqld;
 use Test::More;
 use t::Utils;
 
-my $mysql = Test::mysqld->new
+my $mysql = Test::mysqld->new({
+    my_cnf => {
+        'skip-networking' => '',
+    }
+})
     or plan skip_all => $Test::mysqld::errstr;
 
 {
