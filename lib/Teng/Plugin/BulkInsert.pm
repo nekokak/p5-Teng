@@ -6,16 +6,26 @@ use utf8;
 our @EXPORT = qw/bulk_insert/;
 
 sub bulk_insert {
-    my ($self, $table, $args) = @_;
+    my ($self, $table_name, $args) = @_;
 
     if ($self->dbh->{Driver}->{Name} eq 'mysql') {
-        $self->insert_multi($table, $args);
+        my $table = $self->schema->get_table($table_name);
+
+        # XXX: check the $table->has_deflate
+        for my $row (@$args) {
+            for my $col (keys %{$row}) {
+                $row->{$col} = $table->call_deflate($col, $row->{$col});
+            }
+        }
+
+        my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args );
+        $self->_execute($sql, \@binds);
     } else {
         # use transaction for better performance and atomicity.
         my $txn = $self->txn_scope();
         for my $arg (@$args) {
             # do not run trigger for consistency with mysql.
-            $self->insert($table, $arg);
+            $self->insert($table_name, $arg);
         }
         $txn->commit;
     }
