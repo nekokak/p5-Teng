@@ -64,6 +64,7 @@ t/002_common/022_disconnect.t
 t/002_common/023_multi_pk.t
 t/002_common/024_txn_scope.t
 t/999_regression/bind_param.t
+t/999_regression/dbh_and_txn_manager.t
 t/999_regression/deflate_bug.t
 t/999_regression/escaped_query_with_search_by_sql.t
 t/999_regression/guess_table_name.t
@@ -81,6 +82,9 @@ t/lib/TengTest.pm
 t/Utils.pm
 xt/02_pod.t
 xt/03_pod_coverage.t
+xt/mysql/003_schema_loader.t
+xt/mysql/004_schema_dumper.t
+xt/mysql/bulk_insert.t
 xt/mysql/common.t
 xt/mysql/fork.t
 xt/mysql/pager_mysql_found_rows.t
