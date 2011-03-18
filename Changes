@@ -1,12 +1,15 @@
 Revision history for Perl extension Teng
 
+0.10
+        - Add has_deflators()/has_inflators on Schema::Table (lestrrat)
+
 0.09
-        - FIXED : There was a critical bug when disconnect() (or reconnect())
+        - There was a critical bug when disconnect() (or reconnect())
           was used while transaction operations were performed. Also, this
           very likely affects long-running processes that use transactions
           as well. If you use transactions at all, upgrade is strongly
           recommended (lestrrat)
-        - FIXED : mysql bulk_insert method bug fixed.(thanks yappo)
+        - Fixed Plugin::BulkInsert to work with mysql (Yappo)
 
 
 0.08
