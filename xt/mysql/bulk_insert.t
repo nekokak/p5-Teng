@@ -32,6 +32,16 @@ my $db = Mock::DB->new(
 );
 my $user = $db->schema->get_table('user');
 
+eval {
+    $db->bulk_insert('user',);
+};
+ok not $@;
+
+eval {
+    $db->bulk_insert('user', []);
+};
+ok not $@;
+
 my @ids = qw( 1 2 3 4 5 6 7 8 9 );
 my @rows = map { +{ user_id => $_ } } @ids;
 $db->bulk_insert('user', \@rows);

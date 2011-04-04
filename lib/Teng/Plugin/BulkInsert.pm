@@ -8,6 +8,8 @@ our @EXPORT = qw/bulk_insert/;
 sub bulk_insert {
     my ($self, $table_name, $args) = @_;
 
+    return unless scalar(@{$args||[]});
+
     if ($self->dbh->{Driver}->{Name} eq 'mysql') {
         my $table = $self->schema->get_table($table_name);
 
