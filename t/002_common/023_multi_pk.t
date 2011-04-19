@@ -94,7 +94,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         $a_multi_pk_table = $teng->single( 'a_multi_pk_table', { id_a => 1, id_b => 3 } );
         is( $a_multi_pk_table->memo, 'hoge', 'update' );
 
-        $a_multi_pk_table->delete;
+        is($a_multi_pk_table->delete, 1);
 
         {
             my @rows = $teng->search( 'a_multi_pk_table', { id_a => 1 } );
@@ -107,7 +107,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         my ( $id_a, $id_b ) = ( $a_multi_pk_table->id_a, $a_multi_pk_table->id_b );
 
-        $a_multi_pk_table->delete;
+        is($a_multi_pk_table->delete, 1);
 
         ok ( not $teng->single( 'a_multi_pk_table', { id_a => $id_a, id_b => $id_b } ) );
     };
@@ -138,7 +138,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         @rows = $teng->search( 'a_multi_pk_table', { id_a => 3 } );
         is( 0+@rows, 4 );
 
-        $row->delete();
+        is($row->delete(), 1);
 
         @rows = $teng->search( 'a_multi_pk_table', { id_a => 3 } );
         is( 0+@rows, 3 );
@@ -177,7 +177,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         $a_multi_pk_table = $teng->single( 'c_multi_pk_table', { id_c => 1, id_d => 3 } );
         is( $a_multi_pk_table->memo, 'hoge', 'update' );
 
-        $a_multi_pk_table->delete;
+        is($a_multi_pk_table->delete, 1);
 
         @rows = $teng->search( 'c_multi_pk_table', { id_c => 1 } );
         is( 0+@rows, 2, 'delete and user has 2 books' );
@@ -188,7 +188,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         my ( $id_c, $id_d ) = ( $a_multi_pk_table->id_c, $a_multi_pk_table->id_d );
 
-        $a_multi_pk_table->delete;
+        is($a_multi_pk_table->delete, 1);
 
         ok ( not $teng->single( 'c_multi_pk_table', { id_c => $id_c, id_d => $id_d } ) );
     };
@@ -219,7 +219,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         @rows = $teng->search( 'c_multi_pk_table', { id_c => 3 } );
         is( 0+@rows, 4 );
 
-        $row->delete();
+        is($row->delete(), 1);
 
         @rows = $teng->search( 'c_multi_pk_table', { id_c => 3 } );
         is( 0+@rows, 3 );
@@ -238,6 +238,14 @@ my $guard = MyGuard->new(sub { unlink $db_file });
             my $row = $teng->find_or_create('c_multi_pk_table' => {id_c => 50, id_d => 90});
             is_deeply( $row->get_columns, { id_c => 50, id_d => 90, memo => 'yay' } );
         }
+    };
+
+    subtest 'multi pk delete' => sub {
+        is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 7);
+        my $row = $teng->insert('c_multi_pk_table' => {id_c => 50, id_d => 44});
+        is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 8);
+        is($row->delete(), 1);
+        is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 7);
     };
 }
 
