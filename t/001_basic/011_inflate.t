@@ -72,5 +72,27 @@ subtest 'update row twice case' => sub {
     is $row->name->name, 'perl';
 };
 
+subtest 'insert/update on non existent table' => sub {
+    eval {
+        my $name = Mock::Inflate::Name->new(name => 'perl');
+        my $row = $db->insert('mock_inflate_non_existent1',{
+            id   => 1,
+            name => $name,
+            foo  => $name,
+        });
+    };
+    like $@, qr/Table definition for mock_inflate_non_existent1 does not exist \(Did you declare it in our schema\?\)/;
+
+    eval {
+        my $name = Mock::Inflate::Name->new(name => 'perl');
+        my $row = $db->update('mock_inflate_non_existent2',{
+            id   => 1,
+            name => $name,
+            foo  => $name,
+        });
+    };
+    like $@, qr/Table definition for mock_inflate_non_existent2 does not exist \(Did you declare it in our schema\?\)/;
+};
+
 done_testing;
 
