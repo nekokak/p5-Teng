@@ -9,6 +9,9 @@ sub replace {
     my ($self, $table_name, $args) = @_;
 
     my $table = $self->schema->get_table($table_name);
+    if (! $table) {
+        Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
+    }
 
     for my $col (keys %{$args}) {
         $args->{$col} = $table->call_deflate($col, $args->{$col});
