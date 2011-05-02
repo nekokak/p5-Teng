@@ -203,7 +203,7 @@ sub _last_insert_id {
 sub _insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
-    $prefix ||= 'INSERT';
+    $prefix ||= 'INSERT INTO';
     my $table = $self->schema->get_table($table_name);
 
     for my $col (keys %{$args}) {

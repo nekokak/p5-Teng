@@ -1,5 +1,9 @@
 Revision history for Perl extension Teng
 
+0.11
+    2011-05-02
+        - following SQL::Maker 0.14.
+
 0.10
         - Add has_deflators()/has_inflators on Schema::Table (lestrrat)
 
