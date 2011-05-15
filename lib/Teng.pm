@@ -23,7 +23,7 @@ use Class::Accessor::Lite
     )]
 ;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub load_plugin {
     my ($class, $pkg, $opt) = @_;
