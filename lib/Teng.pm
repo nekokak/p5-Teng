@@ -561,8 +561,8 @@ By default {YOUR_MODEL_CLASS}::Schema is used.
 
 =item * C<suppress_row_objects>
 
-Specifies the row object creation mode. By default this value is C<true>.
-If you specifies this to a false value, no row object will be created when
+Specifies the row object creation mode. By default this value is C<false>.
+If you specifies this to a C<true> value, no row object will be created when
 a C<SELECT> statement is issued..
 
 =item * C<sql_builder>
