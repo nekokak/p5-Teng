@@ -1,5 +1,8 @@
 Revision history for Perl extension Teng
 
+0.12
+        - fixed some documents.(thanks hiratara)
+
 0.11
     2011-05-15
         - following SQL::Maker 0.14.
