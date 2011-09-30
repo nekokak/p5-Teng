@@ -55,8 +55,6 @@ This module generates the Perl code to generate L<Teng::Schema> instance.
 
 You can use it by C<do "my/schema.pl"> or embed it to the package.
 
-B<THIS MODULE IS HIGHLY EXPERIMENTAL. DO NOT USE THIS FOR PRODUCTION ENVIRONMENT.>
-
 =head1 METHODS
 
 =over 4
