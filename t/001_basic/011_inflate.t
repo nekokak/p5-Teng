@@ -43,7 +43,9 @@ subtest 'update row' => sub {
     $name->name('perl');
     my $foo = $row->foo;
     $foo->name('perl');
+
     $row->update({ name => $name, foo => $foo });
+
     isa_ok $row->name, 'Mock::Inflate::Name';
     is $row->name->name, 'perl';
     isa_ok $row->foo, 'Mock::Inflate::Name';
@@ -51,9 +53,9 @@ subtest 'update row' => sub {
 
     my $updated = $db->single('mock_inflate',{id => 1});
     isa_ok $updated->name, 'Mock::Inflate::Name';
-    is $updated->name->name, 'perl';
+    is $updated->name->name, 'perl_deflate';
     isa_ok $updated->foo, 'Mock::Inflate::Name';
-    is $updated->foo->name, 'perl';
+    is $updated->foo->name, 'perl_deflate';
 };
 
 subtest 'update row twice case' => sub {

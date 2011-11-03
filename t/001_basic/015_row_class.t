@@ -108,7 +108,7 @@ subtest 'can not use (update|delete) method' => sub {
     eval {
         $row->update;
     };
-    like $@, qr/can't update from basic Teng::Row class./;
+    like $@, qr/Table definition for test_db does not exist \(Did you declare it in our schema\?\) at/;
     $@ = undef;
     eval {
         $row->delete;
