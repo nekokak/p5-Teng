@@ -82,4 +82,10 @@ subtest 'search with non-exist table' => sub {
     like $@, qr/No such table must_not_exist/;
 };
 
+subtest 'search with select' => sub {
+    my $r = $db->single('mock_basic', {}, { columns => ['name', \'id * 2 as double_id'], order_by => ['id'] });
+    is $r->name, 'perl';
+    is $r->get_column('double_id'), 2;
+};
+
 done_testing;
