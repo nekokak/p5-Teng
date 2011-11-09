@@ -32,24 +32,21 @@ sub instance {
 
 sub add_table {
     my ($self, $table) = @_;
-    $self->tables->{$table->name} = $table;
+    $self->{tables}->{$table->name} = $table;
 }
 
 sub get_table {
     my ($self, $name) = @_;
     return unless $name;
-    $self->tables->{$name};
+    $self->{tables}->{$name};
 }
 
 sub get_row_class {
     my ($self, $table_name) = @_;
 
-    my $table = $self->get_table($table_name);
-    if ($table) {
-        return $table->row_class;
-    } else {
-        return 'Teng::Row';
-    }
+    my $table = $self->{tables}->{$table_name};
+    return $table->{row_class} if $table;
+    return 'Teng::Row';
 }
 
 sub camelize {

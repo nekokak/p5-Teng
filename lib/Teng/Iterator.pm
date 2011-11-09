@@ -27,7 +27,7 @@ sub next {
         return;
     }
 
-    if ($self->suppress_object_creation) {
+    if ($self->{suppress_object_creation}) {
         return $row;
     } else {
         return $self->{row_class}->new(

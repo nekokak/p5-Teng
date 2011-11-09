@@ -7,13 +7,16 @@ our $AUTOLOAD;
 sub new {
     my ($class, $args) = @_;
 
-    bless {
+    my $self = bless {
         select_columns     => [keys %{$args->{row_data}}],
-        table              => $args->{teng}->schema->get_table($args->{table_name}),
         _get_column_cached => {},
         _dirty_columns     => {},
         %$args,
     }, $class;
+
+    $self->{table} ||= $args->{teng}->schema->get_table($args->{table_name});
+
+    $self;
 }
 
 sub _lazy_get_data {

@@ -327,14 +327,14 @@ sub do {
 sub search {
     my ($self, $table_name, $where, $opt) = @_;
 
-    my $table = $self->schema->get_table( $table_name );
+    my $table = $self->{schema}->get_table( $table_name );
     if (! $table) {
         Carp::croak("No such table $table_name");
     }
 
-    my ($sql, @binds) = $self->sql_builder->select(
+    my ($sql, @binds) = $self->{sql_builder}->select(
         $table_name,
-        $table->columns,
+        $table->{columns},
         $where,
         $opt
     );
@@ -364,8 +364,33 @@ sub search_named {
 
 sub single {
     my ($self, $table_name, $where, $opt) = @_;
+
     $opt->{limit} = 1;
-    $self->search($table_name, $where, $opt)->next;
+
+    my $table = $self->{schema}->get_table( $table_name );
+    Carp::croak("No such table $table_name") unless $table;
+
+    my ($sql, @binds) = $self->{sql_builder}->select(
+        $table_name,
+        $table->{columns},
+        $where,
+        $opt
+    );
+    my $sth = $self->_execute($sql, \@binds);
+    my $row = $sth->fetchrow_hashref('NAME_lc');
+
+    return unless $row;
+    return $row if $self->{suppress_row_objects};
+
+    $table->{row_class}->new(
+        {
+            sql        => $sql,
+            row_data   => $row,
+            teng       => $self,
+            table      => $table,
+            table_name => $table_name,
+        }
+    );
 }
 
 sub search_by_sql {
@@ -377,9 +402,9 @@ sub search_by_sql {
         teng             => $self,
         sth              => $sth,
         sql              => $sql,
-        row_class        => $self->schema->get_row_class($table_name),
+        row_class        => $self->{schema}->get_row_class($table_name),
         table_name       => $table_name,
-        suppress_object_creation => $self->suppress_row_objects,
+        suppress_object_creation => $self->{suppress_row_objects},
     );
     return wantarray ? $itr->all : $itr;
 }
