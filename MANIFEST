@@ -68,6 +68,7 @@ t/999_regression/dbh_and_txn_manager.t
 t/999_regression/deflate_bug.t
 t/999_regression/escaped_query_with_search_by_sql.t
 t/999_regression/guess_table_name.t
+t/999_regression/inflate_bug.t
 t/999_regression/no_schema.t
 t/999_regression/prepare_error_handling.t
 t/lib/Mock/Basic.pm
