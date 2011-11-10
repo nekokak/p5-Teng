@@ -1,5 +1,10 @@
 Revision history for Perl extension Teng
 
+0.13
+        - fixed inflate bug. (thanks hiratara)
+        - fixed DBD::SQLite test case. (thanks charsbar)
+        - tuning single method.
+
 0.12
         - fixed some documents.(thanks hiratara)
 
