@@ -62,7 +62,7 @@ my $db_basic = Mock::Basic->new({dbh => $dbh});
    });
 
 my $db_basic_row = Mock::BasicRow->new({
-    connect_info => ['dbi:SQLite:'],
+    connect_info => ['dbi:SQLite::memory:'],
 });
 $db_basic_row->setup_test_db;
 $db_basic_row->insert('mock_basic_row',{

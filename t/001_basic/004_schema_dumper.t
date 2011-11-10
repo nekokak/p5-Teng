@@ -7,7 +7,7 @@ use Teng;
 use Teng::Schema::Dumper;
 
 # initialize
-my $dbh = DBI->connect('dbi:SQLite:', '', '', {RaiseError => 1}) or die 'cannot connect to db';
+my $dbh = DBI->connect('dbi:SQLite::memory:', '', '', {RaiseError => 1}) or die 'cannot connect to db';
 $dbh->do(q{
     create table user (
         user_id integer primary key,

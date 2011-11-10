@@ -43,7 +43,7 @@ use Test::More;
     use base 'Teng::Row';
 }
 
-my $db = Mock::BasicALLINONE->new(connect_info => ['dbi:SQLite:', '','']);
+my $db = Mock::BasicALLINONE->new(connect_info => ['dbi:SQLite::memory:', '','']);
 
 $db->setup_test_db;
 $db->insert('mock_basic',{

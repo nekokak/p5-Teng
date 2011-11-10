@@ -85,7 +85,7 @@ subtest 'do new other connection' => sub {
 };
 
 subtest 'do new with dbh' => sub {
-    my $dbh = DBI->connect('dbi:SQLite:', '', '')
+    my $dbh = DBI->connect('dbi:SQLite::memory:', '', '')
         or die "cannot connect to t/main.db";
     my $model = Mock::Basic->new({
         dbh => $dbh,
