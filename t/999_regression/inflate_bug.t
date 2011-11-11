@@ -11,7 +11,7 @@ my $db  = Mock::Inflate->new({ dbh => $dbh });
        name => Mock::Inflate::Name->new(name => 'perl'),
    });
 
-subtest "update() doesn't break inflation after called" => sub {
+subtest "update() doesn't break inflation after called. set object" => sub {
     my $row = $db->single(mock_inflate => { id => 1 });
     isa_ok $row->name, 'Mock::Inflate::Name';
     is     $row->name->name, 'perl';
@@ -20,6 +20,16 @@ subtest "update() doesn't break inflation after called" => sub {
     $row->update({ name => $new_name });
     isa_ok $row->name, 'Mock::Inflate::Name';
     is     $row->name->name, 'python';
+};
+
+subtest "update() doesn't break inflation after called. set raw data" => sub {
+    my $row = $db->single(mock_inflate => { id => 1 });
+    isa_ok $row->name, 'Mock::Inflate::Name';
+    is     $row->name->name, 'python';
+
+    $row->update({ name => 'perl' });
+    isa_ok $row->name, 'Mock::Inflate::Name';
+    is     $row->name->name, 'perl_deflate';
 };
 
 subtest "deflation called twice" => sub {
