@@ -71,8 +71,7 @@ sub set_column {
     }
 
     $self->{row_data}->{$col} = $val;
-#    $self->{_get_column_cached}->{$col} = $val;
-    delete $self->{_get_column_cached}->{$col};
+    $self->{_get_column_cached}->{$col} = $val;
     $self->{_dirty_columns}->{$col} = 1;
 }
 
@@ -96,27 +95,17 @@ sub get_dirty_columns {
 sub update {
     my ($self, $upd) = @_;
 
-    my $table_name = $self->{table_name};
-    my $table = $self->{teng}->schema->get_table($table_name);
-    if (! $table) {
-        Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
-    }
-
-    for my $col (keys %{$upd}) {
-       $upd->{$col} = $table->call_deflate($col, $upd->{$col});
-    }
-
     if (ref($self) eq 'Teng::Row') {
         Carp::croak q{can't update from basic Teng::Row class.};
     }
 
-    my $where = $self->_where_cond($table_name);
+    my $where = $self->_where_cond($self->{table_name});
     $self->set_columns($upd);
 
     $upd = $self->get_dirty_columns;
     return 0 unless %$upd;
 
-    my $result = $self->{teng}->update($table_name, $self->get_dirty_columns, $where);
+    my $result = $self->{teng}->update($self->{table_name}, $self->get_dirty_columns, $where);
     $self->{_dirty_columns} = {};
 
     $result;
