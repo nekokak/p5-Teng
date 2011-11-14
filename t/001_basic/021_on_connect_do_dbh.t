@@ -35,44 +35,32 @@ subtest 'global level on_connect_do / coderef' => sub {
 
     my $db = Mock::BasicOnConnectDo->new(
         {
-            connect_info => [
-                'dbi:SQLite:./t/main.db',
-                '',
-                '',
-            ],
+            dbh => t::Utils->setup_dbh,
             on_connect_do => sub { $Mock::BasicOnConnectDo::CONNECTION_COUNTER++ }
         }
     );
 
-    is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 1, "counter should called");
-    $db->connect; # for do connection.
-    is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 2, "called after connect");
+    is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 0, "counter should called");
     $db->reconnect; # for do connection.
-    is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 3, "called after reconnect");
+    is($Mock::BasicOnConnectDo::CONNECTION_COUNTER, 1, "called after reconnect");
 };
 
 subtest 'instance level on_connect_do / coderef' => sub {
     my $counter = 0;
     my $db = Mock::BasicOnConnectDo->new(
         {
-            connect_info => [
-                'dbi:SQLite:./t/main.db',
-                '',
-                '',
-            ],
+            dbh => t::Utils->setup_dbh,
             on_connect_do => sub { $counter++ },
         }
     );
 
-    is($counter, 1, "counter should called");
-    $db->connect; # for do connection.
-    is($counter, 2, "called after connect");
+    is($counter, 0, "counter should called");
     $db->reconnect; # for do connection.
-    is($counter, 3, "called after reconnect");
+    is($counter, 1, "called after reconnect");
 };
 
 subtest 'instance level on_connect_do / scalar' => sub {
-    my $query;
+    my $query = '';
     local *Mock::BasicOnConnectDo::do = sub {
         my ($self, $sql, ) = @_;
         $self->dbh; # ca be use dbh handler
@@ -80,19 +68,12 @@ subtest 'instance level on_connect_do / scalar' => sub {
     };
     my $db = Mock::BasicOnConnectDo->new(
         +{
-            connect_info => [
-                'dbi:SQLite:./t/main.db',
-                '',
-                '',
-            ],
+            dbh => t::Utils->setup_dbh,
             on_connect_do => 'select * from sqlite_master',
         }
     );
 
-    is $query, 'select * from sqlite_master';
-    $query='';
-    $db->connect;
-    is $query, 'select * from sqlite_master', 'called after connect';
+    is $query, '';
 
     $query='';
     $db->reconnect;
@@ -100,7 +81,7 @@ subtest 'instance level on_connect_do / scalar' => sub {
 };
 
 subtest 'instance level on_connect_do / array' => sub {
-    my @query;
+    my @query = ();
     local *Mock::BasicOnConnectDo::do = sub {
         my ($self, $sql, ) = @_;
         $self->dbh; # ca be use dbh handler
@@ -108,26 +89,18 @@ subtest 'instance level on_connect_do / array' => sub {
     };
     my $db = Mock::BasicOnConnectDo->new(
         {
-            connect_info => [
-                'dbi:SQLite:./t/main.db',
-                '',
-                '',
-            ],
+            dbh => t::Utils->setup_dbh,
             on_connect_do => ['select * from sqlite_master', 'select * from sqlite_master'],
         }
     );
 
-    is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
-    @query = ();
-    $db->connect; 
-    is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'], 'called after connect';
+    is_deeply \@query, [];
 
     @query = ();
     $db->reconnect;
     is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'], 'called after reconnect';
 };
 
-unlink './t/main.db';
 
 done_testing();
 
