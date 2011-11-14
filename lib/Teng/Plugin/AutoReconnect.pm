@@ -21,6 +21,8 @@ sub _verify_pid {
 sub disconnect {
     my $self = shift;
     delete $self->{txn_manager};
+    # no delete $self->{dbh}
+    # because missing dbh then cannot reconnect
     if ( my $dbh = $self->{dbh} ) {
         if ( $self->owner_pid && ($self->owner_pid != $$) ) {
             $dbh->{InactiveDestroy} = 1;
