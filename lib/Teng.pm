@@ -702,6 +702,12 @@ give back one case of the beginning when it is acquired plural records by single
 
     my $row = $teng->single('user',{id =>1});
 
+=item $row = $teng->single_by_sqle($sql, [\%bind_values, [$table_name]])
+
+get one record from your SQL.
+
+    my $row = $teng->single_by_sql(q{SELECT id,name FROM user WHERE id = ? LIMIT 1}, [1], 'user');
+
 =item $itr = $teng->search_named($sql, [\%bind_values, [$table_name]])
 
 execute named query
