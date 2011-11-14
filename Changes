@@ -1,5 +1,9 @@
 Revision history for Perl extension Teng
 
+0.15
+        - add Plugin::Lookup.
+        - fixed fork safe connection. (thanks nihen)
+
 0.14
         - fixed deflate bug. (thanks kentaro)
 
