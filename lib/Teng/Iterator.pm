@@ -88,7 +88,7 @@ Get next row data.
 
 Get all row data in array.
 
-=item $itr->suppress_object_creation($mode)
+=item $itr->suppress_object_creation($bool)
 
 Set row object creation mode.
 
