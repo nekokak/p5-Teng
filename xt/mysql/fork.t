@@ -5,33 +5,32 @@ use xt::Utils::mysql;
 use Test::More;
 use Test::SharedFork;
 use lib './t';
-use Mock::BasicMySQL;
+use Mock::Basic;
 
 my $dbh = t::Utils->setup_dbh;
-Mock::BasicMySQL->set_dbh($dbh);
-Mock::BasicMySQL->setup_test_db;
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
 
 # XXX: Correct operation is not done for set_dbh.
 {
-    Mock::BasicMySQL->txn_begin;
-    ok not +Mock::BasicMySQL->single('mock_basic_mysql',{id => 1});
+    $db->txn_begin;
+    ok not +$db->single('mock_basic',{id => 1});
 
     if ( fork ) {
         wait;
-        Mock::BasicMySQL->txn_rollback;
-        ok not +Mock::BasicMySQL->single('mock_basic_mysql',{id => 1});
-        Mock::BasicMySQL->cleanup_test_db;
+        $db->txn_rollback;
+        ok not +$db->single('mock_basic',{id => 1});
         done_testing;
     }
     else {
         # child
         eval {
-            Mock::BasicMySQL->insert('mock_basic_mysql',{
+            $db->insert('mock_basic',{
                 name => 'perl',
             });
         };
         ok $@;
     }
-    
+    undef $db;
 }
 

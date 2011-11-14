@@ -462,6 +462,14 @@ BIND    : %s
 TRACE
 }
 
+sub DESTROY {
+    my $self = shift;
+
+    if ( $self->owner_pid and $self->owner_pid != $$ and my $dbh = $self->{dbh} ) {
+        $dbh->{InactiveDestroy} = 1;
+    }
+}
+
 1;
 
 __END__
