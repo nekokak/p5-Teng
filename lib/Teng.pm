@@ -118,8 +118,17 @@ sub reconnect {
         Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
     }
 
+    my $dbh = $self->{dbh};
+
     $self->disconnect();
-    $self->connect(@_);
+
+    if ( @_ ) {
+        $self->connect(@_);
+    }
+    else {
+        $self->{dbh} = $dbh->clone({InactiveDestroy => 0});
+        $self->owner_pid($$);
+    }
 }
 
 sub disconnect {
@@ -581,10 +590,7 @@ You must pass C<connect_info> or C<dbh> to the constructor.
 
 =item * C<dbh>
 
-Specifies the database handle to use. If this value is passed without
-specifying C<connect_info>, then automatic reconnects normally provided
-by Teng is not performed (however, you are free to create a Teng
-instance using only dbh if you don't care about such features)
+Specifies the database handle to use. 
 
 =item * C<schema>
 
