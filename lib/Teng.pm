@@ -49,7 +49,6 @@ sub new {
     my $self = bless {
         schema_class => "$class\::Schema",
         %args,
-        owner_pid => $$,
     }, $class;
 
     if (! $self->schema) {
@@ -115,7 +114,7 @@ sub connect {
 sub reconnect {
     my $self = shift;
 
-    if ($self->in_transaction) {
+    if ($self->in_transaction_check) {
         Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
     }
 
@@ -127,8 +126,14 @@ sub disconnect {
     my $self = shift;
     delete $self->{txn_manager};
     if ( my $dbh = delete $self->{dbh} ) {
-        $dbh->disconnect;
+        if ( $self->owner_pid != $$ ) {
+            $dbh->{InactiveDestroy} = 1;
+        }
+        else {
+            $dbh->disconnect;
+        }
     }
+    $self->owner_pid(undef);
 }
 
 sub _prepare_from_dbh {
@@ -141,6 +146,8 @@ sub _prepare_from_dbh {
         $builder = Teng::QueryBuilder->new(driver => $self->driver_name );
         $self->sql_builder( $builder );
     }
+
+    $self->owner_pid($$);
 }
 
 sub _verify_pid {
