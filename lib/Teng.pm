@@ -48,6 +48,7 @@ sub new {
 
     my $self = bless {
         schema_class => "$class\::Schema",
+        owner_pid    => $$,
         %args,
     }, $class;
 
@@ -96,6 +97,15 @@ sub connect {
         or Carp::croak("Connection error: " . ($@ || $DBI::errstr));
     delete $self->{txn_manager};
 
+    $self->owner_pid($$);
+
+    $self->_on_connect_do;
+    $self->_prepare_from_dbh;
+}
+
+sub _on_connect_do {
+    my $self = shift;
+
     if ( my $on_connect_do = $self->on_connect_do ) {
         if (not ref($on_connect_do)) {
             $self->do($on_connect_do);
@@ -107,8 +117,6 @@ sub connect {
             Carp::croak('Invalid on_connect_do: '.ref($on_connect_do));
         }
     }
-
-    $self->_prepare_from_dbh;
 }
 
 sub reconnect {
@@ -118,8 +126,18 @@ sub reconnect {
         Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
     }
 
+    my $dbh = $self->{dbh};
+
     $self->disconnect();
-    $self->connect(@_);
+
+    if ( @_ ) {
+        $self->connect(@_);
+    }
+    else {
+        $self->{dbh} = $dbh->clone({InactiveDestroy => 0});
+        $self->owner_pid($$);
+        $self->_on_connect_do;
+    }
 }
 
 sub disconnect {
@@ -146,8 +164,6 @@ sub _prepare_from_dbh {
         $builder = Teng::QueryBuilder->new(driver => $self->driver_name );
         $self->sql_builder( $builder );
     }
-
-    $self->owner_pid($$);
 }
 
 sub _verify_pid {
@@ -589,10 +605,7 @@ You must pass C<connect_info> or C<dbh> to the constructor.
 
 =item * C<dbh>
 
-Specifies the database handle to use. If this value is passed without
-specifying C<connect_info>, then automatic reconnects normally provided
-by Teng is not performed (however, you are free to create a Teng
-instance using only dbh if you don't care about such features)
+Specifies the database handle to use. 
 
 =item * C<schema>
 
