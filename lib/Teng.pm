@@ -115,7 +115,7 @@ sub connect {
 sub reconnect {
     my $self = shift;
 
-    if ($self->in_transaction) {
+    if ($self->in_transaction_check) {
         Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
     }
 
