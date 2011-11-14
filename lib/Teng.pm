@@ -406,6 +406,30 @@ sub single {
     );
 }
 
+sub single_by_sql {
+    my ($self, $sql, $bind, $table_name) = @_;
+
+    $table_name ||= $self->_guess_table_name( $sql );
+    my $table = $self->{schema}->get_table( $table_name );
+    Carp::croak("No such table $table_name") unless $table;
+
+    my $sth = $self->_execute($sql, $bind);
+    my $row = $sth->fetchrow_hashref('NAME_lc');
+
+    return unless $row;
+    return $row if $self->{suppress_row_objects};
+
+    $table->{row_class}->new(
+        {
+            sql        => $sql,
+            row_data   => $row,
+            teng       => $self,
+            table      => $table,
+            table_name => $table_name,
+        }
+    );
+}
+
 sub search_by_sql {
     my ($self, $sql, $bind, $table_name) = @_;
 
@@ -684,6 +708,12 @@ get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
     my $row = $teng->single('user',{id =>1});
+
+=item $row = $teng->single_by_sqle($sql, [\%bind_values, [$table_name]])
+
+get one record from your SQL.
+
+    my $row = $teng->single_by_sql(q{SELECT id,name FROM user WHERE id = ? LIMIT 1}, [1], 'user');
 
 =item $itr = $teng->search_named($sql, [\%bind_values, [$table_name]])
 
