@@ -26,7 +26,7 @@ subtest 'use transaction, disconnect, reconnect and use transaction again' => su
     };
     ok !$@, "regular disconnect - should be clean" . ( $@ ? ", but got $@" : '');
 
-    ok ! $model->{dbh}, "dbh should be undefined";
+    ok ! $model->{dbh}->ping, "dbh should be disconnected";
     if (! ok ! $model->{txn_manager}, "txn manager should be undefined" ) {
         # What, txn_manager still exists?!
         # Emulate this: long time passes... txn_manager and its dbh is

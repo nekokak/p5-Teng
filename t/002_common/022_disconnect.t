@@ -21,7 +21,7 @@ subtest 'insert mock_basic data/ insert method' => sub {
 
 subtest 'disconnect' => sub {
     $db->disconnect();
-    ok ! defined $db->{dbh}, "dbh is undef";
+    ok ! $db->{dbh}->ping, "dbh is disconnected";
 };
 
 subtest 'insert after disconnect trigger a connect' => sub {

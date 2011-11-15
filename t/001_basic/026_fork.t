@@ -15,8 +15,9 @@ $db->setup_test_db;
 
         done_testing;
     } else {
-        eval { $db->dbh };
-        ok $@;
-        like $@, qr/this connection is no use\. because fork was done\./;
+        my $dbh;
+        eval { $dbh = $db->dbh };
+        ok not $@;
+        isa_ok $dbh, 'DBI::db';
     }
  

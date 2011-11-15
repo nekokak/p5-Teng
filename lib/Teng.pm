@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp ();
 use Class::Load ();
-use DBI;
+use DBI 1.33;
 use Teng::Row;
 use Teng::Iterator;
 use Teng::Schema;
@@ -19,7 +19,6 @@ use Class::Accessor::Lite
         sql_builder
         sql_comment
         owner_pid
-        driver_name
     )]
 ;
 
@@ -142,9 +141,10 @@ sub reconnect {
 
 sub disconnect {
     my $self = shift;
+
     delete $self->{txn_manager};
-    if ( my $dbh = delete $self->{dbh} ) {
-        if ( $self->owner_pid != $$ ) {
+    if ( my $dbh = $self->{dbh} ) {
+        if ( $self->owner_pid && ($self->owner_pid != $$) ) {
             $dbh->{InactiveDestroy} = 1;
         }
         else {
@@ -157,11 +157,11 @@ sub disconnect {
 sub _prepare_from_dbh {
     my $self = shift;
 
-    $self->driver_name($self->{dbh}->{Driver}->{Name});
-    my $builder = $self->sql_builder;
+    $self->{driver_name} = $self->{dbh}->{Driver}->{Name};
+    my $builder = $self->{sql_builder};
     if (! $builder ) {
         # XXX Hackish
-        $builder = Teng::QueryBuilder->new(driver => $self->driver_name );
+        $builder = Teng::QueryBuilder->new(driver => $self->{driver_name} );
         $self->sql_builder( $builder );
     }
 }
@@ -169,8 +169,13 @@ sub _prepare_from_dbh {
 sub _verify_pid {
     my $self = shift;
 
-    if ( $self->owner_pid != $$ ) {
-        Carp::confess('this connection is no use. because fork was done.');
+    if ( !$self->owner_pid || $self->owner_pid != $$ ) {
+        $self->reconnect;
+    }
+    elsif ( my $dbh = $self->{dbh} ) {
+        if ( !$dbh->FETCH('Active') || !$dbh->ping ) {
+            $self->reconnect;
+        }
     }
 }
 
@@ -209,7 +214,7 @@ sub _execute {
 sub _last_insert_id {
     my ($self, $table_name) = @_;
 
-    my $driver = $self->driver_name;
+    my $driver = $self->{driver_name};
     if ( $driver eq 'mysql' ) {
         return $self->dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
@@ -237,7 +242,7 @@ sub _insert {
         $args->{$col} = $table->call_deflate($col, $args->{$col});
     }
 
-    my ($sql, @binds) = $self->sql_builder->insert( $table_name, $args, { prefix => $prefix } );
+    my ($sql, @binds) = $self->{sql_builder}->insert( $table_name, $args, { prefix => $prefix } );
     $self->_execute($sql, \@binds);
 }
 
@@ -277,7 +282,7 @@ sub insert {
 sub _update {
     my ($self, $table_name, $args, $where) = @_;
 
-    my ($sql, @binds) = $self->sql_builder->update( $table_name, $args, $where );
+    my ($sql, @binds) = $self->{sql_builder}->update( $table_name, $args, $where );
     my $sth = $self->_execute($sql, \@binds);
     my $rows = $sth->rows;
     $sth->finish;
@@ -303,7 +308,7 @@ sub update {
 sub delete {
     my ($self, $table_name, $where) = @_;
 
-    my ($sql, @binds) = $self->sql_builder->delete( $table_name, $where );
+    my ($sql, @binds) = $self->{sql_builder}->delete( $table_name, $where );
     my $sth = $self->_execute($sql, \@binds);
     my $rows = $sth->rows;
     $sth->finish;
