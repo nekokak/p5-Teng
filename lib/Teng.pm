@@ -51,8 +51,9 @@ sub new {
         %args,
     }, $class;
 
-    if (! $self->schema) {
-        my $schema_class = $self->schema_class;
+    my @caller = caller(0);
+    if ($caller[0] ne 'Teng::Schema::Loader' && ! $self->schema) {
+        my $schema_class = $self->{schema_class};
         Class::Load::load_class( $schema_class );
         my $schema = $schema_class->instance;
         if (! $schema) {
