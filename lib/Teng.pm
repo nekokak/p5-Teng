@@ -202,7 +202,11 @@ sub _execute {
             }
         }
         $sth = $self->dbh->prepare($sql);
-        $sth->execute(@{$binds || []});
+        my $i = 1;
+        for my $v ( @{ $binds || [] } ) {
+            $sth->bind_param( $i++, ref($v) ? @$v : $v );
+        }
+        $sth->execute();
     };
     if ($@) {
         $self->handle_error($sql, $binds, $@);
@@ -228,6 +232,19 @@ sub _last_insert_id {
     }
 }
 
+sub _bind_sql_type_to_args {
+    my ( $self, $table, $args ) = @_;
+    my $bind_args = {};
+
+    for my $col (keys %{$args}) {
+        # if $args->{$col} is a ref, it is scalar ref or already
+        # sql type bined parameter. so ignored.
+        $bind_args->{$col} = ref $args->{$col} ? $args->{$col} : [ $args->{$col}, $table->get_sql_type($col) ];
+    }
+
+    return $bind_args;
+}
+
 sub _insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
@@ -241,8 +258,8 @@ sub _insert {
     for my $col (keys %{$args}) {
         $args->{$col} = $table->call_deflate($col, $args->{$col});
     }
-
-    my ($sql, @binds) = $self->{sql_builder}->insert( $table_name, $args, { prefix => $prefix } );
+    my $bind_args = $self->_bind_sql_type_to_args( $table, $args );
+    my ($sql, @binds) = $self->{sql_builder}->insert( $table_name, $bind_args, { prefix => $prefix } );
     $self->_execute($sql, \@binds);
 }
 
@@ -302,7 +319,7 @@ sub update {
        $args->{$col} = $table->call_deflate($col, $args->{$col});
     }
     
-    $self->_update($table_name, $args, $where);
+    $self->_update($table_name, $self->_bind_sql_type_to_args( $table, $args ), $where);
 }
 
 sub delete {

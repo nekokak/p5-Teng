@@ -115,7 +115,8 @@ sub update {
     $upd = $self->get_dirty_columns;
     return 0 unless %$upd;
 
-    my $result = $self->{teng}->_update($table_name, $self->get_dirty_columns, $where, 1);
+    my $bind_args = $self->{teng}->_bind_sql_type_to_args($table, $upd);
+    my $result = $self->{teng}->_update($table_name, $bind_args, $where, 1);
     $self->{_dirty_columns} = {};
 
     $result;
