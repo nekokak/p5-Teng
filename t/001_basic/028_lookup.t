@@ -7,7 +7,7 @@ my $db_basic = Mock::Basic->new({dbh => $dbh});
 $db_basic->setup_test_db;
 Mock::Basic->load_plugin('Lookup');
 
-subtest 'bulk_insert method' => sub {
+subtest 'lookup method' => sub {
     $db_basic->insert('mock_basic', => +{
         id   => 1,
         name => 'perl',
