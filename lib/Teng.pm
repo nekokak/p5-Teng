@@ -59,6 +59,7 @@ sub new {
         if (! $schema) {
             Carp::croak("schema object was not passed, and could not get schema instance from $schema_class");
         }
+        $schema->namespace($class);
         $self->schema( $schema );
     }
 

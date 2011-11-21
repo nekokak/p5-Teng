@@ -18,7 +18,7 @@ sub load {
         Carp::croak("missing mandatory parameter 'dbh' or 'connect_info'");
     }
 
-    my $schema = Teng::Schema->new();
+    my $schema = Teng::Schema->new(namespace => $args{namespace});
 
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
     for my $table_info ($inspector->tables) {

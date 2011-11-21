@@ -5,13 +5,15 @@ use Teng::Row;
 use Class::Accessor::Lite
     rw => [ qw(
         tables
+        namespace
     ) ]
 ;
 
 sub new {
     my ($class, %args) = @_;
     bless {
-        tables => {},
+        tables    => {},
+        namespace => '',
         %args,
     }, $class;
 }
@@ -52,6 +54,35 @@ sub get_row_class {
 sub camelize {
     my $s = shift;
     join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
+}
+
+sub dump {
+    my $self = shift;
+
+    my $namespace = $self->namespace;
+
+    my $ret = "package ${namespace}::Schema;\n";
+    $ret .= "use Teng::Schema::Declare;\n";
+
+    for my $table_name (sort { $a->name cmp $b->name } keys %{$self->{tables}}) {
+        my $table = $self->get_table($table_name);
+        $ret .= "table {\n";
+        $ret .= sprintf("    name '%s';\n", $table->name);
+        $ret .= sprintf("    pk %s;\n", join ',' , map { q{'}.$_.q{'} } @{$table->primary_keys});
+        $ret .= "    columns (\n";
+        for my $col (@{$table->columns}) {
+            if (my $type = $table->{sql_types}->{$col}) {
+                $ret .= sprintf("        {name => '%s', type => %s},\n", $col, $type);
+            } else {
+                $ret .= sprintf("        '%s',\n", $col);
+            }
+        }
+        $ret .= "    );\n";
+        $ret .= "};\n\n";
+    }
+
+    $ret .= "1;\n";
+    $ret;
 }
 
 1;
