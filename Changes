@@ -1,10 +1,11 @@
 Revision history for Perl extension Teng
 
 0.15
+        - [IMPORTANT] bulk_insert include core feature. do not use Plugin::BulkInsert.
         - add Plugin::Lookup.
         - fixed fork safe connection. (thanks nihen)
         - support auto reconnect dbh. (thanks nihen)
-        - [IMPORTANT] bulk_insert include core feature. do not use Plugin::BulkInsert.
+        - can specific column for single or search method.
 
 0.14
         - fixed deflate bug. (thanks kentaro)
