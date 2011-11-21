@@ -9,6 +9,7 @@ use Test::Mock::Guard qw/mock_guard/;
     package Bench;
     use parent 'Teng';
     __PACKAGE__->load_plugin('Lookup');
+    __PACKAGE__->load_plugin('SingleBySql');
 
     package Bench::Schema;
     use Teng::Schema::Declare;
@@ -33,16 +34,23 @@ $db->do(q{
 
 my $row = $db->single('user', { id => 1 });
 
+my $dbh = $db->dbh;
+
 cmpthese(10000 => +{
-    single => sub {$db->single('user', +{id => 1})},
-    lookup => sub {$db->lookup('user', +{id => 1})},
+    dbi           => sub {$dbh->selectrow_hashref('SELECT id,name,age FROM user where id = ?', undef, 1)},
+    single        => sub {$db->single('user', +{id => 1})},
+    single_by_sql => sub {$db->single_by_sql('SELECT id,name,age FROM user WHERE id = ?', [1], 'user')},
+    lookup        => sub {$db->lookup('user', +{id => 1})},
 }, 'all');
 
 __END__
-Benchmark: timing 10000 iterations of lookup, single...
-    lookup: 1.89032 wallclock secs ( 1.55 usr  0.29 sys +  0.00 cusr  0.00 csys =  1.84 CPU) @ 5434.78/s (n=10000)
-    single: 3.64415 wallclock secs ( 3.30 usr  0.30 sys +  0.00 cusr  0.00 csys =  3.60 CPU) @ 2777.78/s (n=10000)
-         Rate single lookup
-single 2778/s     --   -49%
-lookup 5435/s    96%     --
-
+Benchmark: timing 10000 iterations of dbi, lookup, single, single_by_sql...
+       dbi: 0.543471 wallclock secs ( 0.50 usr  0.01 sys +  0.00 cusr  0.00 csys =  0.51 CPU) @ 19607.84/s (n=10000)
+    lookup: 0.808071 wallclock secs ( 0.78 usr  0.00 sys +  0.00 cusr  0.00 csys =  0.78 CPU) @ 12820.51/s (n=10000)
+    single: 1.67938 wallclock secs ( 1.57 usr  0.00 sys +  0.00 cusr  0.00 csys =  1.57 CPU) @ 6369.43/s (n=10000)
+single_by_sql: 0.769787 wallclock secs ( 0.74 usr  0.00 sys +  0.00 cusr  0.00 csys =  0.74 CPU) @ 13513.51/s (n=10000)
+                 Rate        single        lookup single_by_sql           dbi
+single         6369/s            --          -50%          -53%          -68%
+lookup        12821/s          101%            --           -5%          -35%
+single_by_sql 13514/s          112%            5%            --          -31%
+dbi           19608/s          208%           53%           45%            --
