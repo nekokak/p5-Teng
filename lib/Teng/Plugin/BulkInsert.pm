@@ -5,6 +5,8 @@ use utf8;
 
 our @EXPORT = qw/bulk_insert/;
 
+warn "IMPORTANT: Teng::Plugin::BulkInsert is DEPRECATED AND *WILL* BE REMOVED. DO NOT USE.\n";
+
 sub bulk_insert {
     my ($self, $table_name, $args) = @_;
 
@@ -42,7 +44,7 @@ __END__
 
 =head1 NAME
 
-Teng::Plugin::BulkInsert - bulk insert helper
+Teng::Plugin::BulkInsert - (DEPRECATED) bulk insert helper
 
 =head1 PROVIDED METHODS
 
