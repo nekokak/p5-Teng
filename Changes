@@ -6,6 +6,7 @@ Revision history for Perl extension Teng
         - fixed fork safe connection. (thanks nihen)
         - support auto reconnect dbh. (thanks nihen)
         - can specific column for single or search method.
+        - add schema dump method for Schema.pm.
 
 0.14
         - fixed deflate bug. (thanks kentaro)
