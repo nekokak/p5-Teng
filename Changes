@@ -1,6 +1,6 @@
 Revision history for Perl extension Teng
 
-0.15
+0.14_01
         - [IMPORTANT] bulk_insert include core feature. do not use Plugin::BulkInsert.
         - add Plugin::Lookup.
         - fixed fork safe connection. (thanks nihen)
