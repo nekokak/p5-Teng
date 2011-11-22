@@ -22,7 +22,20 @@ $dbh->do(q{
 my $code = Teng::Schema::Dumper->dump(
     dbh       => $dbh,
     namespace => 'Mock::DB',
+    inflate   => +{
+        user => q|
+            inflate 'email' => sub {
+                my ($col_value) = @_;
+                $col_value . '_inflate';
+            };
+            deflate 'email' => sub {
+                my ($col_value) = @_;
+                $col_value . '_deflate';
+            };
+        |,
+    },
 );
+note $code;
 my $schema = eval $code;
 ::ok !$@, 'no syntax error';
 diag $@ if $@;
@@ -38,8 +51,12 @@ is($user->name, 'user');
 is(join(',', @{$user->primary_keys}), 'user_id');
 is(join(',', @{$user->columns}), 'user_id,name,email,created_on');
 
-my $row = $db->schema->get_row_class('user');
-isa_ok $row, 'Mock::DB::Row::User';
+my $row_class = $db->schema->get_row_class('user');
+isa_ok $row_class, 'Mock::DB::Row::User';
+
+my $row = $db->insert('user', +{name => 'nekokak', email => 'nekokak@gmail.com'});
+is $row->email, 'nekokak@gmail.com_deflate_inflate';
+is $row->get_column('email'), 'nekokak@gmail.com_deflate';
 
 done_testing;
 
