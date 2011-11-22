@@ -303,7 +303,13 @@ sub bulk_insert {
 
     return unless scalar(@{$args||[]});
 
-    if ($self->dbh->{Driver}->{Name} eq 'mysql') {
+    my $dbh = $self->dbh;
+    my $can_multi_insert = $dbh->{Driver}->{Name} eq 'mysql' ? 1
+                         : $dbh->{Driver}->{Name} eq 'Pg'
+                             && $dbh->{ pg_server_version } >= 82000 ? 1
+                         : 0;
+
+    if ($can_multi_insert) {
         my $table = $self->schema->get_table($table_name);
         if (! $table) {
             Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
