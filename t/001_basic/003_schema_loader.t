@@ -60,11 +60,6 @@ subtest 'use connect_info' => sub {
 
     ok $db->insert('user', { user_id => 2, name => 'inserted 2' });
     is $db->single('user', { user_id => 2 })->name, 'inserted 2';
-
-    my $code = $db->schema->dump();
-    my $dynamic_load_schema = eval $code;
-    ::ok !$@, 'no syntax error';
-    diag $@ if $@;
 };
 
 unlink './loader.db';
