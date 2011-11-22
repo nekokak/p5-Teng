@@ -7,6 +7,8 @@ Revision history for Perl extension Teng
         - support auto reconnect dbh. (thanks nihen)
         - can specific column for single or search method.
         - add schema dump method for Schema.pm.
+        - support bulk_insert for postgresql 8.2.0 over. (thanks makamaka)
+        - support bind_param. (thanks makamaka)
 
 0.14
         - fixed deflate bug. (thanks kentaro)
