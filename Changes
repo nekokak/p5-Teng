@@ -8,6 +8,7 @@ Revision history for Perl extension Teng
         - can specific column for single or search method.
         - support bulk_insert for postgresql 8.2.0 over. (thanks makamaka)
         - support bind_param. (thanks makamaka)
+        - add Plugin::SingleBySQL. (thanks nihen)
 
 0.14
         - fixed deflate bug. (thanks kentaro)

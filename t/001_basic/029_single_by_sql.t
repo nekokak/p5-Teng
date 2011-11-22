@@ -5,7 +5,7 @@ use Test::More;
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
-Mock::Basic->load_plugin('SingleBySql');
+Mock::Basic->load_plugin('SingleBySQL');
 
 $db->insert('mock_basic',{
     id   => 1,

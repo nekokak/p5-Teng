@@ -1,3 +1,4 @@
+bench/lookup_vs_single.pl
 Changes
 inc/Module/Install.pm
 inc/Module/Install/AuthorTests.pm
@@ -18,6 +19,7 @@ lib/Teng/Plugin/Lookup.pm
 lib/Teng/Plugin/Pager.pm
 lib/Teng/Plugin/Pager/MySQLFoundRows.pm
 lib/Teng/Plugin/Replace.pm
+lib/Teng/Plugin/SingleBySQL.pm
 lib/Teng/QueryBuilder.pm
 lib/Teng/Row.pm
 lib/Teng/Schema.pm
@@ -40,13 +42,16 @@ t/001_basic/011_inflate.t
 t/001_basic/015_row_class.t
 t/001_basic/016_row_exception.t
 t/001_basic/020_on_connect_do.t
+t/001_basic/021_on_connect_do_dbh.t
 t/001_basic/022_transaction.t
 t/001_basic/023_bulk_insert.t
 t/001_basic/024_bind_column.t
 t/001_basic/025_pager.t
 t/001_basic/026_fork.t
 t/001_basic/027_fork_self_reconnect.t
+t/001_basic/028_fork_self_reconnect_dbh.t
 t/001_basic/028_lookup.t
+t/001_basic/029_single_by_sql.t
 t/002_common/000_new.t
 t/002_common/001_insert.t
 t/002_common/002_update.t
@@ -75,6 +80,7 @@ t/999_regression/inflate_bug.t
 t/999_regression/no_schema.t
 t/999_regression/prepare_error_handling.t
 t/999_regression/reconnect.t
+t/999_regression/reconnect_from_dbh.t
 t/lib/Mock/Basic.pm
 t/lib/Mock/Basic/Schema.pm
 t/lib/Mock/BasicBindColumn.pm
@@ -96,6 +102,7 @@ xt/mysql/pager_mysql_found_rows.t
 xt/mysql/transaction.t
 xt/perlcritic.t
 xt/perlcriticrc
+xt/postgresql/bind_param.t
 xt/postgresql/common.t
 xt/postgresql/transaction.t
 xt/Utils/mysql.pm

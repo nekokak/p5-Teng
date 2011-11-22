@@ -1,4 +1,4 @@
-package Teng::Plugin::SingleBySql;
+package Teng::Plugin::SingleBySQL;
 use strict;
 use warnings;
 use utf8;
@@ -35,7 +35,7 @@ __END__
 
 =head1 NAME
 
-Teng::Plugin::SingleBySql - single by sql
+Teng::Plugin::SingleBySQL - single by sql
 
 =head1 PROVIDED METHODS
 
