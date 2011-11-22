@@ -306,7 +306,7 @@ sub bulk_insert {
     my $dbh = $self->dbh;
     my $can_multi_insert = $dbh->{Driver}->{Name} eq 'mysql' ? 1
                          : $dbh->{Driver}->{Name} eq 'Pg'
-                             and $dbh->{ pg_server_version } >= 82000 ? 1
+                             && $dbh->{ pg_server_version } >= 82000 ? 1
                          : 0;
 
     if ($can_multi_insert) {
