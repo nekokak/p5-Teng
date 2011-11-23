@@ -5,12 +5,19 @@ use DBIx::Inspector;
 use Teng::Schema;
 use Teng::Schema::Table;
 use Carp ();
+use Class::Load ();
 
 sub load {
     my $class = shift;
     my %args = @_==1 ? %{$_[0]} : @_;
 
     my $namespace = $args{namespace} or Carp::croak("missing mandatory parameter 'namespace'");
+
+    Class::Load::load_optional_class($namespace) or do {
+        # make teng class automatically
+        require Teng;
+        no strict 'refs'; @{"$namespace\::ISA"} = ('Teng');
+    };
 
     my $teng = $namespace->new(%args);
     my $dbh = $teng->dbh;

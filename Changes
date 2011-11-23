@@ -1,5 +1,8 @@
 Revision history for Perl extension Teng
 
+0.14_02
+        - Schema::Loader auto create teng class.
+
 0.14_01
         - [IMPORTANT] bulk_insert include core feature. do not use Plugin::BulkInsert.
         - add Plugin::Lookup.

@@ -62,6 +62,26 @@ subtest 'use connect_info' => sub {
     is $db->single('user', { user_id => 2 })->name, 'inserted 2';
 };
 
+subtest 'auto create teng class' => sub {
+    my $db = Teng::Schema::Loader->load(
+        connect_info => ['dbi:SQLite:./loader.db','',''],
+        namespace    => 'Proj::DB',
+    );
+
+    isa_ok $db, 'Proj::DB';
+
+    my $user = $db->schema->get_table('user');
+    is($user->name, 'user');
+    is(join(',', @{$user->primary_keys}), 'user_id');
+    is(join(',', @{$user->columns}), 'user_id,name,email,created_on');
+
+    my $row = $db->schema->get_row_class('user');
+    is $row, 'Proj::DB::Row::User';
+
+    ok $db->insert('user', { user_id => 3, name => 'inserted 3' });
+    is $db->single('user', { user_id => 3 })->name, 'inserted 3';
+};
+
 unlink './loader.db';
 done_testing;
 
