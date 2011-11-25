@@ -1,5 +1,8 @@
 Revision history for Perl extension Teng
 
+0.14_03
+        - bsd tar sucks! use gnu tar for packaging.
+
 0.14_02
         - Schema::Loader auto create teng class.
 
