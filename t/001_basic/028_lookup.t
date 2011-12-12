@@ -20,6 +20,15 @@ subtest 'lookup method' => sub {
         name      => 'perl',
         delete_fg => 0,
     };
+
+    # multiple key
+    $row = $db_basic->lookup('mock_basic', +{id => 1, name => 'perl'});
+    isa_ok $row, 'Mock::Basic::Row::MockBasic';
+    is_deeply $row->get_columns, +{
+        id        => 1,
+        name      => 'perl',
+        delete_fg => 0,
+    };
 };
 
 done_testing;

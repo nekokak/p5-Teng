@@ -11,7 +11,7 @@ sub lookup {
     my $table = $self->{schema}->get_table( $table_name );
     Carp::croak("No such table $table_name") unless $table;
 
-    my $cond = join ' AND', map {"$_ = ?"} keys %$where;
+    my $cond = join ' AND ', map {"$_ = ?"} keys %$where;
     my $sql = sprintf('SELECT %s FROM %s WHERE %s %s',
                join(',', @{$table->{columns}}),
                $table_name,
