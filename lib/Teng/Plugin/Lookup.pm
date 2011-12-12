@@ -11,7 +11,9 @@ sub lookup {
     my $table = $self->{schema}->get_table( $table_name );
     Carp::croak("No such table $table_name") unless $table;
 
-    my $cond = join ' AND ', map {"$_ = ?"} keys %$where;
+    my @sorted_keys = sort keys %$where;
+
+    my $cond = join ' AND ', map {"$_ = ?"} @sorted_keys;
     my $sql = sprintf('SELECT %s FROM %s WHERE %s %s',
                join(',', @{$table->{columns}}),
                $table_name,
@@ -19,7 +21,7 @@ sub lookup {
                $opt->{for_update} ? 'FOR UPDATE' : '',
            );
 
-    my $sth = $self->_execute($sql, [values %$where]);
+    my $sth = $self->_execute($sql, [map { $where->{$_} } @sorted_keys]);
     my $row = $sth->fetchrow_hashref('NAME_lc');
 
     return unless $row;
