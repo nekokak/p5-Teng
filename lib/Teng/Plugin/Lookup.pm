@@ -21,7 +21,7 @@ sub lookup {
                $opt->{for_update} ? 'FOR UPDATE' : '',
            );
 
-    my $sth = $self->_execute($sql, [map { $where->{$_} } @sorted_keys]);
+    my $sth = $self->_execute($sql, [@$where{@sorted_keys}]);
     my $row = $sth->fetchrow_hashref('NAME_lc');
 
     return unless $row;
