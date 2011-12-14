@@ -17,6 +17,14 @@ subtest 'reconnect success' => sub {
     my $dbh = $db->dbh;
     eval { $db->reconnect; };
     ok(!$@);
+    ok($db->dbh);
+    isnt($dbh, $db->dbh);
+
+    # twice reconnect
+    $dbh = $db->dbh;
+    eval { $db->reconnect; };
+    ok(!$@);
+    ok($db->dbh);
     isnt($dbh, $db->dbh);
 };
 
@@ -28,5 +36,6 @@ subtest 'in_transaction reconnect' => sub {
     is($dbh, $db->dbh);
     $db->txn_commit;
 };
+
 
 done_testing;

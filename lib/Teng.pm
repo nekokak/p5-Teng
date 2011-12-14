@@ -135,7 +135,9 @@ sub reconnect {
         $self->connect(@_);
     }
     else {
-        $self->{dbh} = $dbh->clone({InactiveDestroy => 0});
+        $self->{dbh} = eval { $dbh->clone }
+            or Carp::croak("ReConnection error: " . ($@ || $DBI::errstr));
+        $self->{dbh}->{InactiveDestroy} = 0;
         $self->owner_pid($$);
         $self->_on_connect_do;
     }
