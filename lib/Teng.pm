@@ -135,9 +135,15 @@ sub reconnect {
         $self->connect(@_);
     }
     else {
+        # Why don't use $dbh->clone({InactiveDestroy => 0}) ?
+        # because, DBI v1.616 clone with \%attr has bug.
+        # my $dbh2 = $dbh->clone({});
+        # my $dbh3 = $db->clone({});
+        # $dbh2 is ok, but $dbh3 is undef.
         $self->{dbh} = eval { $dbh->clone }
             or Carp::croak("ReConnection error: " . ($@ || $DBI::errstr));
         $self->{dbh}->{InactiveDestroy} = 0;
+
         $self->owner_pid($$);
         $self->_on_connect_do;
     }
