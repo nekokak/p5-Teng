@@ -21,6 +21,7 @@ subtest 'count' => sub {
 
     is +$db->count('mock_basic' => 'id'), 2;
     is +$db->count('mock_basic' => 'id',{name => 'perl'}), 1;
+    is +$db->count('mock_basic'), 2;
 };
 
 done_testing;
