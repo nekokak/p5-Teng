@@ -31,5 +31,18 @@ subtest 'lookup method' => sub {
     };
 };
 
+subtest 'lookup_with_columns' => sub {
+    $db_basic->insert('mock_basic', => +{
+        id   => 2,
+        name => 'ruby',
+    });
+
+    my $row = $db_basic->lookup('mock_basic', +{id => 2}, { columns => [qw/id/]});
+    isa_ok $row, 'Mock::Basic::Row::MockBasic';
+    is_deeply $row->get_columns, +{
+        id => 2,
+    };
+};
+
 done_testing;
 
