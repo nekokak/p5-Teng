@@ -15,7 +15,7 @@ sub lookup {
 
     my $cond = join ' AND ', map {"$_ = ?"} @sorted_keys;
     my $sql = sprintf('SELECT %s FROM %s WHERE %s %s',
-               join(',', @{$table->{columns}}),
+               join(',', @{$opt->{columns} || $table->{columns}}),
                $table_name,
                $cond,
                $opt->{for_update} ? 'FOR UPDATE' : '',

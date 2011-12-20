@@ -22,7 +22,7 @@ sub search_with_pager {
 
     my ($sql, @binds) = $self->sql_builder->select(
         $table_name,
-        $table->columns,
+        ($opt->{columns} || $table->{columns}),
         $where,
         +{
             %$opt,
