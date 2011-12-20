@@ -1,5 +1,12 @@
 Revision history for Perl extension Teng
 
+0.14_04
+        - support '+columns' for single, search, lookup and search_with_pager. (thanks nihen)
+        - changed calling way of sql_builder in Teng::Plugin::Count. (thanks makamaka)
+        - sort lookup keys, because anytime make same SQL. (thanks nihen)
+        - FIXED: fail at reconnect twice. (thanks nihen)
+        - FIXED: Lookup Plugin fail at multiple key. (thanks nihen)
+
 0.14_03
         - bsd tar sucks! use gnu tar for packaging.
 
