@@ -13,9 +13,10 @@ sub lookup {
 
     my @sorted_keys = sort keys %$where;
 
+    my $columns = _get_select_columns($table, $opt);
     my $cond = join ' AND ', map {"$_ = ?"} @sorted_keys;
     my $sql = sprintf('SELECT %s FROM %s WHERE %s %s',
-               join(',', @{$opt->{columns} || $table->{columns}}),
+               join(',', @{$columns}),
                $table_name,
                $cond,
                $opt->{for_update} ? 'FOR UPDATE' : '',
@@ -36,6 +37,27 @@ sub lookup {
             table_name => $table_name,
         }
     );
+}
+sub _get_select_columns {
+    my ($table, $opt) = @_;
+
+    my $columns;
+    if ( $opt->{'+columns'} ) {
+        $columns = [
+            @{$table->{columns}},
+            (map { ref $_ eq 'SCALAR' ? $$_ : $_ } @{$opt->{'+columns'}})
+        ];
+    }
+    elsif ( $opt->{columns} ) {
+        $columns = [
+            map { ref $_ eq 'SCALAR' ? $$_ : $_ } @{$opt->{columns}}
+        ];
+    }
+    else {
+        $columns = $table->{columns};
+    }
+
+    return $columns;
 }
 
 1;

@@ -47,6 +47,17 @@ subtest 'simple_with_columns' => sub {
     ok $pager->has_next, 'has_next';
     is $pager->prev_page, undef;
 };
+subtest 'simple_with_+columns' => sub {
+    my ($rows, $pager) = $db->search_with_pager(mock_basic => {}, {'+columns' => [\'id+20 as calc'], rows => 3, page => 1});
+    is join(',', map { $_->id } @$rows), '1,2,3';
+    is join(',', map { $_->calc } @$rows), '21,22,23';
+    is $pager->entries_per_page(), 3;
+    is $pager->entries_on_this_page(), 3;
+    is $pager->current_page(), 1;
+    is $pager->next_page, 2, 'next_page';
+    ok $pager->has_next, 'has_next';
+    is $pager->prev_page, undef;
+};
 
 done_testing;
 
