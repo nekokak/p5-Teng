@@ -431,9 +431,14 @@ sub search {
         Carp::croak("No such table $table_name");
     }
 
+    my $columns = $opt->{'+columns'}
+        ? [@{$table->{columns}}, @{$opt->{'+columns'}}]
+        : ($opt->{columns} || $table->{columns})
+    ;
+
     my ($sql, @binds) = $self->{sql_builder}->select(
         $table_name,
-        ($opt->{columns} || $table->{columns}),
+        $columns,
         $where,
         $opt
     );
@@ -469,9 +474,14 @@ sub single {
     my $table = $self->{schema}->get_table( $table_name );
     Carp::croak("No such table $table_name") unless $table;
 
+    my $columns = $opt->{'+columns'}
+        ? [@{$table->{columns}}, @{$opt->{'+columns'}}]
+        : ($opt->{columns} || $table->{columns})
+    ;
+
     my ($sql, @binds) = $self->{sql_builder}->select(
         $table_name,
-        ($opt->{columns} || $table->{columns}),
+        $columns,
         $where,
         $opt
     );

@@ -48,6 +48,22 @@ subtest 'search with columns opts' => sub {
     };
 };
 
+subtest 'search with +columns opts' => sub {
+    my $itr = $db->search('mock_basic',{id => 1}, +{'+columns' => [\'id+20 as calc']});
+    isa_ok $itr, 'Teng::Iterator';
+
+    my $row = $itr->next;
+    isa_ok $row, 'Teng::Row';
+
+    is $row->id, 1;
+    is_deeply $row->get_columns, +{
+        id        => 1,
+        name      => 'perl',
+        delete_fg => 0,
+        calc      => 21,
+    };
+};
+
 subtest 'search without where' => sub {
     my $itr = $db->search('mock_basic');
 
