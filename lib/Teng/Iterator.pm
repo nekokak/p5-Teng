@@ -17,7 +17,7 @@ sub next {
 
     my $row;
     if ($self->{sth}) {
-        $row = $self->{sth}->fetchrow_hashref('NAME_lc');
+        $row = $self->{sth}->fetchrow_hashref;
         unless ( $row ) {
             $self->{sth}->finish;
             $self->{sth} = undef;
@@ -43,11 +43,29 @@ sub next {
 
 sub all {
     my $self = shift;
-    my @result;
-    while ( my $row = $self->next ) {
-        push @result, $row;
+
+    my $result = [];
+
+    if ($self->{sth}) {
+        $result = $self->{sth}->fetchall_arrayref(+{});
+        $self->{sth}->finish;
+        $self->{sth} = undef;
     }
-    return wantarray ? @result : \@result;
+
+    if (!$self->{suppress_object_creation}) {
+        $result = [map {
+            $self->{row_class}->new(
+                {
+                    sql        => $self->{sql},
+                    row_data   => $_,
+                    teng       => $self->{teng},
+                    table_name => $self->{table_name},
+                }
+            )
+        } @$result];
+    }
+
+    return wantarray ? @$result : $result;
 }
 
 1;
