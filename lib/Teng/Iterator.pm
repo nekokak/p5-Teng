@@ -18,6 +18,7 @@ sub next {
     my $row;
     if ($self->{sth}) {
         $row = $self->{sth}->fetchrow_hashref;
+        $self->{select_columns} ||= $self->{sth}->{NAME_lc};
         unless ( $row ) {
             $self->{sth}->finish;
             $self->{sth} = undef;
@@ -32,10 +33,12 @@ sub next {
     } else {
         return $self->{row_class}->new(
             {
-                sql        => $self->{sql},
-                row_data   => $row,
-                teng       => $self->{teng},
-                table_name => $self->{table_name},
+                sql            => $self->{sql},
+                row_data       => $row,
+                teng           => $self->{teng},
+                table          => $self->{table},
+                table_name     => $self->{table_name},
+                select_columns => $self->{select_columns},
             }
         );
     }
@@ -47,22 +50,25 @@ sub all {
     my $result = [];
 
     if ($self->{sth}) {
+        $self->{select_columns} ||= $self->{sth}->{NAME_lc};
         $result = $self->{sth}->fetchall_arrayref(+{});
         $self->{sth}->finish;
         $self->{sth} = undef;
-    }
 
-    if (!$self->{suppress_object_creation}) {
-        $result = [map {
-            $self->{row_class}->new(
-                {
-                    sql        => $self->{sql},
-                    row_data   => $_,
-                    teng       => $self->{teng},
-                    table_name => $self->{table_name},
-                }
-            )
-        } @$result];
+        if (!$self->{suppress_object_creation}) {
+            $result = [map {
+                $self->{row_class}->new(
+                    {
+                        sql            => $self->{sql},
+                        row_data       => $_,
+                        teng           => $self->{teng},
+                        table          => $self->{table},
+                        table_name     => $self->{table_name},
+                        select_columns => $self->{select_columns},
+                    }
+                )
+            } @$result];
+        }
     }
 
     return wantarray ? @$result : $result;
