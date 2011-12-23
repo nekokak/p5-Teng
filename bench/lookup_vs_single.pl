@@ -9,7 +9,7 @@ use Test::Mock::Guard qw/mock_guard/;
     package Bench;
     use parent 'Teng';
     __PACKAGE__->load_plugin('Lookup');
-    __PACKAGE__->load_plugin('SingleBySql');
+    __PACKAGE__->load_plugin('SingleBySQL');
 
     package Bench::Schema;
     use Teng::Schema::Declare;
