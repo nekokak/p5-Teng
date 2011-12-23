@@ -176,6 +176,8 @@ sub _prepare_from_dbh {
         $self->sql_builder( $builder );
     }
     $self->{dbh}->{FetchHashKeyName} = 'NAME_lc';
+
+    $self->{schema}->prepare_from_dbh($self->{dbh}) if $self->{schema};
 }
 
 sub _verify_pid {
@@ -425,6 +427,15 @@ sub do {
     $ret;
 }
 
+sub _get_select_columns {
+    my ($self, $table, $opt) = @_;
+
+    return $opt->{'+columns'}
+        ? [@{$table->{escaped_columns}{$self->{driver_name}}}, @{$opt->{'+columns'}}]
+        : ($opt->{columns} || $table->{escaped_columns}{$self->{driver_name}})
+    ;
+}
+
 sub search {
     my ($self, $table_name, $where, $opt) = @_;
 
@@ -433,14 +444,9 @@ sub search {
         Carp::croak("No such table $table_name");
     }
 
-    my $columns = $opt->{'+columns'}
-        ? [@{$table->{columns}}, @{$opt->{'+columns'}}]
-        : ($opt->{columns} || $table->{columns})
-    ;
-
     my ($sql, @binds) = $self->{sql_builder}->select(
         $table_name,
-        $columns,
+        $self->_get_select_columns($table, $opt),
         $where,
         $opt
     );
@@ -476,14 +482,9 @@ sub single {
     my $table = $self->{schema}->get_table( $table_name );
     Carp::croak("No such table $table_name") unless $table;
 
-    my $columns = $opt->{'+columns'}
-        ? [@{$table->{columns}}, @{$opt->{'+columns'}}]
-        : ($opt->{columns} || $table->{columns})
-    ;
-
     my ($sql, @binds) = $self->{sql_builder}->select(
         $table_name,
-        $columns,
+        $self->_get_select_columns($table, $opt),
         $where,
         $opt
     );

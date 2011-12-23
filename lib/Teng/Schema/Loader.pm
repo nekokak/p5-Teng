@@ -52,6 +52,7 @@ sub load {
         );
     }
 
+    $schema->prepare_from_dbh($dbh);
     $teng->schema($schema);
     return $teng;
 }
