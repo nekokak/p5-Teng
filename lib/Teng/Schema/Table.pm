@@ -6,6 +6,7 @@ use Class::Accessor::Lite
         name
         primary_keys
         columns
+        escaped_columns
         sql_types
         row_class
     ) ]
@@ -16,8 +17,9 @@ use Class::Load ();
 sub new {
     my ($class, %args) = @_;
     my $self = bless {
-        deflators => [],
-        inflators => [],
+        deflators       => [],
+        inflators       => [],
+        escaped_columns => {},
         %args
     }, $class;
 
@@ -103,6 +105,15 @@ sub has_deflators {
 sub has_inflators {
     my $self = shift;
     return scalar @{ $self->{inflators} };
+}
+
+sub prepare_from_dbh {
+    my ($self, $dbh) = @_;
+
+    $self->escaped_columns->{$dbh->{Driver}->{Name}} ||= [
+        map { \$dbh->quote_identifier($_) }
+        @{$self->columns}
+    ];
 }
 
 1;
