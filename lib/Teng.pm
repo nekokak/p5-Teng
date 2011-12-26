@@ -146,6 +146,7 @@ sub reconnect {
 
         $self->owner_pid($$);
         $self->_on_connect_do;
+        $self->_prepare_from_dbh;
     }
 }
 
@@ -174,6 +175,7 @@ sub _prepare_from_dbh {
         $builder = Teng::QueryBuilder->new(driver => $self->{driver_name} );
         $self->sql_builder( $builder );
     }
+    $self->{dbh}->{FetchHashKeyName} = 'NAME_lc';
 }
 
 sub _verify_pid {
@@ -486,7 +488,7 @@ sub single {
         $opt
     );
     my $sth = $self->_execute($sql, \@binds);
-    my $row = $sth->fetchrow_hashref('NAME_lc');
+    my $row = $sth->fetchrow_hashref();
 
     return unless $row;
     return $row if $self->{suppress_row_objects};
