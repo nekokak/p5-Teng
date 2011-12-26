@@ -19,6 +19,7 @@ use Class::Accessor::Lite
         sql_builder
         sql_comment
         owner_pid
+        mode
     )]
 ;
 
@@ -48,6 +49,7 @@ sub new {
     my $self = bless {
         schema_class => "$class\::Schema",
         owner_pid    => $$,
+        mode         => 'ping',
         %args,
     }, $class;
 
@@ -123,9 +125,7 @@ sub _on_connect_do {
 sub reconnect {
     my $self = shift;
 
-    if ($self->in_transaction_check) {
-        Carp::confess("Detected disconnected database during a transaction. Refusing to proceed");
-    }
+    $self->in_transaction_check;
 
     my $dbh = $self->{dbh};
 
@@ -183,7 +183,10 @@ sub _verify_pid {
         $self->reconnect;
     }
     elsif ( my $dbh = $self->{dbh} ) {
-        if ( !$dbh->FETCH('Active') || !$dbh->ping ) {
+        if ( !$dbh->FETCH('Active') ) {
+            $self->reconnect;
+        }
+        elsif ( $self->mode eq 'ping' && !$dbh->ping) {
             $self->reconnect;
         }
     }
@@ -196,31 +199,57 @@ sub dbh {
     $self->{dbh};
 }
 
+sub connected {
+    my $self = shift;
+    my $dbh = $self->{dbh};
+    return $self->owner_pid && $dbh->ping;
+}
+
 sub _execute {
     my ($self, $sql, $binds) = @_;
 
+    if ($ENV{TENG_SQL_COMMENT} || $self->sql_comment) {
+        my $i = 1; # optimize, as we would *NEVER* be called
+        while ( my (@caller) = caller($i++) ) {
+            next if ( $caller[0]->isa( __PACKAGE__ ) );
+            my $comment = "$caller[1] at line $caller[2]";
+            $comment =~ s/\*\// /g;
+            $sql = "/* $comment */\n$sql";
+            last;
+        }
+    }
+
     my $sth;
-    eval {
-        if ($ENV{TENG_SQL_COMMENT} || $self->sql_comment) {
-            my $i = 1; # optimize, as we would *NEVER* be called
-            while ( my (@caller) = caller($i++) ) {
-                next if ( $caller[0]->isa( __PACKAGE__ ) );
-                my $comment = "$caller[1] at line $caller[2]";
-                $comment =~ s/\*\// /g;
-                $sql = "/* $comment */\n$sql";
-                last;
+    eval { $sth = $self->__execute($sql, $binds) };
+
+    if ($@) {
+        if ( $self->mode eq 'fixup' ) {
+            if ( $self->connected ) {
+                $self->handle_error($sql, $binds, $@);
+            }
+            $self->reconnect;
+            eval { $sth = $self->__execute($sql, $binds) };
+            if ($@) {
+                $self->handle_error($sql, $binds, $@);
             }
         }
-        $sth = $self->dbh->prepare($sql);
-        my $i = 1;
-        for my $v ( @{ $binds || [] } ) {
-            $sth->bind_param( $i++, ref($v) ? @$v : $v );
+        else {
+            $self->handle_error($sql, $binds, $@);
         }
-        $sth->execute();
-    };
-    if ($@) {
-        $self->handle_error($sql, $binds, $@);
     }
+
+    return $sth;
+}
+
+sub __execute {
+    my ($self, $sql, $binds) = @_;
+
+    my $sth = $self->dbh->prepare($sql);
+    my $i = 1;
+    for my $v ( @{ $binds || [] } ) {
+        $sth->bind_param( $i++, ref($v) ? @$v : $v );
+    }
+    $sth->execute();
 
     return $sth;
 }
@@ -402,11 +431,42 @@ sub in_transaction_check {
 }
 
 sub txn_scope {
+    my $self = shift;
     my @caller = caller();
-    $_[0]->txn_manager->txn_scope(caller => \@caller);
+
+    my $scope;
+    if ( $self->mode eq 'fixup' ) {
+        eval { $scope = $self->txn_manager->txn_scope(caller => \@caller) };
+        if ( $@ ) {
+            if ( $self->connected ) {
+                die $@;
+            }
+            $self->reconnect;
+            $scope = $self->txn_manager->txn_scope(caller => \@caller);
+        }
+    }
+    else {
+        $scope = $self->txn_manager->txn_scope(caller => \@caller);
+    }
+    return $scope;
 }
 
-sub txn_begin    { $_[0]->txn_manager->txn_begin    }
+sub txn_begin {
+    my $self = shift;
+    if ( $self->mode eq 'fixup' ) {
+        eval { $self->txn_manager->txn_begin };
+        if ( $@ ) {
+            if ( $self->connected ) {
+                die $@;
+            }
+            $self->reconnect;
+            $self->txn_manager->txn_begin;
+        }
+    }
+    else {
+        $self->txn_manager->txn_begin;
+    }
+}
 sub txn_rollback { $_[0]->txn_manager->txn_rollback }
 sub txn_commit   { $_[0]->txn_manager->txn_commit   }
 sub txn_end      { $_[0]->txn_manager->txn_end      }
@@ -686,6 +746,24 @@ You must pass C<connect_info> or C<dbh> to the constructor.
 =item * C<dbh>
 
 Specifies the database handle to use. 
+
+=item * C<mode>
+
+=over
+
+=item * C<ping(default)>
+
+reconnect at dbh->ping fail each execute.
+
+=item * C<fixup>
+
+reconnect at fail execute.
+
+=item * C<no_ping>
+
+no auto reconnect.
+
+=back
 
 =item * C<schema>
 
