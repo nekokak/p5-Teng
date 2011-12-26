@@ -56,6 +56,12 @@ sub camelize {
     join('', map{ ucfirst $_ } split(/(?<=[A-Za-z])_(?=[A-Za-z])|\b/, $s));
 }
 
+sub prepare_from_dbh {
+    my ($self, $dbh) = @_;
+
+    $_->prepare_from_dbh($dbh) for values %{$self->{tables}};
+}
+
 1;
 
 __END__
