@@ -514,6 +514,7 @@ sub search_by_sql {
         sth              => $sth,
         sql              => $sql,
         row_class        => $self->{schema}->get_row_class($table_name),
+        table            => $self->{schema}->get_table( $table_name ),
         table_name       => $table_name,
         suppress_object_creation => $self->{suppress_row_objects},
     );
