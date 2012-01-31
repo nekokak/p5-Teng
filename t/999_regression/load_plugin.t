@@ -1,3 +1,10 @@
+use strict;
+use warnings;
+use t::Utils;
+BEGIN {
+    eval {require Class::Method::Modifiers;};
+}
+use Test::More skip_all => 'This test requires Class::Method::Modifiers', $@;
 {
     package Mock::LoadPlugin;
     use strict;
@@ -48,11 +55,6 @@
     };
 
 }
-use strict;
-use warnings;
-use t::Utils;
-use Test::More;
-
 use DBI;
 use Teng::Schema::Loader;
 use MyGuard;
