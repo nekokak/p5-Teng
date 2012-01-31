@@ -1,24 +1,24 @@
 use strict;
 use warnings;
 use t::Utils;
-BEGIN {
-    eval {require Class::Method::Modifiers;};
-}
-use Test::More skip_all => 'This test requires Class::Method::Modifiers', $@;
+use Test::More;
 {
     package Mock::LoadPlugin;
     use strict;
     use warnings;
     use parent qw/Teng/;
-    use Class::Method::Modifiers;
-
+    use Test::More;
     __PACKAGE__->load_plugin('Count');
-
-    around qw/count/ => sub {
-        my $code = shift;
-        my $count = $code->(@_);
-        return $count + 1;
+    eval q{
+        use Class::Method::Modifiers;
+        around qw/count/ => sub {
+            my $code = shift;
+            my $count = $code->(@_);
+            return $count + 1;
+        };
     };
+    plan skip_all => 'This test requires Class::Method::Modifiers' if $@;
+
 
     sub setup_test_db {
         my $self = shift;
