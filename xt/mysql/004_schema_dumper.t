@@ -38,7 +38,7 @@ my $db = Mock::DB->new(dbh => $dbh);
 my $user = $db->schema->get_table('user');
 is($user->name, 'user');
 is(join(',', @{$user->primary_keys}), 'user_id');
-is(join(',', sort @{$user->columns}), join(',', sort qw/user_id name email created_on/));
+is(join(',', @{$user->columns}), join(',', qw/user_id name email created_on/));
 is_deeply $user->sql_types, +{
     user_id    => 4,
     name       => 12,

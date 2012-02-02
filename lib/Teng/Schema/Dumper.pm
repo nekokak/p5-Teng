@@ -1,7 +1,7 @@
 package Teng::Schema::Dumper;
 use strict;
 use warnings;
-use DBIx::Inspector 0.03;
+use DBIx::Inspector 0.04;
 use Carp ();
 
 sub dump {
@@ -20,7 +20,11 @@ sub dump {
         $ret .= sprintf("    name '%s';\n", $table_info->name);
         $ret .= sprintf("    pk %s;\n", join ',' , map { q{'}.$_->name.q{'} } $table_info->primary_key);
         $ret .= "    columns (\n";
-        for my $col ($table_info->columns) {
+        my @columns = $table_info->columns;
+        if (@columns && $columns[0]->get(my $key = 'ORDINAL_POSITION')) {
+            @columns = sort { $a->get($key) <=> $b->get($key) } @columns;
+        }
+        for my $col (@columns) {
             if ($col->data_type) {
                 $ret .= sprintf("        {name => '%s', type => %s},\n", $col->name, $col->data_type);
             } else {
