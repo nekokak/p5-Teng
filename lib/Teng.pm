@@ -36,7 +36,7 @@ sub load_plugin {
           ( $opt->{alias} && $opt->{alias}->{$meth} )
           ? $opt->{alias}->{$meth}
           : $meth;
-        *{"${class}::${dest_meth}"} = *{"${pkg}::$meth"};
+        *{"${class}::${dest_meth}"} = $pkg->can($meth);
     }
 
     $pkg->init($pkg) if $pkg->can('init');
