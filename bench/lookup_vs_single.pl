@@ -37,10 +37,11 @@ my $row = $db->single('user', { id => 1 });
 my $dbh = $db->dbh;
 
 cmpthese(10000 => +{
-    dbi           => sub {$dbh->selectrow_hashref('SELECT id,name,age FROM user where id = ?', undef, 1)},
-    single        => sub {$db->single('user', +{id => 1})},
-    single_by_sql => sub {$db->single_by_sql('SELECT id,name,age FROM user WHERE id = ?', [1], 'user')},
-    lookup        => sub {$db->lookup('user', +{id => 1})},
+    dbi             => sub {$dbh->selectrow_hashref('SELECT id,name,age FROM user where id = ?', undef, 1)},
+    single          => sub {$db->single('user', +{id => 1})},
+    single_by_sql   => sub {$db->single_by_sql('SELECT id,name,age FROM user WHERE id = ?', [1], 'user')},
+    lookup          => sub {$db->lookup('user', +{id => 1})},
+    lookup_arrayref => sub {$db->lookup('user', [id => 1])},
 }, 'all');
 
 __END__
