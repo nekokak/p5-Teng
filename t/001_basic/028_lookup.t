@@ -29,6 +29,32 @@ subtest 'lookup method' => sub {
         name      => 'perl',
         delete_fg => 0,
     };
+    $row->delete;
+};
+
+subtest 'lookup method(arrayref)' => sub {
+    $db_basic->insert('mock_basic', => {
+        id   => 1,
+        name => 'perl',
+    });
+
+    my $row = $db_basic->lookup('mock_basic', [id => 1]);
+    isa_ok $row, 'Mock::Basic::Row::MockBasic';
+    is_deeply $row->get_columns, +{
+        id        => 1,
+        name      => 'perl',
+        delete_fg => 0,
+    };
+
+    # multiple key
+    $row = $db_basic->lookup('mock_basic', [id => 1, name => 'perl']);
+    isa_ok $row, 'Mock::Basic::Row::MockBasic';
+    is_deeply $row->get_columns, +{
+        id        => 1,
+        name      => 'perl',
+        delete_fg => 0,
+    };
+    $row->delete;
 };
 
 subtest 'lookup_with_columns' => sub {
