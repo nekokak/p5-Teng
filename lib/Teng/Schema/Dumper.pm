@@ -13,30 +13,52 @@ sub dump {
 
     my $inspector = DBIx::Inspector->new(dbh => $dbh);
 
-    my $ret = "package ${namespace}::Schema;\n";
-    $ret .= "use Teng::Schema::Declare;\n";
-    for my $table_info (sort { $a->name cmp $b->name } $inspector->tables) {
-        $ret .= "table {\n";
-        $ret .= sprintf("    name '%s';\n", $table_info->name);
-        $ret .= sprintf("    pk %s;\n", join ',' , map { q{'}.$_->name.q{'} } $table_info->primary_key);
-        $ret .= "    columns (\n";
-        for my $col ($table_info->columns) {
-            if ($col->data_type) {
-                $ret .= sprintf("        {name => '%s', type => %s},\n", $col->name, $col->data_type);
-            } else {
-                $ret .= sprintf("        '%s',\n", $col->name);
-            }
-        }
-        $ret .= "    );\n";
+    my $ret = "";
 
-        if (my $rule = $args{inflate}->{$table_info->name}) {
-            $ret .= $rule;
+    if ( ref $args{tables} eq "ARRAY" ) {
+        for my $table_name (@{ $args{tables} }) {
+            $ret .= _render_table($inspector->table($table_name), \%args);
         }
-
-        $ret .= "};\n\n";
+    }
+    elsif ( $args{tables} ) {
+        $ret .= _render_table($inspector->table($args{tables}), \%args);
+    }
+    else {
+        $ret .= "package ${namespace}::Schema;\n";
+        $ret .= "use Teng::Schema::Declare;\n";
+        for my $table_info (sort { $a->name cmp $b->name } $inspector->tables) {
+            $ret .= _render_table($table_info, \%args);
+        }
+        $ret .= "1;\n";
     }
 
-    $ret .= "1;\n";
+    return $ret;
+}
+
+sub _render_table {
+    my ($table_info, $args) = @_;
+
+    my $ret = "";
+
+    $ret .= "table {\n";
+    $ret .= sprintf("    name '%s';\n", $table_info->name);
+    $ret .= sprintf("    pk %s;\n", join ',' , map { q{'}.$_->name.q{'} } $table_info->primary_key);
+    $ret .= "    columns (\n";
+    for my $col ($table_info->columns) {
+        if ($col->data_type) {
+            $ret .= sprintf("        {name => '%s', type => %s},\n", $col->name, $col->data_type);
+        } else {
+            $ret .= sprintf("        '%s',\n", $col->name);
+        }
+    }
+    $ret .= "    );\n";
+
+    if (my $rule = $args->{inflate}->{$table_info->name}) {
+        $ret .= $rule;
+    }
+
+    $ret .= "};\n\n";
+
     return $ret;
 }
 
