@@ -9,7 +9,23 @@ use Teng::Schema::Dumper;
 # initialize
 my $dbh = DBI->connect('dbi:SQLite::memory:', '', '', {RaiseError => 1}) or die 'cannot connect to db';
 $dbh->do(q{
-    create table user (
+    create table user1 (
+        user_id integer primary key,
+        name varchar(255),
+        email varchar(255),
+        created_on int
+    );
+});
+$dbh->do(q{
+    create table user2 (
+        user_id integer primary key,
+        name varchar(255),
+        email varchar(255),
+        created_on int
+    );
+});
+$dbh->do(q{
+    create table user3 (
         user_id integer primary key,
         name varchar(255),
         email varchar(255),
@@ -18,45 +34,75 @@ $dbh->do(q{
 });
 
 
-# generate schema and eval.
-my $code = Teng::Schema::Dumper->dump(
-    dbh       => $dbh,
-    namespace => 'Mock::DB',
-    inflate   => +{
-        user => q|
-            inflate 'email' => sub {
-                my ($col_value) = @_;
-                $col_value . '_inflate';
-            };
-            deflate 'email' => sub {
-                my ($col_value) = @_;
-                $col_value . '_deflate';
-            };
-        |,
-    },
-);
-note $code;
-my $schema = eval $code;
-::ok !$@, 'no syntax error';
-diag $@ if $@;
+subtest "dump all tables" => sub {
+    # generate schema and eval.
+    my $code = Teng::Schema::Dumper->dump(
+        dbh       => $dbh,
+        namespace => 'Mock::DB',
+        inflate   => +{
+            user1 => q|
+                inflate 'email' => sub {
+                    my ($col_value) = @_;
+                    $col_value . '_inflate';
+                };
+                deflate 'email' => sub {
+                    my ($col_value) = @_;
+                    $col_value . '_deflate';
+                };
+            |,
+        },
+    );
+    note $code;
+    my $schema = eval $code;
+    ::ok !$@, 'no syntax error';
+    diag $@ if $@;
 
-{
-    package Mock::DB;
-    use parent 'Teng';
-}
+    {
+        package Mock::DB;
+        use parent 'Teng';
+    }
 
-my $db = Mock::DB->new(dbh => $dbh);
-my $user = $db->schema->get_table('user');
-is($user->name, 'user');
-is(join(',', @{$user->primary_keys}), 'user_id');
-is(join(',', @{$user->columns}), 'user_id,name,email,created_on');
+    my $db = Mock::DB->new(dbh => $dbh);
 
-my $row_class = $db->schema->get_row_class('user');
-isa_ok $row_class, 'Mock::DB::Row::User';
+    for my $table_name (qw/user1 user2 user3/) {
+        my $user = $db->schema->get_table($table_name);
+        is($user->name, $table_name);
+        is(join(',', @{$user->primary_keys}), 'user_id');
+        is(join(',', @{$user->columns}), 'user_id,name,email,created_on');
+    }
 
-my $row = $db->insert('user', +{name => 'nekokak', email => 'nekokak@gmail.com'});
-is $row->email, 'nekokak@gmail.com_deflate_inflate';
-is $row->get_column('email'), 'nekokak@gmail.com_deflate';
+    my $row_class = $db->schema->get_row_class('user1');
+    isa_ok $row_class, 'Mock::DB::Row::User1';
+
+    my $row = $db->insert('user1', +{name => 'nekokak', email => 'nekokak@gmail.com'});
+    is $row->email, 'nekokak@gmail.com_deflate_inflate';
+    is $row->get_column('email'), 'nekokak@gmail.com_deflate';
+};
+
+subtest "dump single table" => sub {
+    # generate schema and eval.
+    my $code = Teng::Schema::Dumper->dump(
+        dbh       => $dbh,
+        namespace => 'Mock::DB',
+        tables => 'user1',
+    );
+    note $code;
+    like $code, qr/user1/;
+    unlike $code, qr/user2/;
+    unlike $code, qr/user3/;
+};
+
+subtest "dump multiple tables" => sub {
+    # generate schema and eval.
+    my $code = Teng::Schema::Dumper->dump(
+        dbh       => $dbh,
+        namespace => 'Mock::DB',
+        tables => [qw/user1 user2/],
+    );
+    note $code;
+    like $code, qr/user1/;
+    like $code, qr/user2/;
+    unlike $code, qr/user3/;
+};
 
 done_testing;
-
