@@ -38,7 +38,7 @@ subtest "dump all tables" => sub {
     # generate schema and eval.
     my $code = Teng::Schema::Dumper->dump(
         dbh       => $dbh,
-        namespace => 'Mock::DB1',
+        namespace => 'Mock::DB',
         inflate   => +{
             user1 => q|
                 inflate 'email' => sub {
@@ -58,11 +58,11 @@ subtest "dump all tables" => sub {
     diag $@ if $@;
 
     {
-        package Mock::DB1;
+        package Mock::DB;
         use parent 'Teng';
     }
 
-    my $db = Mock::DB1->new(dbh => $dbh);
+    my $db = Mock::DB->new(dbh => $dbh);
 
     for my $table_name (qw/user1 user2 user3/) {
         my $user = $db->schema->get_table($table_name);
@@ -72,7 +72,7 @@ subtest "dump all tables" => sub {
     }
 
     my $row_class = $db->schema->get_row_class('user1');
-    isa_ok $row_class, 'Mock::DB1::Row::User1';
+    isa_ok $row_class, 'Mock::DB::Row::User1';
 
     my $row = $db->insert('user1', +{name => 'nekokak', email => 'nekokak@gmail.com'});
     is $row->email, 'nekokak@gmail.com_deflate_inflate';
@@ -83,7 +83,7 @@ subtest "dump single table" => sub {
     # generate schema and eval.
     my $code = Teng::Schema::Dumper->dump(
         dbh       => $dbh,
-        namespace => 'Mock::DB2',
+        namespace => 'Mock::DB',
         tables => 'user1',
     );
     note $code;
@@ -96,7 +96,7 @@ subtest "dump multiple tables" => sub {
     # generate schema and eval.
     my $code = Teng::Schema::Dumper->dump(
         dbh       => $dbh,
-        namespace => 'Mock::DB2',
+        namespace => 'Mock::DB',
         tables => [qw/user1 user2/],
     );
     note $code;
