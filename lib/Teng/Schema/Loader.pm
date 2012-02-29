@@ -31,6 +31,7 @@ sub load {
     for my $table_info ($inspector->tables) {
 
         my $table_name = $table_info->name;
+        warn $table_name;
         my @table_pk   = map { $_->name } $table_info->primary_key;
         my @col_names;
         my %sql_types;

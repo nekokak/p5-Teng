@@ -105,6 +105,7 @@ sub update {
         Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
     }
 
+    %$upd = (%{$self->get_dirty_columns}, %{$upd||+{}});
     for my $col (keys %{$upd}) {
        $upd->{$col} = $table->call_deflate($col, $upd->{$col});
     }

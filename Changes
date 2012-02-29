@@ -1,5 +1,13 @@
 Revision history for Perl extension Teng
 
+0.14_05
+        - FIXED: plugin global export bug. (tahnks takuji31)
+        - FIXED: set_column(s) un deflate bug. (thanks tsucchi)
+        - add 'dump' parameter for Dumper->dump. (thanks zentooo)
+        - lookup method allow $where as arrayre. (thanks nihen)
+        - add db connection check mode. ex)ping (thanks nihen)
+        - quote identifier cache. and some performance tuning. (thanks nihen)
+
 0.14_04
         - support '+columns' for single, search, lookup and search_with_pager. (thanks nihen)
         - changed calling way of sql_builder in Teng::Plugin::Count. (thanks makamaka)
