@@ -549,7 +549,7 @@ sub single {
         $opt
     );
     my $sth = $self->_execute($sql, \@binds);
-    my $row = $sth->fetchrow_hashref();
+    my $row = $sth->fetchrow_hashref('NAME');
 
     return unless $row;
     return $row if $self->{suppress_row_objects};

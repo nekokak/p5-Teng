@@ -18,7 +18,7 @@ sub next {
     my $row;
     if ($self->{sth}) {
         $row = $self->{sth}->fetchrow_hashref;
-        $self->{select_columns} ||= $self->{sth}->{NAME_lc};
+        $self->{select_columns} ||= $self->{sth}->{NAME};
         unless ( $row ) {
             $self->{sth}->finish;
             $self->{sth} = undef;

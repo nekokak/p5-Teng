@@ -35,7 +35,7 @@ sub lookup {
            );
 
     my $sth = $self->_execute($sql, $values);
-    my $row = $sth->fetchrow_hashref('NAME_lc');
+    my $row = $sth->fetchrow_hashref('NAME');
 
     return unless $row;
     return $row if $self->{suppress_row_objects};

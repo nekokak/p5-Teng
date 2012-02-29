@@ -14,7 +14,7 @@ sub single_by_sql {
     Carp::croak("No such table $table_name") unless $table;
 
     my $sth = $self->_execute($sql, $bind);
-    my $row = $sth->fetchrow_hashref('NAME_lc');
+    my $row = $sth->fetchrow_hashref('NAME');
 
     return unless $row;
     return $row if $self->{suppress_row_objects};

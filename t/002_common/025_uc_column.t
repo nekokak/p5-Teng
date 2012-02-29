@@ -1,0 +1,26 @@
+use t::Utils;
+use Mock::Basic;
+use Test::More;
+
+my $dbh = t::Utils->setup_dbh();
+my $db = Mock::Basic->new({dbh => $dbh});
+$db->setup_test_db;
+
+$db->insert('mock_basic_camelcase',{
+    Id   => 1,
+    Name => 'perl',
+});
+
+subtest 'single' => sub {
+    my $row = $db->single('mock_basic_camelcase',{Id => 1});
+    isa_ok $row, 'Teng::Row';
+    is $row->Id, 1;
+    is $row->Name, 'perl';
+    is_deeply $row->get_columns, +{
+        Id        => 1,
+        Name      => 'perl',
+        DeleteFg  => 0,
+    };
+};
+
+done_testing;

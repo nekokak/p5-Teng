@@ -12,5 +12,15 @@ table {
     /;
 };
 
+table {
+    name 'mock_basic_camelcase';
+    pk 'Id';
+    columns qw/
+        Id
+        Name
+        DeleteFg
+    /;
+};
+
 1;
 
