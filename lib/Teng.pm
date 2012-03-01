@@ -20,6 +20,7 @@ use Class::Accessor::Lite
         sql_comment
         owner_pid
         mode
+        fields_case
     )]
 ;
 
@@ -50,6 +51,7 @@ sub new {
         schema_class => "$class\::Schema",
         owner_pid    => $$,
         mode         => 'ping',
+        fields_case  => 'NAME_lc',
         %args,
     }, $class;
 
@@ -175,7 +177,7 @@ sub _prepare_from_dbh {
         $builder = Teng::QueryBuilder->new(driver => $self->{driver_name} );
         $self->sql_builder( $builder );
     }
-    $self->{dbh}->{FetchHashKeyName} = 'NAME_lc';
+    $self->{dbh}->{FetchHashKeyName} = $self->{fields_case};
 
     $self->{schema}->prepare_from_dbh($self->{dbh}) if $self->{schema};
 }
@@ -549,7 +551,7 @@ sub single {
         $opt
     );
     my $sth = $self->_execute($sql, \@binds);
-    my $row = $sth->fetchrow_hashref('NAME');
+    my $row = $sth->fetchrow_hashref($self->{fields_case});
 
     return unless $row;
     return $row if $self->{suppress_row_objects};
@@ -766,6 +768,10 @@ reconnect at fail execute.
 =item * C<no_ping>
 
 no auto reconnect.
+
+=item * C<fields_case>
+
+specific DBI.pm's FetchHashKeyName.
 
 =back
 
