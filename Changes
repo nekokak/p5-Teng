@@ -7,6 +7,7 @@ Revision history for Perl extension Teng
         - lookup method allow $where as arrayre. (thanks nihen)
         - add db connection check mode. ex)ping (thanks nihen)
         - quote identifier cache. and some performance tuning. (thanks nihen)
+        - support FetchHashKeyName. (thanks tsucchi)
 
 0.14_04
         - support '+columns' for single, search, lookup and search_with_pager. (thanks nihen)
