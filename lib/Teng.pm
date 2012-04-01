@@ -31,6 +31,8 @@ sub load_plugin {
     $pkg = $pkg =~ s/^\+// ? $pkg : "Teng::Plugin::$pkg";
     Class::Load::load_class($pkg);
 
+    $class = ref($class) if ref($class);
+
     no strict 'refs';
     for my $meth ( @{"${pkg}::EXPORT"} ) {
         my $dest_meth =
