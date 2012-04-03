@@ -33,16 +33,17 @@ sub load_plugin {
 
     $class = ref($class) if ref($class);
 
+    my $alias = delete $opt->{alias};
     no strict 'refs';
     for my $meth ( @{"${pkg}::EXPORT"} ) {
         my $dest_meth =
-          ( $opt->{alias} && $opt->{alias}->{$meth} )
-          ? $opt->{alias}->{$meth}
+          ( $alias && $alias->{$meth} )
+          ? $alias->{$meth}
           : $meth;
         *{"${class}::${dest_meth}"} = $pkg->can($meth);
     }
 
-    $pkg->init($pkg) if $pkg->can('init');
+    $pkg->init($class, $opt) if $pkg->can('init');
 }
 
 sub new {
