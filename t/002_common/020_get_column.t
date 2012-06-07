@@ -25,7 +25,7 @@ subtest 'get_column' => sub {
         $row->get_column('bazbaz'); 
     };
     ok $@;
-    like $@, qr/Specified colum 'bazbaz' not found in row/;
+    like $@, qr/Specified column 'bazbaz' not found in row/;
 };
 
 subtest 'get_column' => sub {
@@ -38,7 +38,7 @@ subtest 'get_column' => sub {
         $row->get_column('name');
     };
     ok $@;
-    like $@, qr/Specified colum 'name' not found in row \(query: SELECT id FROM mock_basic LIMIT 1\)/;
+    like $@, qr/Specified column 'name' not found in row \(query: SELECT id FROM mock_basic LIMIT 1\)/;
 };
 
 done_testing;
