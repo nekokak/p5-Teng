@@ -917,7 +917,7 @@ It's useful in case use IN statement.
 
 If you give table_name. It is assumed the hint that makes Teng::Row's Object.
 
-=item $itr = $teng->search_by_sql($sql, [\@bind_vlues, [$table_name]])
+=item $itr = $teng->search_by_sql($sql, [\@bind_values, [$table_name]])
 
 execute your SQL
 

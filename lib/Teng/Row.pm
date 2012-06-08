@@ -49,7 +49,7 @@ sub get_column {
     if ( exists $self->{row_data}->{$col} ) {
         return $self->{row_data}->{$col};
     } else {
-        Carp::croak("Specified colum '$col' not found in row (query: " . ( $self->{sql} || 'unknown' ) . ")" );
+        Carp::croak("Specified column '$col' not found in row (query: " . ( $self->{sql} || 'unknown' ) . ")" );
     }
 }
 
