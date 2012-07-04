@@ -33,14 +33,10 @@ sub load_plugin {
 
     $class = ref($class) if ref($class);
 
-    my $alias = delete $opt->{alias};
+    my $alias = delete $opt->{alias} || {};
     no strict 'refs';
-    for my $meth ( @{"${pkg}::EXPORT"} ) {
-        my $dest_meth =
-          ( $alias && $alias->{$meth} )
-          ? $alias->{$meth}
-          : $meth;
-        *{"${class}::${dest_meth}"} = $pkg->can($meth);
+    for my $method ( @{"${pkg}::EXPORT"} ){
+        *{$class . '::' . ($alias->{$method} || $method)} = $pkg->can($method);
     }
 
     $pkg->init($class, $opt) if $pkg->can('init');
@@ -999,7 +995,19 @@ set row object creation mode.
 
 =item $teng->load_plugin();
 
-load Teng::Plugin's
+ $teng->load_plugin($plugin_class, $options);
+
+This imports plugin class's methods to C<$teng> class
+and it calls $plugin_class's init method if it has.
+
+ $plugin_class->init($teng, $options);
+
+If you want to change imported method name, use C<alias> option.
+for example:
+
+ YourDB->load_plugin('BulkInsert', { alias => { bulk_insert => 'isnert_bulk' } });
+
+BulkInsert's "bulk_insert" method is imported as "insert_bulk".
 
 =item $teng->handle_error
 
