@@ -973,7 +973,7 @@ rollback transaction.
 
 finish transaction.
 
-=item $teng->do($sql, [\%option, \@bind_values])
+=item $teng->do($sql, [\%option, @bind_values])
 
 Execute the query specified by C<$sql>, using C<%option> and C<@bind_values> as necessary. This pretty much a wrapper around L<http://search.cpan.org/dist/DBI/DBI.pm#do>
 
