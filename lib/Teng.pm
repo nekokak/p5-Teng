@@ -24,7 +24,7 @@ use Class::Accessor::Lite
     )]
 ;
 
-our $VERSION = '0.14_05';
+our $VERSION = '0.15';
 
 sub load_plugin {
     my ($class, $pkg, $opt) = @_;
@@ -33,10 +33,12 @@ sub load_plugin {
 
     $class = ref($class) if ref($class);
 
-    my $alias = delete $opt->{alias} || {};
-    no strict 'refs';
-    for my $method ( @{"${pkg}::EXPORT"} ){
-        *{$class . '::' . ($alias->{$method} || $method)} = $pkg->can($method);
+    my $alias = delete $opt->{alias} || +{};
+    {
+        no strict 'refs';
+        for my $method ( @{"${pkg}::EXPORT"} ){
+            *{$class . '::' . ($alias->{$method} || $method)} = $pkg->can($method);
+        }
     }
 
     $pkg->init($class, $opt) if $pkg->can('init');
@@ -225,24 +227,18 @@ sub _execute {
     }
 
     my $sth;
-    eval { $sth = $self->__execute($sql, $binds) };
+    eval {
+        $sth = $self->dbh->prepare($sql);
+        my $i = 1;
+        for my $v ( @{ $binds || [] } ) {
+            $sth->bind_param( $i++, ref($v) ? @$v : $v );
+        }
+        $sth->execute();
+    };
 
     if ($@) {
         $self->handle_error($sql, $binds, $@);
     }
-
-    return $sth;
-}
-
-sub __execute {
-    my ($self, $sql, $binds) = @_;
-
-    my $sth = $self->dbh->prepare($sql);
-    my $i = 1;
-    for my $v ( @{ $binds || [] } ) {
-        $sth->bind_param( $i++, ref($v) ? @$v : $v );
-    }
-    $sth->execute();
 
     return $sth;
 }

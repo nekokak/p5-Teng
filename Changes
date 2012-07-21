@@ -1,5 +1,11 @@
 Revision history for Perl extension Teng
 
+0.15
+        - stop mode:fixup support. (thanks nihen)
+        - refactoring load_plugin. (thanks ktat)
+        - fixed some document. (thanks issm, bokutin, ktat)
+        - pass hash ref as option to plugin init method. (thaks ktat)
+
 0.14_05
         - FIXED: plugin global export bug. (tahnks takuji31)
         - FIXED: set_column(s) un deflate bug. (thanks tsucchi)
