@@ -228,19 +228,7 @@ sub _execute {
     eval { $sth = $self->__execute($sql, $binds) };
 
     if ($@) {
-        if ( $self->mode eq 'fixup' ) {
-            if ( $self->connected ) {
-                $self->handle_error($sql, $binds, $@);
-            }
-            $self->reconnect;
-            eval { $sth = $self->__execute($sql, $binds) };
-            if ($@) {
-                $self->handle_error($sql, $binds, $@);
-            }
-        }
-        else {
-            $self->handle_error($sql, $binds, $@);
-        }
+        $self->handle_error($sql, $binds, $@);
     }
 
     return $sth;
@@ -439,38 +427,13 @@ sub txn_scope {
     my $self = shift;
     my @caller = caller();
 
-    my $scope;
-    if ( $self->mode eq 'fixup' ) {
-        eval { $scope = $self->txn_manager->txn_scope(caller => \@caller) };
-        if ( $@ ) {
-            if ( $self->connected ) {
-                die $@;
-            }
-            $self->reconnect;
-            $scope = $self->txn_manager->txn_scope(caller => \@caller);
-        }
-    }
-    else {
-        $scope = $self->txn_manager->txn_scope(caller => \@caller);
-    }
-    return $scope;
+    $self->txn_manager->txn_scope(caller => \@caller);
 }
 
 sub txn_begin {
     my $self = shift;
-    if ( $self->mode eq 'fixup' ) {
-        eval { $self->txn_manager->txn_begin };
-        if ( $@ ) {
-            if ( $self->connected ) {
-                die $@;
-            }
-            $self->reconnect;
-            $self->txn_manager->txn_begin;
-        }
-    }
-    else {
-        $self->txn_manager->txn_begin;
-    }
+
+    $self->txn_manager->txn_begin;
 }
 sub txn_rollback { $_[0]->txn_manager->txn_rollback }
 sub txn_commit   { $_[0]->txn_manager->txn_commit   }
@@ -759,10 +722,6 @@ Specifies the database handle to use.
 =item * C<ping(default)>
 
 reconnect at dbh->ping fail each execute.
-
-=item * C<fixup>
-
-reconnect at fail execute.
 
 =item * C<no_ping>
 
