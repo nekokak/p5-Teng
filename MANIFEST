@@ -53,8 +53,8 @@ t/001_basic/028_fork_self_reconnect_dbh.t
 t/001_basic/028_lookup.t
 t/001_basic/029_single_by_sql.t
 t/001_basic/030_reconnect_ping.t
-t/001_basic/031_reconnect_fixup.t
 t/001_basic/032_reconnect_no_ping.t
+t/001_basic/033_load_plugin_with_args.t
 t/002_common/000_new.t
 t/002_common/001_insert.t
 t/002_common/002_update.t
@@ -95,6 +95,7 @@ t/lib/Mock/Inflate.pm
 t/lib/Mock/Inflate/Name.pm
 t/lib/Mock/Inflate/Schema.pm
 t/lib/MyGuard.pm
+t/lib/Teng/Plugin/ArgsTest.pm
 t/lib/TengTest.pm
 t/Utils.pm
 xt/02_pod.t
