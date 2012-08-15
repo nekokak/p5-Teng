@@ -9,7 +9,6 @@ use Test::Mock::Guard qw/mock_guard/;
     package Bench;
     use parent 'Teng';
     __PACKAGE__->load_plugin('Lookup');
-    __PACKAGE__->load_plugin('SingleBySQL');
 
     package Bench::Schema;
     use Teng::Schema::Declare;
@@ -40,18 +39,24 @@ cmpthese(10000 => +{
     dbi             => sub {$dbh->selectrow_hashref('SELECT id,name,age FROM user where id = ?', undef, 1)},
     single          => sub {$db->single('user', +{id => 1})},
     single_by_sql   => sub {$db->single_by_sql('SELECT id,name,age FROM user WHERE id = ?', [1], 'user')},
+    single_named   => sub {$db->single_named('SELECT id,name,age FROM user WHERE id = :id', {id => 1}, 'user')},
     lookup          => sub {$db->lookup('user', +{id => 1})},
     lookup_arrayref => sub {$db->lookup('user', [id => 1])},
 }, 'all');
 
 __END__
-Benchmark: timing 10000 iterations of dbi, lookup, single, single_by_sql...
-       dbi: 0.543471 wallclock secs ( 0.50 usr  0.01 sys +  0.00 cusr  0.00 csys =  0.51 CPU) @ 19607.84/s (n=10000)
-    lookup: 0.808071 wallclock secs ( 0.78 usr  0.00 sys +  0.00 cusr  0.00 csys =  0.78 CPU) @ 12820.51/s (n=10000)
-    single: 1.67938 wallclock secs ( 1.57 usr  0.00 sys +  0.00 cusr  0.00 csys =  1.57 CPU) @ 6369.43/s (n=10000)
-single_by_sql: 0.769787 wallclock secs ( 0.74 usr  0.00 sys +  0.00 cusr  0.00 csys =  0.74 CPU) @ 13513.51/s (n=10000)
-                 Rate        single        lookup single_by_sql           dbi
-single         6369/s            --          -50%          -53%          -68%
-lookup        12821/s          101%            --           -5%          -35%
-single_by_sql 13514/s          112%            5%            --          -31%
-dbi           19608/s          208%           53%           45%            --
+
+Benchmark: timing 10000 iterations of dbi, lookup, lookup_arrayref, single, single_by_sql, single_named...
+       dbi: 0.681385 wallclock secs ( 0.50 usr  0.00 sys +  0.00 cusr  0.00 csys =  0.50 CPU) @ 20000.00/s (n=10000)
+    lookup: 1.53734 wallclock secs ( 1.04 usr  0.00 sys +  0.00 cusr  0.00 csys =  1.04 CPU) @ 9615.38/s (n=10000)
+lookup_arrayref: 1.40989 wallclock secs ( 1.02 usr  0.00 sys +  0.00 cusr  0.00 csys =  1.02 CPU) @ 9803.92/s (n=10000)
+    single: 2.49036 wallclock secs ( 1.57 usr  0.01 sys +  0.00 cusr  0.00 csys =  1.58 CPU) @ 6329.11/s (n=10000)
+single_by_sql: 1.09325 wallclock secs ( 0.76 usr  0.00 sys +  0.00 cusr  0.00 csys =  0.76 CPU) @ 13157.89/s (n=10000)
+single_named: 1.23624 wallclock secs ( 0.86 usr  0.00 sys +  0.00 cusr  0.00 csys =  0.86 CPU) @ 11627.91/s (n=10000)
+                   Rate single lookup lookup_arrayref single_named single_by_sql  dbi
+single           6329/s     --   -34%            -35%         -46%          -52% -68%
+lookup           9615/s    52%     --             -2%         -17%          -27% -52%
+lookup_arrayref  9804/s    55%     2%              --         -16%          -25% -51%
+single_named    11628/s    84%    21%             19%           --          -12% -42%
+single_by_sql   13158/s   108%    37%             34%          13%            -- -34%
+dbi             20000/s   216%   108%            104%          72%           52%   --
