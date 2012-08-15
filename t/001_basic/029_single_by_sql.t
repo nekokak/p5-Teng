@@ -12,8 +12,15 @@ $db->insert('mock_basic',{
     name => 'perl',
 });
 
-subtest 'single' => sub {
+subtest 'single_by_sql' => sub {
     my $row = $db->single_by_sql('SELECT * from mock_basic where id = ?', [1], 'mock_basic');
+    isa_ok $row, 'Teng::Row';
+    is $row->id, 1;
+    is $row->name, 'perl';
+};
+
+subtest 'single_named' => sub {
+    my $row = $db->single_named('SELECT * from mock_basic where id = :id', {id => 1}, 'mock_basic');
     isa_ok $row, 'Teng::Row';
     is $row->id, 1;
     is $row->name, 'perl';

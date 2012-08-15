@@ -474,24 +474,29 @@ sub search {
     $self->search_by_sql($sql, \@binds, $table_name);
 }
 
-sub search_named {
-    my ($self, $sql, $args, $table_name) = @_;
+sub _bind_named {
+    my ($self, $sql, $args ) = @_;
 
-    my %named_bind = %{$args};
     my @bind;
     $sql =~ s{:([A-Za-z_][A-Za-z0-9_]*)}{
-        Carp::croak("'$1' does not exist in bind hash") if !exists $named_bind{$1};
-        if ( ref $named_bind{$1} && ref $named_bind{$1} eq "ARRAY" ) {
-            push @bind, @{ $named_bind{$1} };
-            my $tmp = join ',', map { '?' } @{ $named_bind{$1} };
+        Carp::croak("'$1' does not exist in bind hash") if !exists $args->{$1};
+        if ( ref $args->{$1} && ref $args->{$1} eq "ARRAY" ) {
+            push @bind, @{ $args->{$1} };
+            my $tmp = join ',', map { '?' } @{ $args->{$1} };
             "( $tmp )";
         } else {
-            push @bind, $named_bind{$1};
+            push @bind, $args->{$1};
             '?'
         }
     }ge;
 
-    $self->search_by_sql($sql, \@bind, $table_name);
+    return ($sql, \@bind);
+}
+
+sub search_named {
+    my ($self, $sql, $args, $table_name) = @_;
+
+    $self->search_by_sql($self->_bind_named($sql, $args), $table_name);
 }
 
 sub single {
