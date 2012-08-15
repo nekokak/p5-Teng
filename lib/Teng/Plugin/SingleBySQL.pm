@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use utf8;
 
-our @EXPORT = qw/single_by_sql/;
+our @EXPORT = qw/single_by_sql single_named/;
 
 
 sub single_by_sql {
@@ -28,6 +28,12 @@ sub single_by_sql {
             table_name => $table_name,
         }
     );
+}
+
+sub single_named {
+    my ($self, $sql, $args, $table_name) = @_;
+
+    $self->single_by_sql($self->_bind_named($sql, $args), $table_name);
 }
 
 1;
