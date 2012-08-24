@@ -231,7 +231,7 @@ sub _execute {
         $sth = $self->dbh->prepare($sql);
         my $i = 1;
         for my $v ( @{ $binds || [] } ) {
-            $sth->bind_param( $i++, ref($v) ? @$v : $v );
+            $sth->bind_param( $i++, ref($v) eq 'ARRAY' ? @$v : $v );
         }
         $sth->execute();
     };
