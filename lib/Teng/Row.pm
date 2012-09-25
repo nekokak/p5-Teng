@@ -25,6 +25,9 @@ sub _lazy_get_data {
     return sub {
         my $self = shift;
 
+        # "Untrusted" means the row is set_column by scalarref.
+        # e.g.
+        #   $row->set_column("date" => \"DATE()");
         if ($self->{_untrusted_row_data}->{$col}) {
             Carp::carp("${col}'s row data is untrusted. by your update query.");
         }
