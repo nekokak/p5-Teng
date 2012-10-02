@@ -179,7 +179,7 @@ sub _where_cond {
 sub AUTOLOAD{
     my $self = shift;
     my($method) = ($AUTOLOAD =~ /([^:']+$)/);
-    $self->_lazy_get_data($method)->($self);
+    $self->generate_column_accessor($method)->($self);
 }
 
 ### don't autoload this
