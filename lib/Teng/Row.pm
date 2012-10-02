@@ -19,7 +19,7 @@ sub new {
     $self;
 }
 
-sub _lazy_get_data {
+sub generate_column_accessor {
     my ($x, $col) = @_;
 
     return sub {

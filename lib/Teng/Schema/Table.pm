@@ -32,7 +32,7 @@ sub new {
     for my $col (@{$self->columns}) {
         no strict 'refs';
         unless ($row_class->can($col)) {
-            *{"$row_class\::$col"} = $row_class->_lazy_get_data($col);
+            *{"$row_class\::$col"} = $row_class->generate_column_accessor($col);
         }
     }
     $self->row_class($row_class);
