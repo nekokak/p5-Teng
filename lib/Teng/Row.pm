@@ -35,7 +35,7 @@ sub generate_column_accessor {
         }
         my $cache = $self->{_get_column_cached};
         my $data = $cache->{$col};
-        if (! $data) { 
+        if (! $data) {
             $data = $cache->{$col} = $self->{table} ? $self->{table}->call_inflate($col, $self->get_column($col)) : $self->get_column($col);
         }
         return $data;
