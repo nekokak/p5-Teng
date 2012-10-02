@@ -101,5 +101,21 @@ subtest 'empty update' => sub {
     is $row->name, 'perl';
 };
 
+subtest 'update by setter column' => sub {
+    my $row = $db->single('mock_basic',{
+        id => 1,
+    });
+    is $row->name, 'perl';
+
+    $row->name('tora');
+    is $row->update, 1;
+    is $row->name, 'tora';
+
+    my $row2 = $db->single('mock_basic',{
+        id => 1,
+    });
+    is $row2->name, 'tora';
+};
+
 done_testing;
 

@@ -25,6 +25,8 @@ sub _lazy_get_data {
     return sub {
         my $self = shift;
 
+        return $self->set_column( $col => @_ ) if @_;
+
         # "Untrusted" means the row is set_column by scalarref.
         # e.g.
         #   $row->set_column("date" => \"DATE()");
