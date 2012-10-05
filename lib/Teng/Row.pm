@@ -8,8 +8,9 @@ sub new {
     my ($class, $args) = @_;
 
     my $self = bless {
-        _get_column_cached => {},
-        _dirty_columns     => {},
+        _get_column_cached     => {},
+        _dirty_columns         => {},
+        _autoload_column_cache => {},
         %$args,
     }, $class;
 
@@ -19,11 +20,13 @@ sub new {
     $self;
 }
 
-sub _lazy_get_data {
+sub generate_column_accessor {
     my ($x, $col) = @_;
 
     return sub {
         my $self = shift;
+
+        return $self->set_column( $col => @_ ) if @_;
 
         # "Untrusted" means the row is set_column by scalarref.
         # e.g.
@@ -33,7 +36,7 @@ sub _lazy_get_data {
         }
         my $cache = $self->{_get_column_cached};
         my $data = $cache->{$col};
-        if (! $data) { 
+        if (! $data) {
             $data = $cache->{$col} = $self->{table} ? $self->{table}->call_inflate($col, $self->get_column($col)) : $self->get_column($col);
         }
         return $data;
@@ -174,10 +177,11 @@ sub _where_cond {
     }
 }
 
-sub AUTOLOAD{
+# for +columns option by some search methods
+sub AUTOLOAD {
     my $self = shift;
     my($method) = ($AUTOLOAD =~ /([^:']+$)/);
-    $self->_lazy_get_data($method)->($self);
+    ($self->{_autoload_column_cache}{$method} ||= $self->generate_column_accessor($method))->($self);
 }
 
 ### don't autoload this

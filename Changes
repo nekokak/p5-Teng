@@ -1,5 +1,10 @@
 Revision history for Perl extension Teng
 
+0.16
+        - row column method accept setter values. (thaks yappo)
+        - rename Row class method _lazy_get_data to generate_column_accessor. (thaks yappo)
+        - FIXED: AUTOLOAD row column method's uncached bug. (thaks yappo)
+
 0.15
         - stop mode:fixup support. (thanks nihen)
         - refactoring load_plugin. (thanks ktat)

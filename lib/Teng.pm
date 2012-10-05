@@ -661,7 +661,7 @@ in your script.
             id   => 1,
         }
     );
-    $row->update({name => 'nekokak'});
+    $row->update({name => 'nekokak'}); # same do { $row->name('nekokak'); $row->update; }
 
     $row = $teng->single_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
     $row->delete();
@@ -851,6 +851,18 @@ You can also call update on a row object:
 
     my $row = $teng->single('user',{id => 1});
     $row->update({name => 'nomaneko'});
+
+You can use the set_column method:
+
+    my $row = $teng->single('user', {id => 1});
+    $row->set_column( name => 'yappo' );
+    $row->update;
+
+you can column update by using column method:
+
+    my $row = $teng->single('user', {id => 1});
+    $row->name('yappo');
+    $row->update;
 
 =item $delete_row_count = $teng->delete($table, \%delete_condition)
 
