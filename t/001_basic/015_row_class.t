@@ -93,10 +93,23 @@ subtest 'handle' => sub {
     can_ok $row->handle, 'single';
 };
 
+subtest 'your row class AUTOLOAD' => sub {
+    my $row = $db_basic_row->single('mock_basic_row',{id => 1},{'+columns' => [\'id+10 as id_plus_ten']});
+    isa_ok $row, 'Mock::BasicRow::Row::MockBasicRow';
+    is $row->foo, 'foo';
+    is $row->id, 1;
+    is $row->name, 'perl';
+    is $row->id_plus_ten, 11;
+
+    ok $row->can('id');
+    ok ! $row->can('mock_basic_id');
+};
+
 subtest 'AUTOLOAD' => sub {
     my $row = $db_basic->search_by_sql(q{select id as mock_basic_id from mock_basic where id = 1})->next;
     isa_ok $row, 'Teng::Row';
     is $row->mock_basic_id, 1;
+    ok ! $row->can('mock_basic_id');
 };
 
 subtest 'can not use (update|delete) method' => sub {
