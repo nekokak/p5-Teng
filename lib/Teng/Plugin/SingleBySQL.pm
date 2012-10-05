@@ -5,6 +5,7 @@ use utf8;
 
 our @EXPORT = qw/single_by_sql/;
 
+warn "IMPORTANT: Teng::Plugin::SingleBySQL is DEPRECATED AND *WILL* BE REMOVED. Because into the Teng core. DO NOT USE.\n";
 
 sub single_by_sql {
     my ($self, $sql, $bind, $table_name) = @_;
@@ -35,7 +36,7 @@ __END__
 
 =head1 NAME
 
-Teng::Plugin::SingleBySQL - single by sql
+Teng::Plugin::SingleBySQL - (DEPRECATED)single by sql
 
 =head1 PROVIDED METHODS
 

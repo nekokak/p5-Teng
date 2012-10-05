@@ -542,6 +542,30 @@ sub search_by_sql {
     return wantarray ? $itr->all : $itr;
 }
 
+sub single_by_sql {
+    my ($self, $sql, $bind, $table_name) = @_;
+
+    $table_name ||= $self->_guess_table_name( $sql );
+    my $table = $self->{schema}->get_table( $table_name );
+    Carp::croak("No such table $table_name") unless $table;
+
+    my $sth = $self->_execute($sql, $bind);
+    my $row = $sth->fetchrow_hashref($self->{fields_case});
+
+    return unless $row;
+    return $row if $self->{suppress_row_objects};
+
+    $table->{row_class}->new(
+        {
+            sql        => $sql,
+            row_data   => $row,
+            teng       => $self,
+            table      => $table,
+            table_name => $table_name,
+        }
+    );
+}
+
 sub _guess_table_name {
     my ($class, $sql) = @_;
 
@@ -628,7 +652,7 @@ in your script.
     );
     $row->update({name => 'nekokak'});
 
-    $row = $teng->search_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
+    $row = $teng->single_by_sql(q{SELECT id, name FROM user WHERE id = ?}, [ 1 ]);
     $row->delete();
 
 =head1 ARCHITECTURE
@@ -883,6 +907,18 @@ execute your SQL
 
 If $table is specified, it set table infomation to result iterator.
 So, you can use table row class to search_by_sql result.
+
+=item $row = $teng->single_by_sql($sql, [\@bind_values, [$table_name]])
+
+get one record from your SQL.
+
+    my $row = $teng->single_by_sql(q{SELECT id,name FROM user WHERE id = ? LIMIT 1}, [1], 'user');
+
+This is a shortcut for
+
+    my $row = $teng->search_by_sql(q{SELECT id,name FROM user WHERE id = ? LIMIT 1}, [1], 'user')->next;
+
+But optimized implementation.
 
 =item $teng->txn_scope
 
