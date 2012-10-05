@@ -84,7 +84,7 @@ L<Teng::Schema::Loader> loads schema directly from DB.
 
 =item Teng::Schema::Loader->load(%attr)
 
-This is the method to load schema from DB. It returns instance of L<Teng::Scehema>.
+This is the method to load schema from DB. It returns the instance of the given C<namespace> class which inherits L<Teng>.
 
 The arguments are:
 
