@@ -51,7 +51,6 @@ t/001_basic/026_fork.t
 t/001_basic/027_fork_self_reconnect.t
 t/001_basic/028_fork_self_reconnect_dbh.t
 t/001_basic/028_lookup.t
-t/001_basic/029_single_by_sql.t
 t/001_basic/030_reconnect_ping.t
 t/001_basic/032_reconnect_no_ping.t
 t/001_basic/033_load_plugin_with_args.t
@@ -75,6 +74,8 @@ t/002_common/022_disconnect.t
 t/002_common/023_multi_pk.t
 t/002_common/024_txn_scope.t
 t/002_common/025_uc_column.t
+t/002_common/026_single_by_sql.t
+t/002_common/027_single_named.t
 t/999_regression/bind_param.t
 t/999_regression/dbh_and_txn_manager.t
 t/999_regression/deflate_bug.t
