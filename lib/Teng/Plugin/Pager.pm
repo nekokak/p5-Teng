@@ -114,5 +114,3 @@ The number of entries per page.
 This method returns ArrayRef[Teng::Row] and instance of L<Data::Page::NoTotalEntries>.
 
 =back
-
-=back
