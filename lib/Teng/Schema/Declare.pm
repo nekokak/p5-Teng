@@ -12,6 +12,7 @@ our @EXPORT = qw(
     pk
     columns
     row_class
+    base_row_class
     inflate
     deflate
 );
@@ -22,6 +23,11 @@ sub schema (&;$) {
     local $CURRENT_SCHEMA_CLASS = $schema_class;
     $code->();
     _current_schema();
+}
+
+sub base_row_class($) {
+    my $current = _current_schema();
+    $current->{__base_row_class} = $_[0];
 }
 
 sub row_namespace ($) {
@@ -128,6 +134,7 @@ sub table(&) {
             inflators    => \@inflate,
             deflators    => \@deflate,
             row_class    => $row_class,
+            ($current->{__base_row_class} ? (base_row_class => $current->{__base_row_class}) : ()),
         )
     ); 
 }
@@ -199,6 +206,14 @@ set inflate rule
 =item row_namespace
 
 create Row class namespace
+
+=item base_row_class
+
+Specify the default base row class with Teng::Schema::Declare.
+
+Default value is L<Teng::Row>.
+
+This option is useful when you adds features for My::DB::Row class.
 
 =back
 
