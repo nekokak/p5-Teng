@@ -19,7 +19,7 @@ use Class::Accessor::Lite
         sql_builder
         sql_comment
         owner_pid
-        mode
+        no_ping
         fields_case
     )]
 ;
@@ -48,10 +48,17 @@ sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
 
+    if ( my $mode = delete $args{mode} ) {
+        warn "IMPORTANT: 'mode' option is DEPRECATED AND *WILL* BE REMOVED. PLEASE USE 'no_ping' option.\n";
+        if ( !exists $args{no_ping} ) {
+            $args{no_ping} = $mode eq 'ping' ? 0 : 1; 
+        }
+    }
+
     my $self = bless {
         schema_class => "$class\::Schema",
         owner_pid    => $$,
-        mode         => 'ping',
+        no_ping      => 0,
         fields_case  => 'NAME_lc',
         %args,
     }, $class;
@@ -79,6 +86,23 @@ sub new {
     }
 
     return $self;
+}
+
+sub mode {
+    my $self = shift;
+    warn "IMPORTANT: 'mode' option is DEPRECATED AND *WILL* BE REMOVED. PLEASE USE 'no_ping' option.\n";
+
+    if ( @_ ) {
+        my $mode = shift;
+        if ( $mode eq 'ping' ) {
+            $self->no_ping(0);
+        }
+        else {
+            $self->no_ping(1);
+        }
+    }
+
+    return $self->no_ping ? 'no_ping' : 'ping';
 }
 
 # forcefully connect
@@ -193,7 +217,7 @@ sub _verify_pid {
         if ( !$dbh->FETCH('Active') ) {
             $self->reconnect;
         }
-        elsif ( $self->mode eq 'ping' && !$dbh->ping) {
+        elsif ( !$self->no_ping && !$dbh->ping) {
             $self->reconnect;
         }
     }
@@ -745,23 +769,14 @@ You must pass C<connect_info> or C<dbh> to the constructor.
 
 Specifies the database handle to use. 
 
-=item * C<mode>
-
-=over
-
-=item * C<ping(default)>
-
-reconnect at dbh->ping fail each execute.
-
 =item * C<no_ping>
 
-no auto reconnect.
+By default, ping before each executing query.
+If it affect performance then you can set to true for ping stopping.
 
 =item * C<fields_case>
 
 specific DBI.pm's FetchHashKeyName.
-
-=back
 
 =item * C<schema>
 
