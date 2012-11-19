@@ -5,7 +5,7 @@ use Test::Mock::Guard qw/mock_guard/;
 
 unlink 'test.db';
 my $dbh = t::Utils->setup_dbh('test.db');
-my $db = Mock::Basic->new({dbh => $dbh, no_ping => 1});
+my $db = Mock::Basic->new({dbh => $dbh, mode => 'no_ping'});
 $db->setup_test_db;
 
 subtest 'fixup_reconnect' => sub {
