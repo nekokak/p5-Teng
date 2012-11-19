@@ -590,6 +590,7 @@ sub handle_error {
     my ($self, $stmt, $bind, $reason) = @_;
     require Data::Dumper;
 
+    local $Data::Dumper::Maxdepth = 2;
     $stmt =~ s/\n/\n          /gm;
     Carp::croak sprintf <<"TRACE", $reason, $stmt, Data::Dumper::Dumper($bind);
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
