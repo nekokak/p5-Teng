@@ -9,6 +9,7 @@ use Class::Accessor::Lite
         escaped_columns
         sql_types
         row_class
+        base_row_class
     ) ]
 ;
 use Carp ();
@@ -20,6 +21,7 @@ sub new {
         deflators       => [],
         inflators       => [],
         escaped_columns => {},
+        base_row_class  => 'Teng::Row',
         %args
     }, $class;
 
@@ -27,7 +29,8 @@ sub new {
     my $row_class = $self->row_class;
     Class::Load::load_optional_class($row_class) or do {
         # make row class automatically
-        no strict 'refs'; @{"$row_class\::ISA"} = ('Teng::Row');
+        Class::Load::load_class($self->base_row_class);
+        no strict 'refs'; @{"$row_class\::ISA"} = ($self->base_row_class);
     };
     for my $col (@{$self->columns}) {
         no strict 'refs';
