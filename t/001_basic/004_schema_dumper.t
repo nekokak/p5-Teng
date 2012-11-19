@@ -104,5 +104,15 @@ subtest "dump multiple tables" => sub {
     like $code, qr/user2/;
     unlike $code, qr/user3/;
 };
+subtest "dump with base_row_class" => sub {
+    # generate schema and eval.
+    my $code = Teng::Schema::Dumper->dump(
+        dbh            => $dbh,
+        namespace      => 'Mock::DB',
+        base_row_class => 'Mock::DB::Row',
+    );
+    note $code;
+    like $code, qr/base_row_class 'Mock::DB::Row';\n/;
+};
 
 done_testing;
