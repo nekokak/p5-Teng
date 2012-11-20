@@ -208,11 +208,15 @@ create new Teng::Row's instance
 
 get a column value from a row object.
 
+Note: This method does not inflate values.
+
 =item $row->get_columns
 
     my $data = $row->get_columns;
 
 Does C<get_column>, for all column values.
+
+Note: This method does not inflate values.
 
 =item $row->set_columns(\%new_row_data)
 
