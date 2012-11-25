@@ -167,13 +167,13 @@ sub _where_cond {
             Carp::croak "can't get primary columns in your query.";
         }
 
-        return +{ map { $_ => $self->$_() } @$pk };
+        return +{ map { $_ => $self->get_column($_) } @$pk };
     } else {
         unless (grep { $pk eq $_ } @{$self->{select_columns}}) {
             Carp::croak "can't get primary column in your query.";
         }
 
-        return +{ $pk => $self->$pk };
+        return +{ $pk => $self->get_column($pk) };
     }
 }
 
