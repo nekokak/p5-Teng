@@ -88,6 +88,8 @@ This is the method to load schema from DB. It returns the instance of the given 
 
 The arguments are:
 
+=over 4
+
 =item dbh
 
 Database handle from DBI.
@@ -95,6 +97,8 @@ Database handle from DBI.
 =item namespace
 
 your project name space.
+
+=back
 
 =back
 
