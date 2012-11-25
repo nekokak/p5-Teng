@@ -144,6 +144,7 @@ sub refetch {
     $self->{teng}->single($self->{table_name}, $self->_where_cond);
 }
 
+# Generate a where clause to fetch this row itself.
 sub _where_cond {
     my $self = shift;
 
