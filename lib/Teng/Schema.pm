@@ -80,7 +80,7 @@ create new Teng::Schema's object.
 
 =item $schema = Teng::Schema->instance
 
-get Teng::Schema's instance object.
+Get Teng::Schema's default instance object, was set by C<< Teng::Schema->set_default_instance() >>.
 
 =item Teng::Schema->set_default_instance($schema)
 
