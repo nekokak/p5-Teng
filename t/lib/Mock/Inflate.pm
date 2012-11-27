@@ -11,7 +11,9 @@ sub setup_test_db {
             CREATE TABLE mock_inflate (
                 id   INT,
                 name TEXT,
-                foo  TEXT
+                foo  TEXT,
+                bar  TEXT,
+                PRIMARY KEY  (id, bar)
             )
         });
     } elsif ($dbd eq 'mysql') {
@@ -23,7 +25,8 @@ sub setup_test_db {
                 id        INT auto_increment,
                 name      TEXT,
                 foo       TEXT,
-                PRIMARY KEY  (id)
+                bar       VARCHAR(32),
+                PRIMARY KEY  (id, bar)
             ) ENGINE=InnoDB
         });
     } else {
