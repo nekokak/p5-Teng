@@ -540,7 +540,7 @@ sub single {
     my $sth = $self->_execute($sql, \@binds);
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
-    return unless $row;
+    return undef unless $row;
     return $row if $self->{suppress_row_objects};
 
     $table->{row_class}->new(
