@@ -392,7 +392,7 @@ sub bulk_insert {
     }
 }
 
-sub _update {
+sub do_update {
     my ($self, $table_name, $args, $where) = @_;
 
     my ($sql, @binds) = $self->{sql_builder}->update( $table_name, $args, $where );
@@ -415,7 +415,7 @@ sub update {
        $args->{$col} = $table->call_deflate($col, $args->{$col});
     }
     
-    $self->_update($table_name, $self->_bind_sql_type_to_args( $table, $args ), $where);
+    $self->do_update($table_name, $self->_bind_sql_type_to_args( $table, $args ), $where);
 }
 
 sub delete {
@@ -883,6 +883,12 @@ you can column update by using column method:
     my $row = $teng->single('user', {id => 1});
     $row->name('yappo');
     $row->update;
+
+=item $updated_row_count = $teng->do_update($table_name, \%set, \%where)
+
+This is low level API for UPDATE. Normally, you should use update method instead of this.
+
+This method does not deflate \%args.
 
 =item $delete_row_count = $teng->delete($table, \%delete_condition)
 

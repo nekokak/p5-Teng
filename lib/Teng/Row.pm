@@ -123,7 +123,7 @@ sub update {
     return 0 unless %$upd;
 
     my $bind_args = $self->{teng}->_bind_sql_type_to_args($table, $upd);
-    my $result = $self->{teng}->_update($table_name, $bind_args, $where, 1);
+    my $result = $self->{teng}->do_update($table_name, $bind_args, $where, 1);
     $self->{_dirty_columns} = {};
 
     $result;
