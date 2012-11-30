@@ -25,6 +25,8 @@ sub dump {
     }
     else {
         $ret .= "package ${namespace}::Schema;\n";
+        $ret .= "use strict;\n";
+        $ret .= "use warnings;\n";
         $ret .= "use Teng::Schema::Declare;\n";
         $ret .= "base_row_class '$args{base_row_class}';\n" if $args{base_row_class};
         for my $table_info (sort { $a->name cmp $b->name } $inspector->tables) {
