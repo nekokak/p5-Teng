@@ -14,6 +14,7 @@ subtest 'set_column value un deflate bug' => sub {
         id   => 1,
         name => 'tsucchi',
         foo  => 'bar',
+        bar  => 'zzz',
     });
     isa_ok $row, 'Teng::Row';
     isa_ok $row->name, 'Mock::Inflate::Name';
