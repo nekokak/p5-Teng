@@ -6,6 +6,8 @@ use DBI;
 use Teng;
 use Teng::Schema::Loader;
 
+unlink 'loader.db' if -f 'loader.db';
+
 # initialize
 my $dbh = DBI->connect('dbi:SQLite:./loader.db', '', '', {RaiseError => 1}) or die 'cannot connect to db';
 $dbh->do(q{
