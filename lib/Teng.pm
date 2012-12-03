@@ -303,7 +303,7 @@ sub _bind_sql_type_to_args {
     return $bind_args;
 }
 
-sub _insert {
+sub do_insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $prefix ||= 'INSERT INTO';
@@ -324,14 +324,14 @@ sub _insert {
 sub fast_insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
-    $self->_insert($table_name, $args, $prefix);
+    $self->do_insert($table_name, $args, $prefix);
     $self->_last_insert_id($table_name);
 }
 
 sub insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
-    $self->_insert($table_name, $args, $prefix);
+    $self->do_insert($table_name, $args, $prefix);
 
     my $table = $self->schema->get_table($table_name);
     my $pk = $table->primary_keys();
