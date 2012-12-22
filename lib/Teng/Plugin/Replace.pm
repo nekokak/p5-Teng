@@ -18,7 +18,7 @@ sub replace {
     }
 
     my ($sql, @binds) = $self->sql_builder->insert( $table_name, $args, { prefix => 'REPLACE INTO' } );
-    $self->_execute($sql, \@binds, $table_name);
+    $self->execute($sql, \@binds, $table_name);
 
     my $pk = $table->primary_keys();
     if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {

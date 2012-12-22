@@ -237,6 +237,12 @@ sub connected {
 }
 
 sub _execute {
+    my $self = shift;
+    warn "IMPORTANT: '_execute' method is DEPRECATED AND *WILL* BE REMOVED. PLEASE USE 'execute' method.\n";
+    return $self->execute(@_);
+}
+
+sub execute {
     my ($self, $sql, $binds) = @_;
 
     if ($ENV{TENG_SQL_COMMENT} || $self->sql_comment) {
@@ -312,7 +318,7 @@ sub _insert {
     }
     my $bind_args = $self->_bind_sql_type_to_args( $table, $args );
     my ($sql, @binds) = $self->{sql_builder}->insert( $table_name, $bind_args, { prefix => $prefix } );
-    $self->_execute($sql, \@binds);
+    $self->execute($sql, \@binds);
 }
 
 sub fast_insert {
@@ -374,7 +380,7 @@ sub bulk_insert {
         }
 
         my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args );
-        $self->_execute($sql, \@binds);
+        $self->execute($sql, \@binds);
     } else {
         # use transaction for better performance and atomicity.
         my $txn = $self->txn_scope();
@@ -390,7 +396,7 @@ sub _update {
     my ($self, $table_name, $args, $where) = @_;
 
     my ($sql, @binds) = $self->{sql_builder}->update( $table_name, $args, $where );
-    my $sth = $self->_execute($sql, \@binds);
+    my $sth = $self->execute($sql, \@binds);
     my $rows = $sth->rows;
     $sth->finish;
 
@@ -416,7 +422,7 @@ sub delete {
     my ($self, $table_name, $where) = @_;
 
     my ($sql, @binds) = $self->{sql_builder}->delete( $table_name, $where );
-    my $sth = $self->_execute($sql, \@binds);
+    my $sth = $self->execute($sql, \@binds);
     my $rows = $sth->rows;
     $sth->finish;
 
@@ -537,7 +543,7 @@ sub single {
         $where,
         $opt
     );
-    my $sth = $self->_execute($sql, \@binds);
+    my $sth = $self->execute($sql, \@binds);
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
     return undef unless $row;
@@ -558,7 +564,7 @@ sub search_by_sql {
     my ($self, $sql, $bind, $table_name) = @_;
 
     $table_name ||= $self->_guess_table_name( $sql );
-    my $sth = $self->_execute($sql, $bind);
+    my $sth = $self->execute($sql, $bind);
     my $itr = Teng::Iterator->new(
         teng             => $self,
         sth              => $sth,
@@ -578,7 +584,7 @@ sub single_by_sql {
     my $table = $self->{schema}->get_table( $table_name );
     Carp::croak("No such table $table_name") unless $table;
 
-    my $sth = $self->_execute($sql, $bind);
+    my $sth = $self->execute($sql, $bind);
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
     return unless $row;
@@ -968,6 +974,11 @@ This is a shortcut for
     my $row = $teng->search_named(q{SELECT id,name FROM user WHERE id = :id LIMIT 1}, {id => 1}, 'user')->next;
 
 But optimized implementation.
+
+=item $sth = $teng->execute($sql, [\@bind_values])
+
+execute query and get statement handler.
+and will be inserted caller's file and line as a comment in the SQL if $ENV{TENG_SQL_COMMENT} or sql_comment is true value.
 
 =item $teng->txn_scope
 

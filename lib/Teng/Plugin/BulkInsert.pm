@@ -27,7 +27,7 @@ sub bulk_insert {
         }
 
         my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args );
-        $self->_execute($sql, \@binds);
+        $self->execute($sql, \@binds);
     } else {
         # use transaction for better performance and atomicity.
         my $txn = $self->txn_scope();
