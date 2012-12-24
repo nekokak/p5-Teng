@@ -167,8 +167,9 @@ sub reconnect {
         # my $dbh2 = $dbh->clone({});
         # my $dbh3 = $dbh2->clone({});
         # $dbh2 is ok, but $dbh3 is undef.
-        $self->{dbh} = eval { $dbh->clone }
+        my $new_dbh = eval { $dbh->clone }
             or Carp::croak("ReConnection error: " . ($@ || $DBI::errstr));
+        $self->{dbh} = $new_dbh;
         $self->{dbh}->{InactiveDestroy} = 0;
 
         $self->owner_pid($$);
