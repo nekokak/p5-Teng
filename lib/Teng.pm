@@ -242,11 +242,12 @@ sub _execute {
     return $self->execute(@_);
 }
 
+our $SQL_COMMENT_LEVEL = 0;
 sub execute {
     my ($self, $sql, $binds) = @_;
 
     if ($ENV{TENG_SQL_COMMENT} || $self->sql_comment) {
-        my $i = 1; # optimize, as we would *NEVER* be called
+        my $i = $SQL_COMMENT_LEVEL; # optimize, as we would *NEVER* be called
         while ( my (@caller) = caller($i++) ) {
             next if ( $caller[0]->isa( __PACKAGE__ ) );
             my $comment = "$caller[1] at line $caller[2]";

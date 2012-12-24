@@ -33,8 +33,7 @@ subtest 'execute method' => sub {
         is $sth->{Statement}, 'SELECT * FROM mock_basic';
     }
 
-    TODO: {
-        local $TODO = 'will fix (cannot take the correct caller)';
+    {
         local $ENV{TENG_SQL_COMMENT} = 1;
         my $sth = $db_basic->execute('SELECT * FROM mock_basic'); my ($file, $line) = (__FILE__, __LINE__);
         isa_ok $sth, 'DBI::st';
