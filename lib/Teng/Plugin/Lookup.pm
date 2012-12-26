@@ -34,7 +34,7 @@ sub lookup {
                $opt->{for_update} ? 'FOR UPDATE' : '',
            );
 
-    my $sth = $self->_execute($sql, $values);
+    my $sth = $self->execute($sql, $values);
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
     return unless $row;

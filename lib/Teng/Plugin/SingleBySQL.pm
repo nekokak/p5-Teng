@@ -14,7 +14,7 @@ sub single_by_sql {
     my $table = $self->{schema}->get_table( $table_name );
     Carp::croak("No such table $table_name") unless $table;
 
-    my $sth = $self->_execute($sql, $bind);
+    my $sth = $self->execute($sql, $bind);
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
     return unless $row;
