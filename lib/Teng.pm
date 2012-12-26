@@ -167,8 +167,13 @@ sub reconnect {
         # my $dbh2 = $dbh->clone({});
         # my $dbh3 = $dbh2->clone({});
         # $dbh2 is ok, but $dbh3 is undef.
-        $self->{dbh} = eval { $dbh->clone }
+        # ---
+        # Don't assign $self-{dbh} directry.
+        # Because if $self->{dbh} is undef then reconnect fail always.
+        # https://github.com/nekokak/p5-Teng/pull/98
+        my $new_dbh = eval { $dbh->clone }
             or Carp::croak("ReConnection error: " . ($@ || $DBI::errstr));
+        $self->{dbh} = $new_dbh;
         $self->{dbh}->{InactiveDestroy} = 0;
 
         $self->owner_pid($$);
