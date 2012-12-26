@@ -20,6 +20,7 @@ lib/Teng/Plugin/Pager.pm
 lib/Teng/Plugin/Pager/MySQLFoundRows.pm
 lib/Teng/Plugin/Replace.pm
 lib/Teng/Plugin/SingleBySQL.pm
+lib/Teng/Plugin/SQLPager.pm
 lib/Teng/QueryBuilder.pm
 lib/Teng/Row.pm
 lib/Teng/Schema.pm
@@ -54,6 +55,7 @@ t/001_basic/028_lookup.t
 t/001_basic/030_reconnect_ping.t
 t/001_basic/032_reconnect_no_ping.t
 t/001_basic/033_load_plugin_with_args.t
+t/001_basic/034_execute.t
 t/002_common/000_new.t
 t/002_common/001_insert.t
 t/002_common/002_update.t
@@ -76,10 +78,15 @@ t/002_common/024_txn_scope.t
 t/002_common/025_uc_column.t
 t/002_common/026_single_by_sql.t
 t/002_common/027_single_named.t
+t/002_common/028_schema_base_row_class.t
+t/002_common/029_sql_pager.t
+t/998_deprecated/001_reconnect_ping.t
+t/998_deprecated/002_reconnect_no_ping.t
 t/999_regression/bind_param.t
 t/999_regression/dbh_and_txn_manager.t
 t/999_regression/deflate_bug.t
 t/999_regression/escaped_query_with_search_by_sql.t
+t/999_regression/exception_clone.t
 t/999_regression/guess_table_name.t
 t/999_regression/inflate_bug.t
 t/999_regression/load_plugin.t

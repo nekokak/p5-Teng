@@ -1,5 +1,20 @@
 Revision history for Perl extension Teng
 
+0.17
+        - ADD: Teng::Plugin::SQLPager. (thanks tokuhirom)
+        - FIXED: reconnect bug. (thanks nihen)
+        - FIXED: fixed pod nesting level. (thanks tokuhirom)
+        - MODIFY: Teng#_execute is promoted to the public method. (thanks karupanerura)
+        - MODIFY: _execute method the caller. and added $SQL_COMMENT. (thanks karupanerura)
+        - MODIFY: Pull up _insert to public api. (thanks tokuhirom)
+        - MODIFY: Rename `_update` to `do_update`. Since some user want to hook _update method. (thanks tokuhirom)
+        - MODIFY: Do not fail test case when loader.db did not remove cleanly. (thanks tokuhirom)
+        - MODIFY: adde 'use strict' and 'use warnings' for dumped schema. (thanks tokuhirom)
+        - MODIFY: Teng#single should be return scalar value. (thanks tokuhirom)
+        - MODIFY: dump with specify base_row_class. (thanks tokuhirom)
+        - MODIFY: Limit the dumper max depth in exception stack trace. (thanks tokuhirom)
+        - DEPRECATED: mode option. use no_ping instead. (thanks nihen)
+
 0.16
         - DEPRECATED: SingleBySQL plugin, move to Teng core. (thansk nihen)
         - FIXED: AUTOLOAD row column method's uncached bug. (thaks yappo)
