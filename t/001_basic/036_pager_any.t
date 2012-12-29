@@ -75,7 +75,7 @@ sub simple_pager_test {
 sub total_pager_test {
     my ($db, $pager_class, $pager_options) = @_;
 
-    # copy from 034_pager_count.t
+    # copy from 035_pager_count.t
     subtest 'simple' => sub {
         my ($rows, $pager) = $db->search_with_pager(mock_basic => {}, {rows => 3, page => 1, %{$pager_options->[1]}});
         is join(',', map { $_->id } @$rows), '1,2,3';
