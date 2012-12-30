@@ -103,7 +103,7 @@ Teng::Plugin::Pager::Count - Paginate with COUNT(*)
     my $page = $c->req->param('page') || 1;
     my ($rows, $pager) = $db->search_with_pager('user' => {type => 3}, {page => $page, rows => 5});
 
-If you want to use alternate pager when you use group_by:
+If you want to use alternative_pager when you use group_by:
 
     __PACKAGE__->load_plugin('Pager::Count', {alternative_pager => 'Pager'});
     __PACKAGE__->load_plugin('Pager::Count', {alternative_pager => 'Pager::MySQLFoundRows'});
