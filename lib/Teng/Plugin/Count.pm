@@ -7,6 +7,11 @@ our @EXPORT = qw/count/;
 
 sub count {
     my ($self, $table, $column, $where, $opt) = @_;
+
+    if (ref $column eq 'HASH') {
+        Carp::croak('Do not pass HashRef to second argument. Usage: $db->count($table[, $column[, $where[, $opt]]])');
+    }
+
     $column ||= '*';
 
     my ($sql, @binds) = $self->sql_builder->select($table, [\"COUNT($column)"], $where, $opt);
