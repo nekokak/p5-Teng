@@ -156,7 +156,7 @@ sub _where_cond {
 
     # get target table pk
     my $pk = $table->primary_keys;
-    unless ($pk) {
+    unless (@$pk) {
         Carp::croak("$table_name has no primary key.");
     }
 
