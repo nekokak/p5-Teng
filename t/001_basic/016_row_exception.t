@@ -48,6 +48,26 @@ subtest 'update/delete error: table have no pk' => sub {
     like $@, qr/mock_basic has no primary key/;
 };
 
+subtest 'update/delete error: table have no pk' => sub {
+    my $table = $db->schema->get_table('mock_basic');
+    local $table->{primary_keys} = [];
+
+    my $row = $db->single('mock_basic',{id => 1});
+    isa_ok $row, 'Teng::Row';
+
+    eval {
+        $row->update({name => 'python'});
+    };
+    ok $@;
+    like $@, qr/mock_basic has no primary key/;
+
+    eval {
+        $row->delete;
+    };
+    ok $@;
+    like $@, qr/mock_basic has no primary key/;
+};
+
 subtest 'update/delete error: select column has no primary key' => sub {
     my $row = $db->search_by_sql('select name from mock_basic')->next;
     isa_ok $row, 'Teng::Row';

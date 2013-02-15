@@ -162,6 +162,10 @@ sub _where_cond {
 
     # multi primary keys
     if ( ref $pk eq 'ARRAY' ) {
+        unless (@$pk) {
+            Carp::croak("$table_name has no primary key.");
+        }
+
         my %pks = map { $_ => 1 } @$pk;
 
         unless ( ( grep { exists $pks{ $_ } } @{$self->{select_columns}} ) == @$pk ) {
