@@ -22,6 +22,13 @@ sub create_sqlite {
             primary key ( Id )
         )
     });
+    $dbh->do(q{
+        CREATE TABLE mock_without_primary_key(
+            id   integer,
+            name text,
+            delete_fg int(1) default 0
+        )
+    });
 }
 
 sub create_mysql {
@@ -35,6 +42,15 @@ sub create_mysql {
             PRIMARY KEY  (id)
         ) ENGINE=InnoDB
     });
+    $dbh->do( q{DROP TABLE IF EXISTS mock_without_primary_key} );
+    $dbh->do(q{
+        CREATE TABLE mock_without_primary_key (
+            id        INT auto_increment,
+            name      TEXT,
+            delete_fg TINYINT(1) default 0
+        ) ENGINE=InnoDB
+    });
+
 }
 
 sub create_pg {

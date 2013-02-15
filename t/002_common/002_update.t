@@ -1,12 +1,18 @@
 use t::Utils;
 use Mock::Basic;
 use Test::More;
+use Test::Exception;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
 
 $db->insert('mock_basic',{
+    id   => 1,
+    name => 'perl',
+});
+
+$db->insert('mock_without_primary_key',{
     id   => 1,
     name => 'perl',
 });
@@ -115,6 +121,14 @@ subtest 'update by setter column' => sub {
         id => 1,
     });
     is $row2->name, 'tora';
+};
+
+subtest 'update without primary key table' => sub {
+    my $row = $db->single('mock_without_primary_key',{
+        id => 1,
+    });
+    ok $row;
+    dies_ok{ $row->update, 1};
 };
 
 done_testing;

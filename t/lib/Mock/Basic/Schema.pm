@@ -22,5 +22,15 @@ table {
     /;
 };
 
+table {
+    name 'mock_without_primary_key';
+    columns qw/
+        id
+        name
+        delete_fg
+    /;
+};
+
+
 1;
 
