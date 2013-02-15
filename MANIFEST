@@ -17,6 +17,7 @@ lib/Teng/Plugin/Count.pm
 lib/Teng/Plugin/FindOrCreate.pm
 lib/Teng/Plugin/Lookup.pm
 lib/Teng/Plugin/Pager.pm
+lib/Teng/Plugin/Pager/Count.pm
 lib/Teng/Plugin/Pager/MySQLFoundRows.pm
 lib/Teng/Plugin/Replace.pm
 lib/Teng/Plugin/SingleBySQL.pm
@@ -56,6 +57,7 @@ t/001_basic/030_reconnect_ping.t
 t/001_basic/032_reconnect_no_ping.t
 t/001_basic/033_load_plugin_with_args.t
 t/001_basic/034_execute.t
+t/001_basic/035_pager_count.t
 t/002_common/000_new.t
 t/002_common/001_insert.t
 t/002_common/002_update.t
@@ -114,6 +116,7 @@ xt/mysql/bulk_insert.t
 xt/mysql/common.t
 xt/mysql/fork.t
 xt/mysql/pager_mysql_found_rows.t
+xt/mysql/pager_count_alternative.t
 xt/mysql/transaction.t
 xt/perlcritic.t
 xt/perlcriticrc
