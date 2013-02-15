@@ -1,5 +1,9 @@
 Revision history for Perl extension Teng
 
+0.18
+        - FIXED: Strict argument validation for Teng::Plugin::Count. (thanks tokuhirom)
+        - FIXED: [BUG FIX]Throw exception if the table has no primary keys. (thanks s2)
+
 0.17
         - ADD: Teng::Plugin::SQLPager. (thanks tokuhirom)
         - FIXED: reconnect bug. (thanks nihen)
