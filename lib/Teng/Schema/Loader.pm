@@ -19,7 +19,7 @@ sub load {
         no strict 'refs'; @{"$namespace\::ISA"} = ('Teng');
     };
 
-    my $teng = $namespace->new(%args);
+    my $teng = $namespace->new(%args, loader => 1);
     my $dbh = $teng->dbh;
     unless ($dbh) {
         Carp::croak("missing mandatory parameter 'dbh' or 'connect_info'");

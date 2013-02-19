@@ -47,6 +47,7 @@ sub load_plugin {
 sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
+    my $loader = delete $args{loader};
 
     if ( my $mode = delete $args{mode} ) {
         warn "IMPORTANT: 'mode' option is DEPRECATED AND *WILL* BE REMOVED. PLEASE USE 'no_ping' option.\n";
@@ -63,8 +64,7 @@ sub new {
         %args,
     }, $class;
 
-    my @caller = caller(0);
-    if ($caller[0] ne 'Teng::Schema::Loader' && ! $self->schema) {
+    if (!$loader && ! $self->schema) {
         my $schema_class = $self->{schema_class};
         Class::Load::load_class( $schema_class );
         my $schema = $schema_class->instance;
