@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use utf8;
 use Data::Page;
-use Teng::Iterator;
 use Carp ();
 
 our @EXPORT = qw/search_with_pager/;
@@ -36,7 +35,7 @@ sub search_with_pager {
     $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
     my $total_entries = $self->dbh->selectrow_array(q{SELECT FOUND_ROWS()});
 
-    my $itr = Teng::Iterator->new(
+    my $itr = $self->iterator_class->new(
         teng             => $self,
         sth              => $sth,
         sql              => $sql,
