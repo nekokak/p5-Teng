@@ -84,6 +84,36 @@ subtest 'auto create teng class' => sub {
     is $db->single('user', { user_id => 3 })->name, 'inserted 3';
 };
 
+{
+    package Mock::DB2;
+    use parent 'Teng';
+
+    sub new {
+        shift->SUPER::new(@_);
+    }
+}
+
+subtest 'constructor is overrided' => sub {
+    local $@;
+
+    my $db = eval {
+        Teng::Schema::Loader->load(
+            dbh       => $dbh,
+            namespace => 'Mock::DB2',
+        );
+    };
+    ok !$@;
+    isa_ok $db, 'Mock::DB2';
+
+    my $user = $db->schema->get_table('user');
+    is($user->name, 'user');
+    is(join(',', @{$user->primary_keys}), 'user_id');
+    is(join(',', @{$user->columns}), 'user_id,name,email,created_on');
+
+    my $row = $db->schema->get_row_class('user');
+    is $row, 'Mock::DB2::Row::User';
+};
+
 unlink './loader.db';
 done_testing;
 
