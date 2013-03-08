@@ -943,7 +943,7 @@ It's useful in case use IN statement.
 
     # SELECT * FROM user WHERE id IN (?,?,?);
     # bind [1,2,3]
-    my $itr = $teng->search_named(q{SELECT * FROM user WHERE id IN :ids}, {id => [1, 2, 3]});
+    my $itr = $teng->search_named(q{SELECT * FROM user WHERE id IN :ids}, {ids => [1, 2, 3]});
 
 If you give table_name. It is assumed the hint that makes Teng::Row's Object.
 
