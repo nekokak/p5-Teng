@@ -26,7 +26,13 @@ sub generate_column_accessor {
     return sub {
         my $self = shift;
 
-        return $self->set_column( $col => @_ ) if @_;
+        if (@_) {
+            my $val = shift;
+            $self->{row_data}->{$col} = $self->set_column( $col => $self->{table}->call_deflate($col, $val) ); 
+            $self->{_get_column_cached}->{$col} = $val;
+            $self->{_dirty_columns}->{$col} = $val;
+            return;
+        }
 
         # "Untrusted" means the row is set_column by scalarref.
         # e.g.
@@ -78,7 +84,7 @@ sub set_column {
 
     $self->{row_data}->{$col} = $val;
     delete $self->{_get_column_cached}->{$col};
-    $self->{_dirty_columns}->{$col} = 1;
+    $self->{_dirty_columns}->{$col} = $val;
 }
 
 sub set_columns {
@@ -92,10 +98,7 @@ sub set_columns {
 sub get_dirty_columns {
     my $self = shift;
 
-    my %rows = map {$_ => $self->get_column($_)}
-               keys %{$self->{_dirty_columns}};
-
-    return \%rows;
+    +{ %{ $self->{_dirty_columns} } };
 }
 
 sub update {
