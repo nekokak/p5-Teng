@@ -26,24 +26,40 @@ sub generate_column_accessor {
     return sub {
         my $self = shift;
 
+        # setter is alias of set_column (not deflate column) for historical reason
         return $self->set_column( $col => @_ ) if @_;
 
-        # "Untrusted" means the row is set_column by scalarref.
-        # e.g.
-        #   $row->set_column("date" => \"DATE()");
-        if ($self->{_untrusted_row_data}->{$col}) {
-            Carp::carp("${col}'s row data is untrusted. by your update query.");
-        }
-        my $cache = $self->{_get_column_cached};
-        my $data = $cache->{$col};
-        if (! $data) {
-            $data = $cache->{$col} = $self->{table} ? $self->{table}->call_inflate($col, $self->get_column($col)) : $self->get_column($col);
-        }
-        return $data;
+        # getter is alias of get (inflate column)
+        $self->get($col);
     };
 }
 
 sub handle { $_[0]->{teng} }
+
+sub get {
+    my ($self, $col) = @_;
+
+    # "Untrusted" means the row is set_column by scalarref.
+    # e.g.
+    #   $row->set_column("date" => \"DATE()");
+    if ($self->{_untrusted_row_data}->{$col}) {
+        Carp::carp("${col}'s row data is untrusted. by your update query.");
+    }
+    my $cache = $self->{_get_column_cached};
+    my $data = $cache->{$col};
+    if (! $data) {
+        $data = $cache->{$col} = $self->{table} ? $self->{table}->call_inflate($col, $self->get_column($col)) : $self->get_column($col);
+    }
+    return $data;
+}
+
+sub set {
+    my ($self, $col, $val) = @_;
+    $self->{row_data}->{$col} = $self->set_column( $col => $self->{table}->call_deflate($col, $val) ); 
+    $self->{_get_column_cached}->{$col} = $val;
+    $self->{_dirty_columns}->{$col} = $val;
+    return $self;
+}
 
 sub get_column {
     my ($self, $col) = @_;
@@ -78,7 +94,7 @@ sub set_column {
 
     $self->{row_data}->{$col} = $val;
     delete $self->{_get_column_cached}->{$col};
-    $self->{_dirty_columns}->{$col} = 1;
+    $self->{_dirty_columns}->{$col} = $val;
 }
 
 sub set_columns {
@@ -92,10 +108,7 @@ sub set_columns {
 sub get_dirty_columns {
     my $self = shift;
 
-    my %rows = map {$_ => $self->get_column($_)}
-               keys %{$self->{_dirty_columns}};
-
-    return \%rows;
+    +{ %{ $self->{_dirty_columns} } };
 }
 
 sub update {
