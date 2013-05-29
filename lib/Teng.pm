@@ -719,7 +719,7 @@ This is the entry point to using Teng. You connect, insert, update, delete, sele
 The C<schema> is a simple class that describes your table definitions. Note that this is different from DBIx::Class terms.
 DBIC's schema is equivalent to Teng's model + schema, where the actual schema information is scattered across the result classes.
 
-In Teng, you simply use Teng::Schema's domain specific languaage to define a set of tables
+In Teng, you simply use Teng::Schema's domain specific language to define a set of tables
 
     package MyApp::Model::Schema;
     use Teng::Schema::Declare;
@@ -960,7 +960,7 @@ execute your SQL
             id = ?
     },[ 1 ]);
 
-If $table is specified, it set table infomation to result iterator.
+If $table is specified, it set table information to result iterator.
 So, you can use table row class to search_by_sql result.
 
 =item $row = $teng->single_by_sql($sql, [\@bind_values, [$table_name]])

@@ -141,19 +141,19 @@ get column SQL type.
 
 =item $table->get_deflator
 
-get deflate coderef.
+get deflate code reference.
 
 =item $table->get_inflator
 
-get inflate coderef.
+get inflate code reference.
 
 =item $table->set_deflator
 
-set deflate coderef.
+set deflate code reference.
 
 =item $table->set_inflator
 
-set inflate coderef.
+set inflate code reference.
 
 =item $table->call_deflate
 
