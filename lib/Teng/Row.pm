@@ -220,6 +220,25 @@ Teng::Row - Teng's Row class
 
 create new Teng::Row's instance
 
+=item $row->get($col)
+
+    my $val = $row->get($column_name);
+
+    # alias
+    my $val = $row->$column_name;
+
+get a column value from a row object.
+
+Note: This method inflates values.
+
+=item $row->set($col, $val)
+
+    $row->set($col => $val);
+
+set column data.
+
+Note: This method deflates values.
+
 =item $row->get_column($column_name)
 
     my $val = $row->get_column($column_name);
@@ -242,11 +261,18 @@ Note: This method does not inflate values.
 
 set columns data.
 
+Note: This method does not deflate values.
+
 =item $row->set_column($col => $val)
 
     $row->set_column($col => $val);
 
+    # alias
+    $row->$col($val);
+
 set column data.
+
+Note: This method does not deflate values.
 
 =item $row->get_dirty_columns
 
@@ -278,6 +304,22 @@ refetch record from database. get new row object.
 get teng object.
 
     $row->handle->single('table', {id => 1});
+
+=head1 NOTE FOR COLUMN NAME METHOD
+
+Teng::Row has methods that have name from column name. For example, if a table has column named 'foo', Teng::Row instance of it has method 'foo'.
+
+This method has different behave for setter or getter as following:
+
+    # (getter) is alias of $row->get('foo')
+    # so this method returns inflated value.
+    my $inflated_value = $row->foo;
+
+    # (setter) is alias of $row->set_column('foo', $raw_value)
+    # so this method does not deflate the value. This only accepts raw value but inflated object.
+    $row->foo($raw_value);
+
+This behave is from historical reason. You should use column name methods with great caution, if you want to use this.
 
 =cut
 
