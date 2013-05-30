@@ -68,6 +68,19 @@ subtest 'update row' => sub {
     is $updated->foo->name, 'perl';
     isa_ok $updated->bar, 'Mock::Inflate::Name';
     is $updated->bar->name, 'perl';
+
+
+    subtest 'set_column & update' => sub  {
+        my $name = Mock::Inflate::Name->new(name => 'python');
+        $row->set(name => $name);
+        isa_ok $row->name, 'Mock::Inflate::Name';
+        is $row->name->name, 'python';
+        $row->update;
+
+        my $updated = $db->single('mock_inflate',{id => 1});
+        isa_ok $updated->name, 'Mock::Inflate::Name';
+        is $updated->name->name, 'python';
+    };
 };
 
 subtest 'update row twice case' => sub {
