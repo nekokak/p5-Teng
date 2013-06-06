@@ -17,6 +17,8 @@ lib/Teng/Plugin/Count.pm
 lib/Teng/Plugin/FindOrCreate.pm
 lib/Teng/Plugin/Lookup.pm
 lib/Teng/Plugin/Pager.pm
+lib/Teng/Plugin/Pager/Count.pm
+lib/Teng/Plugin/Pager/Any.pm
 lib/Teng/Plugin/Pager/MySQLFoundRows.pm
 lib/Teng/Plugin/Replace.pm
 lib/Teng/Plugin/SingleBySQL.pm
@@ -56,6 +58,8 @@ t/001_basic/030_reconnect_ping.t
 t/001_basic/032_reconnect_no_ping.t
 t/001_basic/033_load_plugin_with_args.t
 t/001_basic/034_execute.t
+t/001_basic/035_pager_count.t
+t/001_basic/036_pager_any.t
 t/002_common/000_new.t
 t/002_common/001_insert.t
 t/002_common/002_update.t
@@ -102,6 +106,7 @@ t/lib/Mock/BasicBindColumn/Schema.pm
 t/lib/Mock/Inflate.pm
 t/lib/Mock/Inflate/Name.pm
 t/lib/Mock/Inflate/Schema.pm
+t/lib/Mock/Pager.pm
 t/lib/MyGuard.pm
 t/lib/Teng/Plugin/ArgsTest.pm
 t/lib/TengTest.pm
