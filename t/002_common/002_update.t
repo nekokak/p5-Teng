@@ -23,7 +23,7 @@ subtest 'row object update' => sub {
     my $row = $db->single('mock_basic',{id => 1});
     isa_ok $row, 'Teng::Row';
     is $row->name, 'python';
-    
+
     ok $row->update({name => 'perl'});
     is $row->name, 'perl';
     my $new_row = $db->single('mock_basic',{id => 1});
