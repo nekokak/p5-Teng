@@ -44,17 +44,17 @@ __END__
 
 =head1 NAME
 
-Teng::Plugin::BulkInsert - (DEPRECATED) bulk insert helper
+Teng::Plugin::BulkInsert - (DEPRECATED) Bulk insert helper
 
 =head1 PROVIDED METHODS
 
 =over 4
 
-=item $teng->bulk_insert($table_name, \@rows_data)
+=item C<$teng-&gt;bulk_insert($table_name, \@rows_data)>
 
 Accepts either an arrayref of hashrefs.
 each hashref should be a structure suitable
-forsubmitting to a Your::Model->insert(...) method.
+for submitting to a Your::Model->insert(...) method.
 
 insert many record by bulk.
 

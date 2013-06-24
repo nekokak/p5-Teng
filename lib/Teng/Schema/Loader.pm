@@ -90,7 +90,7 @@ The arguments are:
 
 =over 4
 
-=item dbh
+=item C<dbh>
 
 Database handle from DBI.
 

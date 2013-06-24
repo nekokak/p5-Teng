@@ -815,7 +815,7 @@ with SQL::Maker.
 
 =back
 
-=item $row = $teng->insert($table_name, \%row_data)
+=item C<$row = $teng-E<gt>insert($table_name, \%row_data)>
 
 Inserts a new record. Returns the inserted row object.
 
@@ -828,17 +828,17 @@ If a primary key is available, it will be fetched after the insert -- so
 an INSERT followed by SELECT is performed. If you do not want this, use
 C<fast_insert>.
 
-=item $last_insert_id = $teng->fast_insert($table_name, \%row_data);
+=item C<$last_insert_id = $teng-E<gt>fast_insert($table_name, \%row_data);>
 
 insert new record and get last_insert_id.
 
 no creation row object.
 
-=item $teng->bulk_insert($table_name, \@rows_data)
+=item C<$teng-E<gt>bulk_insert($table_name, \@rows_data)>
 
 Accepts either an arrayref of hashrefs.
 each hashref should be a structure suitable
-forsubmitting to a Your::Model->insert(...) method.
+for submitting to a Your::Model->insert(...) method.
 
 insert many record by bulk.
 
@@ -859,7 +859,7 @@ example:
         },
     ]);
 
-=item $update_row_count = $teng->update($table_name, \%update_row_data, [\%update_condition])
+=item C<$update_row_count = $teng-E<gt>update($table_name, \%update_row_data, [\%update_condition])>
 
 Calls UPDATE on C<$table_name>, with values specified in C<%update_ro_data>, and returns the number of rows updated. You may optionally specify C<%update_condition> to create a conditional update query.
 
@@ -890,13 +890,13 @@ you can column update by using column method:
     $row->name('yappo');
     $row->update;
 
-=item $updated_row_count = $teng->do_update($table_name, \%set, \%where)
+=item C<$updated_row_count = $teng-E<gt>do_update($table_name, \%set, \%where)>
 
 This is low level API for UPDATE. Normally, you should use update method instead of this.
 
 This method does not deflate \%args.
 
-=item $delete_row_count = $teng->delete($table, \%delete_condition)
+=item C<$delete_row_count = $teng-E<gt>delete($table, \%delete_condition)>
 
 Deletes the specified record(s) from C<$table> and returns the number of rows deleted. You may optionally specify C<%delete_condition> to create a conditional delete query.
 
@@ -910,7 +910,7 @@ You can also call delete on a row object:
     my $row = $teng->single('user', {id => 1});
     $row->delete
 
-=item $itr = $teng->search($table_name, [\%search_condition, [\%search_attr]])
+=item C<$itr = $teng-E<gt>search($table_name, [\%search_condition, [\%search_attr]])>
 
 simple search method.
 search method get Teng::Iterator's instance object.
@@ -925,14 +925,14 @@ get rows:
 
     my @rows = $teng->search('user',{id => 1},{order_by => 'id'});
 
-=item $row = $teng->single($table_name, \%search_condition)
+=item C<$row = $teng-E<gt>single($table_name, \%search_condition)>
 
 get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
     my $row = $teng->single('user',{id =>1});
 
-=item $itr = $teng->search_named($sql, [\%bind_values, [$table_name]])
+=item C<$itr = $teng-E<gt>search_named($sql, [\%bind_values, [$table_name]])>
 
 execute named query
 
@@ -947,7 +947,7 @@ It's useful in case use IN statement.
 
 If you give table_name. It is assumed the hint that makes Teng::Row's Object.
 
-=item $itr = $teng->search_by_sql($sql, [\@bind_values, [$table_name]])
+=item C<$itr = $teng-E<gt>search_by_sql($sql, [\@bind_values, [$table_name]])>
 
 execute your SQL
 
@@ -963,7 +963,7 @@ execute your SQL
 If $table is specified, it set table information to result iterator.
 So, you can use table row class to search_by_sql result.
 
-=item $row = $teng->single_by_sql($sql, [\@bind_values, [$table_name]])
+=item C<$row = $teng-E<gt>single_by_sql($sql, [\@bind_values, [$table_name]])>
 
 get one record from your SQL.
 
@@ -975,7 +975,7 @@ This is a shortcut for
 
 But optimized implementation.
 
-=item $row = $teng->single_named($sql, [\%bind_values, [$table_name]])
+=item C<$row = $teng-E<gt>single_named($sql, [\%bind_values, [$table_name]])>
 
 get one record from execute named query
 
@@ -987,12 +987,12 @@ This is a shortcut for
 
 But optimized implementation.
 
-=item $sth = $teng->execute($sql, [\@bind_values])
+=item C<$sth = $teng-E<gt>execute($sql, [\@bind_values])>
 
 execute query and get statement handler.
 and will be inserted caller's file and line as a comment in the SQL if $ENV{TENG_SQL_COMMENT} or sql_comment is true value.
 
-=item $teng->txn_scope
+=item C<$teng-E<gt>txn_scope>
 
 Creates a new transaction scope guard object.
 
@@ -1012,35 +1012,35 @@ about calling L</txn_rollback> at the right places. Note that since there
 is no defined code closure, there will be no retries and other magic upon
 database disconnection.
 
-=item $txn_manager = $teng->txn_manager
+=item C<$txn_manager = $teng-E<gt>txn_manager>
 
 Get the DBIx::TransactionManager instance.
 
-=item $teng->txn_begin
+=item C<$teng-E<gt>txn_begin>
 
 start new transaction.
 
-=item $teng->txn_commit
+=item C<$teng-E<gt>txn_commit>
 
 commit transaction.
 
-=item $teng->txn_rollback
+=item C<$teng-E<gt>txn_rollback>
 
 rollback transaction.
 
-=item $teng->txn_end
+=item C<$teng-E<gt>txn_end>
 
 finish transaction.
 
-=item $teng->do($sql, [\%option, @bind_values])
+=item C<$teng-E<gt>do($sql, [\%option, @bind_values])>
 
 Execute the query specified by C<$sql>, using C<%option> and C<@bind_values> as necessary. This pretty much a wrapper around L<http://search.cpan.org/dist/DBI/DBI.pm#do>
 
-=item $teng->dbh
+=item C<$teng-E<gt>dbh>
 
 get database handle.
 
-=item $teng->connect(\@connect_info)
+=item C<$teng-E<gt>connect(\@connect_info)>
 
 connect database handle.
 
@@ -1048,15 +1048,15 @@ connect_info is [$dsn, $user, $password, $options].
 
 If you give \@connect_info, create new database connection.
 
-=item $teng->disconnect()
+=item C<$teng-E<gt>disconnect()>
 
 Disconnects from the currently connected database.
 
-=item $teng->suppress_row_objects($flag)
+=item C<$teng-E<gt>suppress_row_objects($flag)>
 
 set row object creation mode.
 
-=item $teng->load_plugin();
+=item C<$teng-E<gt>load_plugin();>
 
  $teng->load_plugin($plugin_class, $options);
 
@@ -1072,7 +1072,7 @@ for example:
 
 BulkInsert's "bulk_insert" method is imported as "insert_bulk".
 
-=item $teng->handle_error
+=item C<$teng-E<gt>handle_error>
 
 handling error method.
 

@@ -183,31 +183,31 @@ Teng::Schema::Declare - DSL For Declaring Teng Schema
 
 =over 4
 
-=item schema
+=item C<schema>
 
 schema data creation wrapper.
 
-=item table
+=item C<table>
 
 set table name
 
-=item pk
+=item C<pk>
 
 set primary key
 
-=item columns
+=item C<columns>
 
 set columns
 
-=item inflate_rule
+=item C<inflate_rule>
 
 set inflate rule
 
-=item row_namespace
+=item C<row_namespace>
 
 create Row class namespace
 
-=item base_row_class
+=item C<base_row_class>
 
 Specify the default base row class with Teng::Schema::Declare.
 

@@ -114,7 +114,7 @@ You can use it by C<do "my/schema.pl"> or embed it to the package.
 
 =over 4
 
-=item Teng::Schema::Dumper->dump(dbh => $dbh, namespace => $namespace);
+=item C<Teng::Schema::Dumper-&gt;dump(dbh => $dbh, namespace => $namespace)>
 
 This is the method to generate code from DB. It returns the Perl5 code in string.
 
@@ -122,15 +122,15 @@ The arguments are:
 
 =over 4
 
-=item dbh
+=item C<dbh>
 
 Database handle from DBI.
 
-=item namespace
+=item C<namespace>
 
-your project teng namespace.
+your project Teng namespace.
 
-=item base_row_class
+=item C<base_row_class>
 
 Specify the default base row class for L<Teng::Schema::Declare>.
 

@@ -50,7 +50,7 @@ __END__
 
 =head1 NAME
 
-Teng::Plugin::SQLPager - paginate with sql
+Teng::Plugin::SQLPager - Paginate with SQL
 
 =head1 SYNOPSIS
 

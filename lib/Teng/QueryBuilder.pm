@@ -15,7 +15,7 @@ Teng::QueryBuilder
 
 =head1 DESCRIPTION
 
-Teng sql builder class.
+Teng SQL builder class.
 
 =head1 SEE ALSO
 

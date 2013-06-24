@@ -41,15 +41,15 @@ __END__
 
 =head1 NAME
 
-Teng::Plugin::Replace - add replace for Teng
+Teng::Plugin::Replace - Add replace for Teng
 
 =head1 PROVIDED METHODS
 
 =over 4
 
-=item $teng->replace($table_name, \%rows_data);
+=item C<$teng-&gt;replace($table_name, \%rows_data)>;
 
-recoed by replace.
+record by replace.
 
 example:
 

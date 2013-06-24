@@ -301,7 +301,7 @@ refetch record from database. get new row object.
 
 =item $row->handle
 
-get teng object.
+get Teng object.
 
     $row->handle->single('table', {id => 1});
 
