@@ -305,6 +305,8 @@ get teng object.
 
     $row->handle->single('table', {id => 1});
 
+=back
+
 =head1 NOTE FOR COLUMN NAME METHOD
 
 Teng::Row has methods that have name from column name. For example, if a table has column named 'foo', Teng::Row instance of it has method 'foo'.
