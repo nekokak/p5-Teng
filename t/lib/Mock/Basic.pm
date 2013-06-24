@@ -35,6 +35,15 @@ sub create_mysql {
             PRIMARY KEY  (id)
         ) ENGINE=InnoDB
     });
+    $dbh->do( q{DROP TABLE IF EXISTS mock_basic_camelcase} );
+    $dbh->do(q{
+        CREATE TABLE mock_basic_camelcase (
+            Id   integer,
+            Name text,
+            DeleteFg int(1) default 0,
+            primary key ( Id )
+        )
+    });
 }
 
 sub create_pg {

@@ -14,7 +14,10 @@ find({
 }, './t/002_common');
 
 for my $file (@files) {
-    subtest "$file" => sub { do "$file" };
+    subtest "$file" => sub {
+        do "$file";
+        note $@ if $@;
+    };
 }
 
 done_testing;

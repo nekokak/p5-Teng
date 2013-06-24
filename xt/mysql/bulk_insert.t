@@ -15,7 +15,7 @@ $dbh->do(q{
     );
 });
 
-my $schema = Teng::Schema::Loader->load(
+my $db = Teng::Schema::Loader->load(
     dbh       => $dbh,
     namespace => 'Mock::DB',
 );
@@ -26,10 +26,6 @@ my $schema = Teng::Schema::Loader->load(
     __PACKAGE__->load_plugin('BulkInsert');
 }
 
-my $db = Mock::DB->new(
-    schema => $schema,
-    dbh    => $dbh,
-);
 my $user = $db->schema->get_table('user');
 
 eval {

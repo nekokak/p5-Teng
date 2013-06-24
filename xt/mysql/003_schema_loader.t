@@ -18,19 +18,9 @@ $dbh->do(q{
     );
 });
 
-my $schema = Teng::Schema::Loader->load(
+my $db = Teng::Schema::Loader->load(
     dbh       => $dbh,
     namespace => 'Mock::DB',
-);
-
-{
-    package Mock::DB;
-    use parent 'Teng';
-}
-
-my $db = Mock::DB->new(
-    schema => $schema,
-    dbh    => $dbh,
 );
 my $user = $db->schema->get_table('user');
 is($user->name, 'user');
