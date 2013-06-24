@@ -23,11 +23,25 @@ subtest 'row object update' => sub {
     my $row = $db->single('mock_basic',{id => 1});
     isa_ok $row, 'Teng::Row';
     is $row->name, 'python';
-
+    
     ok $row->update({name => 'perl'});
     is $row->name, 'perl';
     my $new_row = $db->single('mock_basic',{id => 1});
     is $new_row->name, 'perl';
+};
+
+subtest 'row object is_changed' => sub {
+    my $row = $db->single('mock_basic',{id => 1});
+    isa_ok $row, 'Teng::Row';
+    is $row->name, 'perl';
+    ok !$row->is_changed;
+
+    $row->name('perl');
+    ok !$row->is_changed;
+
+    $row->name('ruby');
+    ok $row->is_changed;
+    # no update
 };
 
 subtest 'row data set and update' => sub {

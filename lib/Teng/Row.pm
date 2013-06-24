@@ -88,6 +88,10 @@ sub get_columns {
 sub set_column {
     my ($self, $col, $val) = @_;
 
+    if ( $self->{row_data}->{$col} eq $val ) {
+        return $val;
+    }
+
     if (ref($val) eq 'SCALAR') {
         $self->{_untrusted_row_data}->{$col} = 1;
     }
@@ -109,6 +113,11 @@ sub get_dirty_columns {
     my $self = shift;
 
     +{ %{ $self->{_dirty_columns} } };
+}
+
+sub is_changed {
+    my $self = shift;
+    keys %{$self->{_dirty_columns}} > 0
 }
 
 sub update {
@@ -277,6 +286,10 @@ Note: This method does not deflate values.
 =item $row->get_dirty_columns
 
 returns those that have been changed.
+
+=item $row->is_changed
+
+returns true, If the row object have a updated column.
 
 =item $row->update([$arg])
 
