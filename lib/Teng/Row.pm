@@ -298,6 +298,8 @@ It works by schema in which primary key exists.
     $row->set({name => 'tokuhirom'});
     $row->update;
 
+If C<$arg> HashRef is supplied, each pairs are passed to C<set()> method before update.
+
 =item $row->delete
 
 delete is executed for instance record.
