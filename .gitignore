@@ -12,3 +12,10 @@ test.*
 tools/externals
 db1.db
 MYMETA.*
+/Teng-*
+/.build
+/_build_params
+/Build
+!Build/
+!META.json
+!LICENSE
