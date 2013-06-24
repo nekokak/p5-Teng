@@ -88,7 +88,9 @@ sub get_columns {
 sub set_column {
     my ($self, $col, $val) = @_;
 
-    if ( $self->{row_data}->{$col} eq $val ) {
+    if ( defined $self->{row_data}->{$col} 
+      && defined $val 
+      && $self->{row_data}->{$col} eq $val ) {
         return $val;
     }
 
