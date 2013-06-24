@@ -1,6 +1,8 @@
 Revision history for Perl extension Teng
 
 {{$NEXT}}
+        - ADD: Implemented set and get methods which always inflate/deflate values to Teng::Row.
+        - MODIFY: Refactored Teng::Row and defined behavior of some methods specifically.
 
 0.18
         - FIXED: Strict argument validation for Teng::Plugin::Count. (thanks tokuhirom)
