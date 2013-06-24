@@ -8,7 +8,9 @@ sub new {
     my ($class, $args) = @_;
 
     my $self = bless {
+        # inflated values
         _get_column_cached     => {},
+        # values will be updated
         _dirty_columns         => {},
         _autoload_column_cache => {},
         %$args,
@@ -55,9 +57,8 @@ sub get {
 
 sub set {
     my ($self, $col, $val) = @_;
-    $self->{row_data}->{$col} = $self->set_column( $col => $self->{table}->call_deflate($col, $val) ); 
-    $self->{_get_column_cached}->{$col} = $val;
-    $self->{_dirty_columns}->{$col} = $val;
+    $self->set_column( $col => $self->{table}->call_deflate($col, $val) ); 
+    delete $self->{_get_column_cached}->{$col};
     return $self;
 }
 
@@ -69,7 +70,11 @@ sub get_column {
     }
 
     if ( exists $self->{row_data}->{$col} ) {
-        return $self->{row_data}->{$col};
+        if (exists $self->{_dirty_columns}->{$col}) {
+            return $self->{_dirty_columns}->{$col};
+        } else {
+            return $self->{row_data}->{$col};
+        }
     } else {
         Carp::croak("Specified column '$col' not found in row (query: " . ( $self->{sql} || 'unknown' ) . ")" );
     }
@@ -92,9 +97,10 @@ sub set_column {
         $self->{_untrusted_row_data}->{$col} = 1;
     }
 
-    $self->{row_data}->{$col} = $val;
     delete $self->{_get_column_cached}->{$col};
     $self->{_dirty_columns}->{$col} = $val;
+
+    $val;
 }
 
 sub set_columns {
@@ -107,7 +113,6 @@ sub set_columns {
 
 sub get_dirty_columns {
     my $self = shift;
-
     +{ %{ $self->{_dirty_columns} } };
 }
 
@@ -124,19 +129,23 @@ sub update {
         Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
     }
 
-    %$upd = (%{$self->get_dirty_columns}, %{$upd||+{}});
-    for my $col (keys %{$upd}) {
-       $upd->{$col} = $table->call_deflate($col, $upd->{$col});
+    if ($upd) {
+        for my $col (keys %$upd) {
+            $self->set($col => $upd->{$col});
+        }
     }
 
     my $where = $self->_where_cond;
-    $self->set_columns($upd);
 
     $upd = $self->get_dirty_columns;
     return 0 unless %$upd;
 
     my $bind_args = $self->{teng}->_bind_sql_type_to_args($table, $upd);
     my $result = $self->{teng}->do_update($table_name, $bind_args, $where, 1);
+    $self->{row_data} = {
+        %{ $self->{row_data} },
+        %$upd,
+    };
     $self->{_dirty_columns} = {};
 
     $result;
@@ -185,13 +194,13 @@ sub _where_cond {
             Carp::croak "can't get primary columns in your query.";
         }
 
-        return +{ map { $_ => $self->get_column($_) } @$pk };
+        return +{ map { $_ => $self->{row_data}->{$_} } @$pk };
     } else {
         unless (grep { $pk eq $_ } @{$self->{select_columns}}) {
             Carp::croak "can't get primary column in your query.";
         }
 
-        return +{ $pk => $self->get_column($pk) };
+        return +{ $pk => $self->{row_data}->{$pk} };
     }
 }
 
