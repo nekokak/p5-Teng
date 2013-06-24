@@ -552,7 +552,7 @@ sub single {
     my $sth = $self->execute($sql, \@binds);
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
-    return undef unless $row;
+    return undef unless $row; ## no critic
     return $row if $self->{suppress_row_objects};
 
     $table->{row_class}->new(
