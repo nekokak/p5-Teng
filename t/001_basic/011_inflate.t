@@ -73,9 +73,11 @@ subtest 'update row' => sub {
     subtest 'set_column & update' => sub  {
         my $name = Mock::Inflate::Name->new(name => 'python');
         $row->set(name => $name);
+        ok $row->is_changed;
         isa_ok $row->name, 'Mock::Inflate::Name';
         is $row->name->name, 'python';
         $row->update;
+        ok !$row->is_changed;
 
         my $updated = $db->single('mock_inflate',{id => 1});
         isa_ok $updated->name, 'Mock::Inflate::Name';
