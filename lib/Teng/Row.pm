@@ -5,7 +5,7 @@ use Carp ();
 our $AUTOLOAD;
 
 # inside-out
-my $teng = {};
+our %obj;
 
 sub new {
     my ($class, $args) = @_;
@@ -22,7 +22,7 @@ sub new {
     $self->{select_columns} ||= [keys %{$args->{row_data}}];
     $self->{table} ||= $args->{teng}->schema->get_table($args->{table_name});
 
-    $teng->{$self+0} = delete $self->{teng};
+    $obj{$self+0} = delete $self->{teng};
 
     $self;
 }
@@ -41,7 +41,7 @@ sub generate_column_accessor {
     };
 }
 
-sub handle { $teng->{$_[0]+0} }
+sub handle { $obj{$_[0]+0} }
 
 sub get {
     my ($self, $col) = @_;
@@ -230,7 +230,7 @@ sub AUTOLOAD {
 ### don't autoload this
 sub DESTROY {
     my $self = shift;
-    delete $teng->{$self+0};
+    delete $obj{$self+0};
 };
 
 1;
