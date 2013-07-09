@@ -31,7 +31,8 @@
             "Test::Mock::Guard" : "0",
             "Test::More" : "0.96",
             "Test::Requires" : "0",
-            "Test::SharedFork" : "0.15"
+            "Test::SharedFork" : "0.15",
+            "Test::Warn" : "0"
          }
       },
       "configure" : {
@@ -98,6 +99,7 @@
       "Atsushi Kobayashi <nekokak@gmail.com>",
       "Jun Kuriyama <kuriyama@s2factory.co.jp>",
       "Tokuhiro Matsuno <tokuhirom@gmail.com>",
+      "Masahiro Nagano <kazeburo@gmail.com>",
       "cho45 <cho45@lowreal.net>"
    ]
 }

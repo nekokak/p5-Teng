@@ -1,6 +1,7 @@
 use t::Utils;
 use Mock::Basic;
 use Test::More;
+use Test::Warn;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
@@ -82,6 +83,10 @@ subtest 'search_named with non existent bind' => sub {
         );
     };
     like $@, qr/'name' does not exist in bind hash/;
+};
+
+subtest 'search_named table name 404' => sub {
+    warning_like { my $itr = $db->search_named(q{SELECT * FROM mock_basic WHERE id = :id}, {id => 1}, 'foobar'); } qr/'foobar' is not appeared in sql:/;
 };
 
 done_testing;

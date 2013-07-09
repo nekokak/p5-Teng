@@ -13,6 +13,7 @@ on build => sub {
     requires 'ExtUtils::MakeMaker', '6.36';
     requires 'Test::Mock::Guard';
     requires 'Test::More', '0.96';
+    requires 'Test::Warn';
     requires 'Test::Requires';
     requires 'Test::SharedFork', '0.15';
 };
