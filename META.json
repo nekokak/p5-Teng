@@ -76,7 +76,7 @@
          "web" : "https://github.com/nekokak/p5-Teng"
       }
    },
-   "version" : "0.18",
+   "version" : "0.19",
    "x_contributors" : [
       "Yuki Ibe <yibe@yibe.org>",
       "libkenta <libkenta@gmail.com>",
@@ -98,6 +98,7 @@
       "Atsushi Kobayashi <nekokak@gmail.com>",
       "Jun Kuriyama <kuriyama@s2factory.co.jp>",
       "Tokuhiro Matsuno <tokuhirom@gmail.com>",
+      "Masahiro Nagano <kazeburo@gmail.com>",
       "cho45 <cho45@lowreal.net>"
    ]
 }
