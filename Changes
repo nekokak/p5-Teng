@@ -2,6 +2,9 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.20 2013-08-21T07:39:25Z
+        - Re-release for override UNAUTHORIZED flag (same as 0.19)
+
 0.19 2013-07-26T07:23:44Z
         - ADD: Implemented set and get methods which always inflate/deflate values to Teng::Row.
         - ADD: Implemented is_changed method to Teng::Row, which is useful for determining to update actually (thanks kazeburo).
