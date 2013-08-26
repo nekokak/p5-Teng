@@ -21,6 +21,7 @@ use Class::Accessor::Lite
         owner_pid
         no_ping
         fields_case
+        iterator_class
     )]
 ;
 
@@ -57,10 +58,11 @@ sub new {
     }
 
     my $self = bless {
-        schema_class => "$class\::Schema",
-        owner_pid    => $$,
-        no_ping      => 0,
-        fields_case  => 'NAME_lc',
+        schema_class   => "$class\::Schema",
+        owner_pid      => $$,
+        no_ping        => 0,
+        fields_case    => 'NAME_lc',
+        iterator_class => 'Teng::Iterator',
         %args,
     }, $class;
 
@@ -77,6 +79,10 @@ sub new {
 
     unless ($self->connect_info || $self->{dbh}) {
         Carp::croak("'dbh' or 'connect_info' is required.");
+    }
+
+    if ($args{iterator_class}) {
+        Class::Load::load_class( $args{iterator_class} );
     }
 
     if ( ! $self->{dbh} ) {
@@ -571,7 +577,7 @@ sub search_by_sql {
 
     $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->execute($sql, $bind);
-    my $itr = Teng::Iterator->new(
+    my $itr = $self->iterator_class->new(
         teng             => $self,
         sth              => $sth,
         sql              => $sql,
@@ -812,6 +818,11 @@ a C<SELECT> statement is issued..
 Speficies the SQL builder object. By default SQL::Maker is used, and as such,
 if you provide your own SQL builder the interface needs to be compatible
 with SQL::Maker.
+
+=item * C<iterator_class>
+
+Specifies the iterator class to use.
+By default Teng::Iterator is used.
 
 =back
 

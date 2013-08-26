@@ -20,7 +20,7 @@ sub search_by_sql_with_pager {
     my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
     $sth->execute(@$binds) or Carp::croak $self->dbh->errstr;
 
-    my $itr = Teng::Iterator->new(
+    my $itr = $self->iterator_class->new(
         teng             => $self,
         sth              => $sth,
         sql              => $sql,
