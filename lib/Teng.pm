@@ -959,6 +959,14 @@ give back one case of the beginning when it is acquired plural records by single
 
     my $row = $teng->single('user',{id =>1});
 
+=item C<$row = $teng-E<gt>data2row($table_name, \%row_data, [$sql])>
+
+create row object from data. (not fetch from db.)
+It's useful in such as testing.
+
+    my $row = $teng->data2row('user', { id => 1, foo => "bar" });
+    say $row->foo; # say bar
+
 =item C<$itr = $teng-E<gt>search_named($sql, [\%bind_values, [$table_name]])>
 
 execute named query
