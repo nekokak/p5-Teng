@@ -608,7 +608,7 @@ sub single_by_sql {
 }
 
 sub data2row {
-    my ($self, $table_name, $data) = @_;
+    my ($self, $table_name, $data, $sql) = @_;
 
     my $table = $self->{schema}->get_table( $table_name );
     Carp::croak("No such table $table_name") unless $table;
@@ -617,7 +617,7 @@ sub data2row {
 
     $table->{row_class}->new(
         {
-            sql => do {
+            sql => $sql || do {
                 my @caller = caller(0);
                 my $level = 0;
                 while ($caller[0] eq __PACKAGE__ || $caller[0] eq ref $self) {

@@ -23,10 +23,16 @@ subtest 'data2row method' => sub {
     ];
 
     my $rows = [ map { $db_basic->data2row(mock_basic => $_) } @$raw_data ];
+    is $rows->[0]->{sql}, sprintf('/* DUMMY QUERY Mock::Basic->data2row created from %s line %d */', __FILE__, __LINE__ - 1);
     isa_ok $_, 'Teng::Row' for @$rows;
     is $rows->[0]->id, 1;
     is $rows->[1]->id, 2;
     is $rows->[2]->id, 3;
+
+    subtest 'with sql' => sub {
+        my $sql = 'SELECT * FROM mock_basic WHERE id = 1';
+        is $db_basic->data2row(mock_basic => $raw_data->[0], $sql)->{sql}, $sql;
+    };
 };
 
 done_testing;
