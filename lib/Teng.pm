@@ -607,6 +607,32 @@ sub single_by_sql {
     );
 }
 
+sub data2row {
+    my ($self, $table_name, $data) = @_;
+
+    my $table = $self->{schema}->get_table( $table_name );
+    Carp::croak("No such table $table_name") unless $table;
+
+    return $data if $self->{suppress_row_objects};
+
+    $table->{row_class}->new(
+        {
+            sql => do {
+                my @caller = caller(0);
+                my $level = 0;
+                while ($caller[0] eq __PACKAGE__ || $caller[0] eq ref $self) {
+                    @caller = caller(++$level);
+                }
+                sprintf '/* DUMMY QUERY %s->data2row created from %s line %d */', ref $self, $caller[1], $caller[2];
+            },
+            row_data   => $data,
+            teng       => $self,
+            table      => $table,
+            table_name => $table_name,
+        }
+    );
+}
+
 sub single_named {
     my ($self, $sql, $args, $table_name) = @_;
 
