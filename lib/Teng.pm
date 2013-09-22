@@ -286,7 +286,7 @@ sub _last_insert_id {
     if ( $driver eq 'mysql' ) {
         return $self->dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
-        return $self->dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table_name, 'id', 'seq' ) } );
+        return $self->dbh->last_insert_id( undef, undef, $table_name, undef );
     } elsif ( $driver eq 'SQLite' ) {
         return $self->dbh->func('last_insert_rowid');
     } elsif ( $driver eq 'Oracle' ) {
