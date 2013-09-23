@@ -7,6 +7,10 @@ my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
 Mock::Basic->load_plugin('Replace');
 
+# Statement `REPLACE` is not supported in Pg.
+# So skip it.
+if($dbh->{Driver}->{Name} eq 'Pg') { plan skip_all => 'REPLACE is not supported in Pg.'; }
+
 subtest 'replace mock_basic data' => sub {
     my $row = $db->insert('mock_basic',{
         id   => 1,
