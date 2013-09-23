@@ -53,7 +53,7 @@ sub create_pg {
         CREATE TABLE mock_basic (
             id   SERIAL PRIMARY KEY,
             name TEXT,
-            delete_fg boolean
+            delete_fg boolean default false
         )
     });
 }
