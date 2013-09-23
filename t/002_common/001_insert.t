@@ -43,5 +43,11 @@ subtest 'fast_insert' => sub {
     is $last_insert_id, 3;
 };
 
+subtest 'fast_insert with pkey not named "id"' => sub {
+    my $last_insert_id = $db->fast_insert('mock_basic_anotherpkey',{
+        name => 'ruby',
+    });
+    is $last_insert_id, 1;
+};
 
 done_testing;

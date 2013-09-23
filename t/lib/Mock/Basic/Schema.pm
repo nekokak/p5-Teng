@@ -22,5 +22,15 @@ table {
     /;
 };
 
+table {
+    name 'mock_basic_anotherpkey';
+    pk 'table_id';
+    columns qw/
+        table_id
+        name
+        delete_fg
+    /;
+};
+
 1;
 
