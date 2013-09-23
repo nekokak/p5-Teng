@@ -7,6 +7,8 @@ my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
 
 subtest 'do raise error' => sub {
+    # XXX: To throw exception with Pg
+    local $dbh->{"RaiseError"} = 1;
     eval {
         $db->do(q{select * from hoge});
     };
