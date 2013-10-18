@@ -139,13 +139,13 @@ create new Teng::Schema::Table's object.
 
 get column SQL type.
 
-=item $table->set_deflator
+=item $table->add_deflator($column_rule, $code)
 
-set deflate code reference.
+add deflate code reference.
 
-=item $table->set_inflator
+=item $table->add_inflator($column_rule, $code)
 
-set inflate code reference.
+add inflate code reference.
 
 =item $table->call_deflate
 
