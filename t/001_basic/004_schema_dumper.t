@@ -115,4 +115,16 @@ subtest "dump with base_row_class" => sub {
     like $code, qr/base_row_class 'Mock::DB::Row';\n/;
 };
 
+subtest "dump with use" => sub {
+    # generate schema and eval.
+    my $code = Teng::Schema::Dumper->dump(
+        dbh            => $dbh,
+        namespace      => 'Mock::DB',
+        base_row_class => 'Mock::DB::Row',
+        use            => 'use JSON;',
+    );
+    note $code;
+    like $code, qr/use JSON/;
+};
+
 done_testing;
