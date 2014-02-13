@@ -12,6 +12,7 @@ subtest 'scalar data bug case' => sub {
 
     my $row = $db->insert('mock_inflate',{
         id   => 1,
+        bar  => 'baz',
         name => 'azumakuniyuki',
     });
 
