@@ -607,6 +607,32 @@ sub single_by_sql {
     );
 }
 
+sub new_row_from_hash {
+    my ($self, $table_name, $data, $sql) = @_;
+
+    my $table = $self->{schema}->get_table( $table_name );
+    Carp::croak("No such table $table_name") unless $table;
+
+    return $data if $self->{suppress_row_objects};
+
+    $table->{row_class}->new(
+        {
+            sql => $sql || do {
+                my @caller = caller(0);
+                my $level = 0;
+                while ($caller[0] eq __PACKAGE__ || $caller[0] eq ref $self) {
+                    @caller = caller(++$level);
+                }
+                sprintf '/* DUMMY QUERY %s->new_row_from_hash created from %s line %d */', ref $self, $caller[1], $caller[2];
+            },
+            row_data   => $data,
+            teng       => $self,
+            table      => $table,
+            table_name => $table_name,
+        }
+    );
+}
+
 sub single_named {
     my ($self, $sql, $args, $table_name) = @_;
 
@@ -932,6 +958,14 @@ get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
     my $row = $teng->single('user',{id =>1});
+
+=item C<$row = $teng-E<gt>new_row_from_hash($table_name, \%row_data, [$sql])>
+
+create row object from data. (not fetch from db.)
+It's useful in such as testing.
+
+    my $row = $teng->new_row_from_hash('user', { id => 1, foo => "bar" });
+    say $row->foo; # say bar
 
 =item C<$itr = $teng-E<gt>search_named($sql, [\%bind_values, [$table_name]])>
 
