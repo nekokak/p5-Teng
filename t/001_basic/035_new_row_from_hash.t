@@ -6,7 +6,7 @@ my $dbh = t::Utils->setup_dbh;
 my $db_basic = Mock::Basic->new({dbh => $dbh});
 $db_basic->setup_test_db;
 
-subtest 'data2row method' => sub {
+subtest 'new_row_from_hash method' => sub {
     my $raw_data = [
         {
             id   => 1,
@@ -22,8 +22,8 @@ subtest 'data2row method' => sub {
         },
     ];
 
-    my $rows = [ map { $db_basic->data2row(mock_basic => $_) } @$raw_data ];
-    is $rows->[0]->{sql}, sprintf('/* DUMMY QUERY Mock::Basic->data2row created from %s line %d */', __FILE__, __LINE__ - 1);
+    my $rows = [ map { $db_basic->new_row_from_hash(mock_basic => $_) } @$raw_data ];
+    is $rows->[0]->{sql}, sprintf('/* DUMMY QUERY Mock::Basic->new_row_from_hash created from %s line %d */', __FILE__, __LINE__ - 1);
     isa_ok $_, 'Teng::Row' for @$rows;
     is $rows->[0]->id, 1;
     is $rows->[1]->id, 2;
@@ -31,7 +31,7 @@ subtest 'data2row method' => sub {
 
     subtest 'with sql' => sub {
         my $sql = 'SELECT * FROM mock_basic WHERE id = 1';
-        is $db_basic->data2row(mock_basic => $raw_data->[0], $sql)->{sql}, $sql;
+        is $db_basic->new_row_from_hash(mock_basic => $raw_data->[0], $sql)->{sql}, $sql;
     };
 };
 

@@ -607,7 +607,7 @@ sub single_by_sql {
     );
 }
 
-sub data2row {
+sub new_row_from_hash {
     my ($self, $table_name, $data, $sql) = @_;
 
     my $table = $self->{schema}->get_table( $table_name );
@@ -623,7 +623,7 @@ sub data2row {
                 while ($caller[0] eq __PACKAGE__ || $caller[0] eq ref $self) {
                     @caller = caller(++$level);
                 }
-                sprintf '/* DUMMY QUERY %s->data2row created from %s line %d */', ref $self, $caller[1], $caller[2];
+                sprintf '/* DUMMY QUERY %s->new_row_from_hash created from %s line %d */', ref $self, $caller[1], $caller[2];
             },
             row_data   => $data,
             teng       => $self,
@@ -959,12 +959,12 @@ give back one case of the beginning when it is acquired plural records by single
 
     my $row = $teng->single('user',{id =>1});
 
-=item C<$row = $teng-E<gt>data2row($table_name, \%row_data, [$sql])>
+=item C<$row = $teng-E<gt>new_row_from_hash($table_name, \%row_data, [$sql])>
 
 create row object from data. (not fetch from db.)
 It's useful in such as testing.
 
-    my $row = $teng->data2row('user', { id => 1, foo => "bar" });
+    my $row = $teng->new_row_from_hash('user', { id => 1, foo => "bar" });
     say $row->foo; # say bar
 
 =item C<$itr = $teng-E<gt>search_named($sql, [\%bind_values, [$table_name]])>

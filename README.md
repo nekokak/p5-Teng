@@ -275,6 +275,14 @@ Teng provides a number of methods to all your classes,
 
         my $row = $teng->single('user',{id =>1});
 
+- `$row = $teng->new_row_from_hash($table_name, \%row_data, [$sql])`
+
+    create row object from data. (not fetch from db.)
+    It's useful in such as testing.
+
+        my $row = $teng->new_row_from_hash('user', { id => 1, foo => "bar" });
+        say $row->foo; # say bar
+
 - `$itr = $teng->search_named($sql, [\%bind_values, [$table_name]])`
 
     execute named query
