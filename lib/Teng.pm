@@ -341,8 +341,10 @@ sub insert {
 
     my $table = $self->schema->get_table($table_name);
     my $pk = $table->primary_keys();
-    if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {
-        $args->{$pk->[0]} = $self->_last_insert_id($table_name);
+
+    my @missing_primary_keys = grep { not defined $args->{$_} } @$pk;
+    if (@missing_primary_keys == 1) {
+        $args->{$missing_primary_keys[0]} = $self->_last_insert_id($table_name);
     }
 
     return $args if $self->suppress_row_objects;
