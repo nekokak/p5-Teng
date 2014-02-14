@@ -2,6 +2,11 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.21 2014-02-14T02:59:46Z
+        - ADD:: Implemented new_row_from_hash which just creates new Teng::Row instance with column data. (thanks karupanerura)
+        - MODIFY: Fixed around multiple primary key. (thanks Songmu)
+
+
 0.20 2013-08-21T07:39:25Z
         - Re-release for override UNAUTHORIZED flag (same as 0.19)
 

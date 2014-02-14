@@ -4,7 +4,7 @@
       "Atsushi Kobayashi  C<< <nekokak __at__ gmail.com> >>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.6.4, CPAN::Meta::Converter version 2.131490",
+   "generated_by" : "Minilla/v0.11.0, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -21,7 +21,8 @@
          "share",
          "eg",
          "examples",
-         "author"
+         "author",
+         "builder"
       ]
    },
    "prereqs" : {
@@ -76,7 +77,7 @@
          "web" : "https://github.com/nekokak/p5-Teng"
       }
    },
-   "version" : "0.20",
+   "version" : "0.21",
    "x_authority" : "cpan:NEKOKAK",
    "x_contributors" : [
       "Yuki Ibe <yibe@yibe.org>",
@@ -92,14 +93,15 @@
       "Atsushi Kato <ktat@cpan.org>",
       "ktat <ktat.is@gmail.com>",
       "Kazuhiro Osawa <yappo@shibuya.pl>",
-      "karupanerura <karupa@cpan.org>",
-      "Kenta Sato <k-sato@mfac.jp>",
       "Masahiro Chiba <chiba@everqueue.com>",
-      "Masayuki Matsuki <y.songmu@gmail.com>",
       "Atsushi Kobayashi <nekokak@gmail.com>",
       "Jun Kuriyama <kuriyama@s2factory.co.jp>",
       "Masahiro Nagano <kazeburo@gmail.com>",
       "Tokuhiro Matsuno <tokuhirom@gmail.com>",
+      "k-sato <k-sato@mfac.jp>",
+      "Songmu <y.songmu@gmail.com>",
+      "ITO Nobuaki <daydream.trippers@gmail.com>",
+      "karupanerura <karupa@cpan.org>",
       "cho45 <cho45@lowreal.net>"
    ]
 }

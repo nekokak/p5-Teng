@@ -1,3 +1,7 @@
+# NAME
+
+Teng - very simple DBI wrapper/ORMapper
+
 # SYNOPSIS
 
     my $db = MyDB->new({ connect_info => [ 'dbi:SQLite:' ] });
@@ -36,7 +40,6 @@ in your script.
 
     use Your::Model;
     
-
     my $teng = Your::Model->new(\%args);
     # insert new record.
     my $row = $teng->insert('user',
@@ -258,7 +261,7 @@ Teng provides a number of methods to all your classes,
     simple search method.
     search method get Teng::Iterator's instance object.
 
-    see [Teng::Iterator](http://search.cpan.org/perldoc?Teng::Iterator)
+    see [Teng::Iterator](https://metacpan.org/pod/Teng::Iterator)
 
     get iterator:
 
@@ -357,9 +360,9 @@ Teng provides a number of methods to all your classes,
 
     If an exception occurs, or the guard object otherwise leaves the scope
     before `$txn->commit` is called, the transaction will be rolled
-    back by an explicit ["txn\_rollback"](#txn\_rollback) call. In essence this is akin to
-    using a ["txn\_begin"](#txn\_begin)/["txn\_commit"](#txn\_commit) pair, without having to worry
-    about calling ["txn\_rollback"](#txn\_rollback) at the right places. Note that since there
+    back by an explicit ["txn\_rollback"](#txn_rollback) call. In essence this is akin to
+    using a ["txn\_begin"](#txn_begin)/["txn\_commit"](#txn_commit) pair, without having to worry
+    about calling ["txn\_rollback"](#txn_rollback) at the right places. Note that since there
     is no defined code closure, there will be no retries and other magic upon
     database disconnection.
 
@@ -385,7 +388,7 @@ Teng provides a number of methods to all your classes,
 
 - `$teng->do($sql, [\%option, @bind_values])`
 
-    Execute the query specified by `$sql`, using `%option` and `@bind_values` as necessary. This pretty much a wrapper around [http://search.cpan.org/dist/DBI/DBI.pm\#do](http://search.cpan.org/dist/DBI/DBI.pm\#do)
+    Execute the query specified by `$sql`, using `%option` and `@bind_values` as necessary. This pretty much a wrapper around [http://search.cpan.org/dist/DBI/DBI.pm#do](http://search.cpan.org/dist/DBI/DBI.pm#do)
 
 - `$teng->dbh`
 
@@ -429,17 +432,17 @@ Teng provides a number of methods to all your classes,
 
 - How do you use display the profiling result?
 
-    use [Devel::KYTProf](http://search.cpan.org/perldoc?Devel::KYTProf).
+    use [Devel::KYTProf](https://metacpan.org/pod/Devel::KYTProf).
 
 # TRIGGERS
 
-Teng does not support triggers (NOTE: do not confuse it with SQL triggers - we're talking about Perl level triggers). If you really want to hook into the various methods, use something like [Moose](http://search.cpan.org/perldoc?Moose), [Mouse](http://search.cpan.org/perldoc?Mouse), and [Class::Method::Modifiers](http://search.cpan.org/perldoc?Class::Method::Modifiers).
+Teng does not support triggers (NOTE: do not confuse it with SQL triggers - we're talking about Perl level triggers). If you really want to hook into the various methods, use something like [Moose](https://metacpan.org/pod/Moose), [Mouse](https://metacpan.org/pod/Mouse), and [Class::Method::Modifiers](https://metacpan.org/pod/Class::Method::Modifiers).
 
 # SEE ALSO
 
 ## Fork
 
-This module was forked from [DBIx::Skinny](http://search.cpan.org/perldoc?DBIx::Skinny), around version 0.0732.
+This module was forked from [DBIx::Skinny](https://metacpan.org/pod/DBIx::Skinny), around version 0.0732.
 many incompatible changes have been made.
 
 # BUGS AND LIMITATIONS
@@ -466,7 +469,7 @@ Daisuke Maki `<daisuke@endeworks.jp>`
 
 # LICENCE AND COPYRIGHT
 
-Copyright (c) 2010, the Teng ["AUTHOR"](#AUTHOR). All rights reserved.
+Copyright (c) 2010, the Teng ["AUTHOR"](#author). All rights reserved.
 
 This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself. See [perlartistic](http://search.cpan.org/perldoc?perlartistic).
+modify it under the same terms as Perl itself. See [perlartistic](https://metacpan.org/pod/perlartistic).
