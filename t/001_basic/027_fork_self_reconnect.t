@@ -3,6 +3,8 @@ use Test::More;
 use Mock::Basic;
 use Test::SharedFork;
 
+plan skip_all => 'not for Win32' if $^O eq 'MSWin32';
+
 unlink './t/main.db' if -f './t/main.db';
 my $db = Mock::Basic->new(
     {
