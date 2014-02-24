@@ -91,7 +91,7 @@ sub table(&) {
     no warnings 'once';
     local *{"$dest_class\::name"}      = sub ($) { 
         $table_name = shift;
-        $row_class  = row_namespace($table_name);
+        $row_class  ||= row_namespace($table_name);
     };
     local *{"$dest_class\::pk"}        = sub (@) { @table_pk = @_ };
     local *{"$dest_class\::columns"}   = sub (@) { @table_columns = @_ };
