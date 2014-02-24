@@ -1,6 +1,7 @@
 Revision history for Perl extension Teng
 
 {{$NEXT}}
+        - FIXED: Allow calling `row_class` before `name` for Teng::Schema::Declare (thanks GeJ)
 
 0.21 2014-02-14T02:59:46Z
         - ADD:: Implemented new_row_from_hash which just creates new Teng::Row instance with column data. (thanks karupanerura)
