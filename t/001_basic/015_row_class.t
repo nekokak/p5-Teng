@@ -38,6 +38,20 @@ use Test::More;
         row_class 'Mock::BasicRow::FooRow';
     };
 
+    table {
+        row_class 'Mock::BasicRow::BarRow';
+        name 'mock_basic_row_bar';
+        pk 'id';
+        columns qw/
+            id
+            name
+        /;
+    };
+    package Mock::BasicRow::BarRow;
+    use strict;
+    use warnings;
+    use base 'Teng::Row';
+
     package Mock::BasicRow::FooRow;
     use strict;
     use warnings;
@@ -85,6 +99,7 @@ subtest 'your row class' => sub {
 
 subtest 'row_class specific Schema.pm' => sub {
     is +$db_basic_row->schema->get_row_class('mock_basic_row_foo'), 'Mock::BasicRow::FooRow';
+    is +$db_basic_row->schema->get_row_class('mock_basic_row_bar'), 'Mock::BasicRow::BarRow';
 };
 
 subtest 'handle' => sub {
