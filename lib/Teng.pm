@@ -842,6 +842,11 @@ instantiated for you.
 Specifies the schema class to use.
 By default {YOUR_MODEL_CLASS}::Schema is used.
 
+=item * C<txn_manager_class>
+
+Specifies the transaction manager class.
+By default DBIx::TransactionManager is used.
+
 =item * C<suppress_row_objects>
 
 Specifies the row object creation mode. By default this value is C<false>.
@@ -1064,7 +1069,7 @@ database disconnection.
 
 =item C<$txn_manager = $teng-E<gt>txn_manager>
 
-Get the DBIx::TransactionManager instance.
+Create the transaction manager instance with specified C<txn_manager_class>.
 
 =item C<$teng-E<gt>txn_begin>
 
