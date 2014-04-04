@@ -77,7 +77,7 @@
          "web" : "https://github.com/nekokak/p5-Teng"
       }
    },
-   "version" : "0.21",
+   "version" : "0.22",
    "x_authority" : "cpan:NEKOKAK",
    "x_contributors" : [
       "Yuki Ibe <yibe@yibe.org>",
@@ -102,6 +102,8 @@
       "Songmu <y.songmu@gmail.com>",
       "ITO Nobuaki <daydream.trippers@gmail.com>",
       "karupanerura <karupa@cpan.org>",
+      "Kenichi Ishigaki <ishigaki@cpan.org>",
+      "Geraud CONTINSOUZAS <geraud@hyaku.nijuu.nana>",
       "cho45 <cho45@lowreal.net>"
    ]
 }

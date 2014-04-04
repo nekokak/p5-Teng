@@ -148,6 +148,11 @@ Teng provides a number of methods to all your classes,
         Specifies the schema class to use.
         By default {YOUR\_MODEL\_CLASS}::Schema is used.
 
+    - `txn_manager_class`
+
+        Specifies the transaction manager class.
+        By default DBIx::TransactionManager is used.
+
     - `suppress_row_objects`
 
         Specifies the row object creation mode. By default this value is `false`.
@@ -368,7 +373,7 @@ Teng provides a number of methods to all your classes,
 
 - `$txn_manager = $teng->txn_manager`
 
-    Get the DBIx::TransactionManager instance.
+    Create the transaction manager instance with specified `txn_manager_class`.
 
 - `$teng->txn_begin`
 

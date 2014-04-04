@@ -1,6 +1,8 @@
 Revision history for Perl extension Teng
 
 {{$NEXT}}
+
+0.22 2014-04-04T05:22:48Z
         - FIXED: Allow calling `row_class` before `name` for Teng::Schema::Declare (thanks GeJ)
         - MODIFY: Allow specify `txn_manager_class` parameter for Teng (thanks GeJ)
 
