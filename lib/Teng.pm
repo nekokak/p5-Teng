@@ -453,7 +453,9 @@ sub delete {
 sub txn_manager  {
     my $self = shift;
     $self->_verify_pid;
-    $self->{txn_manager} ||= DBIx::TransactionManager->new($self->dbh);
+    $self->{txn_manager} ||= ($self->{txn_manager_class})
+        ? $self->{txn_manager_class}->new($self->dbh)
+        : DBIx::TransactionManager->new($self->dbh);
 }
 
 sub in_transaction_check {
