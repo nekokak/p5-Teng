@@ -4,7 +4,7 @@
       "Atsushi Kobayashi  C<< <nekokak __at__ gmail.com> >>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.11.0, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Minilla/v0.14.1, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -45,7 +45,8 @@
       "develop" : {
          "requires" : {
             "Test::CPAN::Meta" : "0",
-            "Test::MinimumVersion" : "0.10108",
+            "Test::MinimumVersion::Fast" : "0.04",
+            "Test::PAUSE::Permissions" : "0.04",
             "Test::Pod" : "1.41",
             "Test::Spellunker" : "v0.2.7"
          }
@@ -61,6 +62,7 @@
             "Data::Page" : "0",
             "Data::Page::NoTotalEntries" : "0.02",
             "SQL::Maker" : "0.14",
+            "Scope::Guard" : "0",
             "parent" : "0"
          }
       }

@@ -6,6 +6,7 @@ requires 'DBIx::Inspector', '0.06';
 requires 'DBIx::TransactionManager', '1.06';
 requires 'Data::Page';
 requires 'Data::Page::NoTotalEntries', '0.02';
+requires 'Scope::Guard';
 requires 'SQL::Maker', '0.14';
 requires 'parent';
 

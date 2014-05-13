@@ -9,6 +9,7 @@ use Teng::Iterator;
 use Teng::Schema;
 use DBIx::TransactionManager 1.06;
 use Teng::QueryBuilder;
+use Scope::Guard ();
 use Class::Accessor::Lite
    rw => [ qw(
         connect_info
@@ -446,6 +447,23 @@ sub delete {
     $sth->finish;
 
     $rows;
+}
+
+sub option_guard {
+    my ($self, %opts) = @_;
+
+    my %old;
+    foreach my $opt (keys %opts) {
+        my $value = $opts{$opt};
+        $old{$opt} = $self->$opt;
+        $self->$opt($value);
+    }
+
+    return Scope::Guard->new(sub {
+        foreach my $opt (keys %opts) {
+            $self->$opt($old{$opt});
+        }
+    });
 }
 
 #--------------------------------------------------------------------------------
@@ -1110,6 +1128,16 @@ Disconnects from the currently connected database.
 =item C<$teng-E<gt>suppress_row_objects($flag)>
 
 set row object creation mode.
+
+=item C<$guard = $teng-E<gt>option_guard(%opts)>
+
+Utility function to enable certain options only for the duration that the 
+C<$guard> object is alive. The main purpose is to allow scenarios like the
+following:
+
+ my $guard = $teng->option_guard(no_ping => 1, suppress_row_objects => 1);
+ ... blah blah blah ...
+ undef $guard;
 
 =item C<$teng-E<gt>load_plugin();>
 
