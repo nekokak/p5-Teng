@@ -114,7 +114,7 @@ You can use it by C<do "my/schema.pl"> or embed it to the package.
 
 =over 4
 
-=item C<Teng::Schema::Dumper-&gt;dump(dbh => $dbh, namespace => $namespace)>
+=item C<Teng::Schema::Dumper-E<gt>dump(dbh =E<gt> $dbh, namespace =E<gt> $namespace)>
 
 This is the method to generate code from DB. It returns the Perl5 code in string.
 
