@@ -128,7 +128,7 @@ sub is_changed {
 }
 
 sub update {
-    my ($self, $upd) = @_;
+    my ($self, $upd, $where) = @_;
 
     if (ref($self) eq 'Teng::Row') {
         Carp::croak q{can't update from basic Teng::Row class.};
@@ -146,17 +146,28 @@ sub update {
         }
     }
 
-    my $where = $self->_where_cond;
+    if ($where) {
+        $where = {
+            %$where,
+            %{ $self->_where_cond },
+        };
+    }
+    else {
+        $where = $self->_where_cond;
+    }
 
     $upd = $self->get_dirty_columns;
     return 0 unless %$upd;
 
     my $bind_args = $self->{teng}->_bind_sql_type_to_args($table, $upd);
     my $result = $self->{teng}->do_update($table_name, $bind_args, $where, 1);
-    $self->{row_data} = {
-        %{ $self->{row_data} },
-        %$upd,
-    };
+
+    if ($result > 0) {
+        $self->{row_data} = {
+            %{ $self->{row_data} },
+            %$upd,
+        };
+    }
     $self->{_dirty_columns} = {};
 
     $result;
@@ -302,18 +313,25 @@ returns those that have been changed.
 
 returns true, If the row object have a updated column.
 
-=item $row->update([$arg])
+=item $row->update([$arg:HashRef, $where:HashRef])
 
 update is executed for instance record.
 
 It works by schema in which primary key exists.
 
     $row->update({name => 'tokuhirom'});
-    # or 
+    # or
     $row->set({name => 'tokuhirom'});
     $row->update;
 
-If C<$arg> HashRef is supplied, each pairs are passed to C<set()> method before update.
+If C<$arg> is supplied, each pairs are passed to C<set()> method before update.
+
+If C<$where> is supplied, each pairs to be merged into default (primary keys) WHERE condition.
+It is useful for optimistic lock.
+
+    $row    = $teng->single(table_name, {id => 1});
+    $result = $row->update({point => 2}, {point => 1});
+    # UPDATE table_name SET point = 2 WHERE id = 1 AND point = 1;
 
 =item $row->delete
 
