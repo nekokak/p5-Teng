@@ -2,6 +2,11 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.23 2014-06-17T06:06:16Z
+        - MODIFY: Teng::Row#refetch accepts `opt` optionally (thanks Songmu)
+        - MODIFY: Teng::Row#update accepts `where` cond optionally mainly for optimistic lock (thanks Songumu)
+        - MODIFY: Changed behavior of comment under TENG_SQL_COMMENT=1. See https://github.com/nekokak/p5-Teng/pull/130/files (thanks Songumu)
+
 0.22 2014-04-04T05:22:48Z
         - FIXED: Allow calling `row_class` before `name` for Teng::Schema::Declare (thanks GeJ)
         - MODIFY: Allow specify `txn_manager_class` parameter for Teng (thanks GeJ)
