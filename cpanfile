@@ -16,3 +16,7 @@ on build => sub {
     requires 'Test::Requires';
     requires 'Test::SharedFork', '0.15';
 };
+
+on develop => sub {
+    requires 'DBIx::Tracer';
+};
