@@ -131,5 +131,34 @@ subtest 'update by setter column' => sub {
     is $row2->name, 'tora';
 };
 
-done_testing;
+subtest 'update with where cond' => sub {
+    my $row = $db->single('mock_basic',{
+        id => 1,
+    });
+    is $row->name, 'tora';
 
+    is $row->update({name => 'perl6'}, {name => 'tora'}), 1;
+    is $row->name, 'perl6';
+
+    my $row2 = $db->single('mock_basic', {
+        id => 1,
+    });
+    is $row2->name, 'perl6';
+};
+
+subtest 'do not update with where cond' => sub {
+    my $row = $db->single('mock_basic',{
+        id => 1,
+    });
+    is $row->name, 'perl6';
+
+    is $row->update({name => 'perl6'}, {name => 'tora'}), 0;
+    is $row->name, 'perl6';
+
+    my $row2 = $db->single('mock_basic', {
+        id => 1,
+    });
+    is $row2->name, 'perl6';
+};
+
+done_testing;
