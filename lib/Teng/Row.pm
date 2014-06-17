@@ -313,7 +313,7 @@ returns those that have been changed.
 
 returns true, If the row object have a updated column.
 
-=item $row->update([$arg:HashRef, $where:HashRef])
+=item $row->update([$arg : HashRef, $where : HashRef])
 
 update is executed for instance record.
 
