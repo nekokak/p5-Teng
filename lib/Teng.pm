@@ -255,6 +255,7 @@ sub execute {
         my $i = $SQL_COMMENT_LEVEL; # optimize, as we would *NEVER* be called
         while ( my (@caller) = caller($i++) ) {
             next if ( $caller[0]->isa( __PACKAGE__ ) );
+            next if $caller[0] =~ /^Teng::/; # skip Teng::Row, Teng::Plugin::* etc.
             my $comment = "$caller[1] at line $caller[2]";
             $comment =~ s/\*\// /g;
             $sql = "/* $comment */\n$sql";
