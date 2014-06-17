@@ -173,8 +173,8 @@ sub delete {
 }
 
 sub refetch {
-    my $self = shift;
-    $self->{teng}->single($self->{table_name}, $self->_where_cond);
+    my ($self, $opt) = @_;
+    $self->{teng}->single($self->{table_name}, $self->_where_cond, $opt);
 }
 
 # Generate a where clause to fetch this row itself.
@@ -321,9 +321,11 @@ delete is executed for instance record.
 
 It works by schema in which primary key exists.
 
-=item my $refetched_row = $row->refetch;
+=item my $refetched_row = $row->refetch([$opt:HashRef]);
 
 refetch record from database. get new row object.
+
+You can specify C<$opt> like C<< { for_update => 1} >> optionally, which is used to build query.
 
 =item $row->handle
 
