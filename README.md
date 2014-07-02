@@ -165,6 +165,25 @@ Teng provides a number of methods to all your classes,
         if you provide your own SQL builder the interface needs to be compatible
         with SQL::Maker.
 
+    - `sql_builder_class` : Str
+
+        Speficies the SQL builder class name. By default SQL::Maker is used, and as such,
+        if you provide your own SQL builder the interface needs to be compatible
+        with SQL::Maker.
+
+        Specified `sql_builder_class` is instantiated with following:
+
+            $sql_builder_class->new(
+                driver => $teng->{driver_name},
+                %{ $teng->{sql_builder_args}  }
+            )
+
+        This is not used when `sql_builder` is specified.
+
+    - `sql_builder_args` : HashRef
+
+        Speficies the arguments for constructor of `sql_builder_class`. This is not used when `sql_builder` is specified.
+
 - `$row = $teng->insert($table_name, \%row_data)`
 
     Inserts a new record. Returns the inserted row object.
