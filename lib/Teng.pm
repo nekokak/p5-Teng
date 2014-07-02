@@ -203,8 +203,11 @@ sub _prepare_from_dbh {
     $self->{driver_name} = $self->{dbh}->{Driver}->{Name};
     my $builder = $self->{sql_builder};
     if (! $builder ) {
-        # XXX Hackish
-        $builder = Teng::QueryBuilder->new(driver => $self->{driver_name} );
+        my $sql_builder_class = $self->{sql_builder_class} || 'Teng::QueryBuilder';
+        $builder = $sql_builder_class->new(
+            driver => $self->{driver_name},
+            %{ $self->{sql_builder_args} || {} }
+        );
         $self->sql_builder( $builder );
     }
     $self->{dbh}->{FetchHashKeyName} = $self->{fields_case};
@@ -859,6 +862,25 @@ a C<SELECT> statement is issued..
 Speficies the SQL builder object. By default SQL::Maker is used, and as such,
 if you provide your own SQL builder the interface needs to be compatible
 with SQL::Maker.
+
+=item * C<sql_builder_class> : Str
+
+Speficies the SQL builder class name. By default SQL::Maker is used, and as such,
+if you provide your own SQL builder the interface needs to be compatible
+with SQL::Maker.
+
+Specified C<sql_builder_class> is instantiated with following:
+
+    $sql_builder_class->new(
+        driver => $teng->{driver_name},
+        %{ $teng->{sql_builder_args}  }
+    )
+
+This is not used when C<sql_builder> is specified.
+
+=item * C<sql_builder_args> : HashRef
+
+Speficies the arguments for constructor of C<sql_builder_class>. This is not used when C<sql_builder> is specified.
 
 =back
 
