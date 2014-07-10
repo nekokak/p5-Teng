@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Carp ();
 use Class::Load ();
+use Scalar::Util ();
 use DBI 1.33;
 use Teng::Row;
 use Teng::Iterator;
