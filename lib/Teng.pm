@@ -271,7 +271,7 @@ sub execute {
         $sth = $self->dbh->prepare($sql);
         my $i = 1;
         for my $v ( @{ $binds || [] } ) {
-            $sth->bind_param( $i++, ref($v) eq 'ARRAY' ? @$v : $v );
+            $sth->bind_param( $i++, (Scalar::Util::blessed($v) && $v->isa('Teng::_ValueTypePair') ? @$v : $v ));
         }
         $sth->execute();
     };
@@ -307,7 +307,7 @@ sub _bind_sql_type_to_args {
     for my $col (keys %{$args}) {
         # if $args->{$col} is a ref, it is scalar ref or already
         # sql type bined parameter. so ignored.
-        $bind_args->{$col} = ref $args->{$col} ? $args->{$col} : [ $args->{$col}, $table->get_sql_type($col) ];
+        $bind_args->{$col} = ref $args->{$col} ? $args->{$col} : bless([ $args->{$col}, $table->get_sql_type($col) ], 'Teng::_ValueTypePair');
     }
 
     return $bind_args;
@@ -690,6 +690,9 @@ sub DESTROY {
         $dbh->{InactiveDestroy} = 1;
     }
 }
+
+package Teng::_ValueTypePair;
+# This package is used only for marking a value which represent a pair of a SQL statement parameter and its type.
 
 1;
 
