@@ -272,7 +272,7 @@ sub execute {
         $sth = $self->dbh->prepare($sql);
         my $i = 1;
         for my $v ( @{ $binds || [] } ) {
-            $sth->bind_param( $i++, (Scalar::Util::blessed($v) && $v->isa('Teng::_ValueTypePair') ? @$v : $v ));
+            $sth->bind_param( $i++, (ref($v) eq 'ARRAY' || (Scalar::Util::blessed($v) && $v->isa('Teng::_ValueTypePair')) ? @$v : $v ));
         }
         $sth->execute();
     };
