@@ -4,6 +4,7 @@ use Test::More;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
+my $db_with_strict_sql_builder = Mock::Basic->new({dbh => $dbh, sql_builder_args => { strict => 1 }});
 $db->setup_test_db;
 
 subtest 'insert mock_basic data/ insert method' => sub {
@@ -13,6 +14,15 @@ subtest 'insert mock_basic data/ insert method' => sub {
     });
     isa_ok $row, 'Teng::Row';
     is $row->name, 'perl';
+};
+
+subtest 'insert with strict sql builder' => sub {
+    my $row = $db_with_strict_sql_builder->insert('mock_basic',{
+        id   => 5,
+        name => 'python',
+    });
+    isa_ok $row, 'Teng::Row';
+    is $row->name, 'python';
 };
 
 subtest 'scalar ref' => sub {
