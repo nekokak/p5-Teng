@@ -4,6 +4,8 @@ use warnings;
 use Carp ();
 use Class::Load ();
 use DBI 1.33;
+use Scalar::Util;
+use SQL::Maker::SQLType qw(sql_type);
 use Teng::Row;
 use Teng::Iterator;
 use Teng::Schema;
@@ -271,7 +273,11 @@ sub execute {
         $sth = $self->dbh->prepare($sql);
         my $i = 1;
         for my $v ( @{ $binds || [] } ) {
-            $sth->bind_param( $i++, ref($v) eq 'ARRAY' ? @$v : $v );
+            if (Scalar::Util::blessed($v) && ref($v) eq 'SQL::Maker::SQLType') {
+                $sth->bind_param($i++, ${$v->value_ref}, $v->type);
+            } else {
+                $sth->bind_param( $i++, $v);
+            }
         }
         $sth->execute();
     };
@@ -307,7 +313,7 @@ sub _bind_sql_type_to_args {
     for my $col (keys %{$args}) {
         # if $args->{$col} is a ref, it is scalar ref or already
         # sql type bined parameter. so ignored.
-        $bind_args->{$col} = ref $args->{$col} ? $args->{$col} : [ $args->{$col}, $table->get_sql_type($col) ];
+        $bind_args->{$col} = ref $args->{$col} ? $args->{$col} : sql_type(\$args->{$col}, $table->get_sql_type($col));
     }
 
     return $bind_args;
