@@ -378,7 +378,7 @@ sub insert {
 }
 
 sub bulk_insert {
-    my ($self, $table_name, $args) = @_;
+    my ($self, $table_name, $args, $opt) = @_;
 
     return unless scalar(@{$args||[]});
 
@@ -402,14 +402,14 @@ sub bulk_insert {
             }
         }
 
-        my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args );
+        my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args, $opt );
         $self->execute($sql, \@binds);
     } else {
         # use transaction for better performance and atomicity.
         my $txn = $self->txn_scope();
         for my $arg (@$args) {
             # do not run trigger for consistency with mysql.
-            $self->insert($table_name, $arg);
+            $self->insert($table_name, $arg, $opt->{prefix});
         }
         $txn->commit;
     }
@@ -903,7 +903,7 @@ insert new record and get last_insert_id.
 
 no creation row object.
 
-=item C<$teng-E<gt>bulk_insert($table_name, \@rows_data)>
+=item C<$teng-E<gt>bulk_insert($table_name, \@rows_data, \%opt)>
 
 Accepts either an arrayref of hashrefs.
 each hashref should be a structure suitable
@@ -928,6 +928,8 @@ example:
             name => 'walf443',
         },
     ]);
+
+You can specify C<$opt> like C<< { prefix => 'INSERT IGNORE INTO' } >> or C<< { update => { name => 'updated' } } >> optionally, which will be passed to query builder.
 
 =item C<$update_row_count = $teng-E<gt>update($table_name, \%update_row_data, [\%update_condition])>
 
