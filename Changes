@@ -1,7 +1,7 @@
 Revision history for Perl extension Teng
 
 {{$NEXT}}
-        - FIX: Error on Teng#insert when using strict option for default sql_builder_class.
+        - FIX: Error on Teng#insert when using strict option for default sql_builder_class. (thanks nobuoka and kazuho)
 
 0.24 2014-07-02T09:37:57Z
 
