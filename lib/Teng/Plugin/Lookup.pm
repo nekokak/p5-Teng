@@ -29,7 +29,7 @@ sub lookup {
     my $cond = join ' AND ', map {$dbh->quote_identifier($_) . ' = ?'} @keys;
     my $sql = sprintf('SELECT %s FROM %s WHERE %s %s',
                join(',', map { ref $_ ? $$_ : $_ } @{$columns}),
-               $table_name,
+               $dbh->quote_identifier($table_name),
                $cond,
                $opt->{for_update} ? 'FOR UPDATE' : '',
            );
