@@ -2,12 +2,12 @@ package xt::Utils::postgresql;
 
 use strict;
 use warnings;
-use Test::postgresql;
+use Test::PostgreSQL 1.00;
 use Test::More;
 use t::Utils;
 
-my $pgsql = Test::postgresql->new
-    or plan skip_all => $Test::postgresql::errstr;
+my $pgsql = Test::PostgreSQL->new
+    or plan skip_all => $Test::PostgreSQL::errstr;
 
 {
     no warnings "redefine";
