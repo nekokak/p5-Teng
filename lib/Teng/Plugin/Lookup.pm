@@ -82,5 +82,7 @@ lookup single row records.
 
 Teng#single is heavy.
 
+NOTE: Unlike Teng#single, this method returns a blank list in list context when no desired records are found.
+
 =back
 
