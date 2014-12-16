@@ -348,6 +348,7 @@ sub insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $self->do_insert($table_name, $args, $prefix);
+    return unless defined wantarray;
 
     my $table = $self->schema->get_table($table_name);
     my $pk = $table->primary_keys();
