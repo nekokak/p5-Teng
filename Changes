@@ -2,6 +2,13 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.26 2014-12-16T06:10:34Z
+        - FIX: Teng::Plugin::Lookup quotes table name correctly (thanks tokuhirom).
+        - ADD: Teng#bulk_insert can take more option for last argument.
+        - MODIFY: Inside-out Teng instance from Teng::Row instance (for Data::Dumper friendly)
+        - MODIFY: Update document. (thanks kawamuraway)
+        - MODIFY: Teng#insert called in void context does not create row instance.
+
 0.25 2014-07-14T08:53:28Z
         - FIX: Error on Teng#insert when using strict option for default sql_builder_class. (thanks nobuoka and kazuho)
 

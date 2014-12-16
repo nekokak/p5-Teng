@@ -203,7 +203,7 @@ Teng provides a number of methods to all your classes,
 
     no creation row object.
 
-- `$teng->bulk_insert($table_name, \@rows_data)`
+- `$teng->bulk_insert($table_name, \@rows_data, \%opt)`
 
     Accepts either an arrayref of hashrefs.
     each hashref should be a structure suitable
@@ -228,6 +228,8 @@ Teng provides a number of methods to all your classes,
                 name => 'walf443',
             },
         ]);
+
+    You can specify `$opt` like `{ prefix => 'INSERT IGNORE INTO' }` or `{ update => { name => 'updated' } }` optionally, which will be passed to query builder.
 
 - `$update_row_count = $teng->update($table_name, \%update_row_data, [\%update_condition])`
 

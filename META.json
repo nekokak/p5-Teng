@@ -77,7 +77,7 @@
          "web" : "https://github.com/nekokak/p5-Teng"
       }
    },
-   "version" : "0.25",
+   "version" : "0.26",
    "x_authority" : "cpan:NEKOKAK",
    "x_contributors" : [
       "Yuki Ibe <yibe@yibe.org>",
@@ -94,10 +94,8 @@
       "ktat <ktat.is@gmail.com>",
       "Kazuhiro Osawa <yappo@shibuya.pl>",
       "Masahiro Chiba <chiba@everqueue.com>",
-      "Atsushi Kobayashi <nekokak@gmail.com>",
       "Jun Kuriyama <kuriyama@s2factory.co.jp>",
       "Masahiro Nagano <kazeburo@gmail.com>",
-      "Tokuhiro Matsuno <tokuhirom@gmail.com>",
       "k-sato <k-sato@mfac.jp>",
       "ITO Nobuaki <daydream.trippers@gmail.com>",
       "karupanerura <karupa@cpan.org>",
@@ -107,6 +105,10 @@
       "Songmu <y.songmu@gmail.com>",
       "nobuoka <nobuoka@vividcode.info>",
       "Kazuho Oku <kazuhooku@gmail.com>",
+      "Ichito Nagata <i.nagata110@gmail.com>",
+      "Atsushi Kobayashi <nekokak@gmail.com>",
+      "kawamuray <kawamuray.dadada@gmail.com>",
+      "Tokuhiro Matsuno <tokuhirom@gmail.com>",
       "cho45 <cho45@lowreal.net>"
    ]
 }
