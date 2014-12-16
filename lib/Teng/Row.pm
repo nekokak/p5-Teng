@@ -4,6 +4,9 @@ use warnings;
 use Carp ();
 our $AUTOLOAD;
 
+# inside-out
+our %obj;
+
 sub new {
     my ($class, $args) = @_;
 
@@ -18,6 +21,8 @@ sub new {
 
     $self->{select_columns} ||= [keys %{$args->{row_data}}];
     $self->{table} ||= $args->{teng}->schema->get_table($args->{table_name});
+
+    $obj{$self+0} = delete $self->{teng};
 
     $self;
 }
@@ -36,7 +41,7 @@ sub generate_column_accessor {
     };
 }
 
-sub handle { $_[0]->{teng} }
+sub handle { $obj{$_[0]+0} }
 
 sub get {
     my ($self, $col) = @_;
@@ -159,9 +164,8 @@ sub update {
     $upd = $self->get_dirty_columns;
     return 0 unless %$upd;
 
-    my $bind_args = $self->{teng}->_bind_sql_type_to_args($table, $upd);
-    my $result = $self->{teng}->do_update($table_name, $bind_args, $where, 1);
-
+    my $bind_args = $self->handle->_bind_sql_type_to_args($table, $upd);
+    my $result = $self->handle->do_update($table_name, $bind_args, $where, 1);
     if ($result > 0) {
         $self->{row_data} = {
             %{ $self->{row_data} },
@@ -180,12 +184,12 @@ sub delete {
         Carp::croak q{can't delete from basic Teng::Row class.};
     }
 
-    $self->{teng}->delete($self->{table_name}, $self->_where_cond);
+    $self->handle->delete($self->{table_name}, $self->_where_cond);
 }
 
 sub refetch {
     my ($self, $opt) = @_;
-    $self->{teng}->single($self->{table_name}, $self->_where_cond, $opt);
+    $self->handle->single($self->{table_name}, $self->_where_cond, $opt);
 }
 
 # Generate a where clause to fetch this row itself.
@@ -234,7 +238,10 @@ sub AUTOLOAD {
 }
 
 ### don't autoload this
-sub DESTROY { 1 };
+sub DESTROY {
+    my $self = shift;
+    delete $obj{$self+0};
+};
 
 1;
 
