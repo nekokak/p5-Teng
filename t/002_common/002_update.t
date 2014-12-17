@@ -64,14 +64,15 @@ subtest 'row data set and update' => sub {
 subtest 'scalarref update' => sub {
     my $row = $db->single('mock_basic',{id => 1});
     is $row->name, 'ruby';
+    ok !$db->single('mock_basic', {id => 1001});
 
-    ok $row->update({name => '1'});
-    my $new_row = $db->single('mock_basic',{id => 1});
-    is $new_row->name, '1';
+    $row->update({id => \'id + 1000'});
+    ok !$db->single('mock_basic', {id => 1});
 
-    $new_row->update({name => \'name + 1'});
-
-    is +$db->single('mock_basic',{id => 1})->name, 2;
+    my $new_row = $db->single('mock_basic', {id => 1001});
+    is $new_row->name, 'ruby';
+    $new_row->update({id => \'id - 1000'});
+    is +$db->single('mock_basic', {id => 1})->name, 'ruby';
 };
 
 subtest 'update row count' => sub {
