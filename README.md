@@ -1,3 +1,7 @@
+# NAME
+
+Teng - very simple DBI wrapper/ORMapper
+
 # SYNOPSIS
 
     my $db = MyDB->new({ connect_info => [ 'dbi:SQLite:' ] });
@@ -36,7 +40,6 @@ in your script.
 
     use Your::Model;
     
-
     my $teng = Your::Model->new(\%args);
     # insert new record.
     my $row = $teng->insert('user',
@@ -145,6 +148,11 @@ Teng provides a number of methods to all your classes,
         Specifies the schema class to use.
         By default {YOUR\_MODEL\_CLASS}::Schema is used.
 
+    - `txn_manager_class`
+
+        Specifies the transaction manager class.
+        By default DBIx::TransactionManager is used.
+
     - `suppress_row_objects`
 
         Specifies the row object creation mode. By default this value is `false`.
@@ -156,6 +164,25 @@ Teng provides a number of methods to all your classes,
         Speficies the SQL builder object. By default SQL::Maker is used, and as such,
         if you provide your own SQL builder the interface needs to be compatible
         with SQL::Maker.
+
+    - `sql_builder_class` : Str
+
+        Speficies the SQL builder class name. By default SQL::Maker is used, and as such,
+        if you provide your own SQL builder the interface needs to be compatible
+        with SQL::Maker.
+
+        Specified `sql_builder_class` is instantiated with following:
+
+            $sql_builder_class->new(
+                driver => $teng->{driver_name},
+                %{ $teng->{sql_builder_args}  }
+            )
+
+        This is not used when `sql_builder` is specified.
+
+    - `sql_builder_args` : HashRef
+
+        Speficies the arguments for constructor of `sql_builder_class`. This is not used when `sql_builder` is specified.
 
 - `$row = $teng->insert($table_name, \%row_data)`
 
@@ -176,7 +203,7 @@ Teng provides a number of methods to all your classes,
 
     no creation row object.
 
-- `$teng->bulk_insert($table_name, \@rows_data)`
+- `$teng->bulk_insert($table_name, \@rows_data, \%opt)`
 
     Accepts either an arrayref of hashrefs.
     each hashref should be a structure suitable
@@ -201,6 +228,8 @@ Teng provides a number of methods to all your classes,
                 name => 'walf443',
             },
         ]);
+
+    You can specify `$opt` like `{ prefix => 'INSERT IGNORE INTO' }` or `{ update => { name => 'updated' } }` optionally, which will be passed to query builder.
 
 - `$update_row_count = $teng->update($table_name, \%update_row_data, [\%update_condition])`
 
@@ -258,7 +287,7 @@ Teng provides a number of methods to all your classes,
     simple search method.
     search method get Teng::Iterator's instance object.
 
-    see [Teng::Iterator](http://search.cpan.org/perldoc?Teng::Iterator)
+    see [Teng::Iterator](https://metacpan.org/pod/Teng::Iterator)
 
     get iterator:
 
@@ -274,6 +303,14 @@ Teng provides a number of methods to all your classes,
     give back one case of the beginning when it is acquired plural records by single method.
 
         my $row = $teng->single('user',{id =>1});
+
+- `$row = $teng->new_row_from_hash($table_name, \%row_data, [$sql])`
+
+    create row object from data. (not fetch from db.)
+    It's useful in such as testing.
+
+        my $row = $teng->new_row_from_hash('user', { id => 1, foo => "bar" });
+        say $row->foo; # say bar
 
 - `$itr = $teng->search_named($sql, [\%bind_values, [$table_name]])`
 
@@ -349,15 +386,15 @@ Teng provides a number of methods to all your classes,
 
     If an exception occurs, or the guard object otherwise leaves the scope
     before `$txn->commit` is called, the transaction will be rolled
-    back by an explicit ["txn\_rollback"](#txn\_rollback) call. In essence this is akin to
-    using a ["txn\_begin"](#txn\_begin)/["txn\_commit"](#txn\_commit) pair, without having to worry
-    about calling ["txn\_rollback"](#txn\_rollback) at the right places. Note that since there
+    back by an explicit ["txn\_rollback"](#txn_rollback) call. In essence this is akin to
+    using a ["txn\_begin"](#txn_begin)/["txn\_commit"](#txn_commit) pair, without having to worry
+    about calling ["txn\_rollback"](#txn_rollback) at the right places. Note that since there
     is no defined code closure, there will be no retries and other magic upon
     database disconnection.
 
 - `$txn_manager = $teng->txn_manager`
 
-    Get the DBIx::TransactionManager instance.
+    Create the transaction manager instance with specified `txn_manager_class`.
 
 - `$teng->txn_begin`
 
@@ -377,7 +414,7 @@ Teng provides a number of methods to all your classes,
 
 - `$teng->do($sql, [\%option, @bind_values])`
 
-    Execute the query specified by `$sql`, using `%option` and `@bind_values` as necessary. This pretty much a wrapper around [http://search.cpan.org/dist/DBI/DBI.pm\#do](http://search.cpan.org/dist/DBI/DBI.pm\#do)
+    Execute the query specified by `$sql`, using `%option` and `@bind_values` as necessary. This pretty much a wrapper around [http://search.cpan.org/dist/DBI/DBI.pm#do](http://search.cpan.org/dist/DBI/DBI.pm#do)
 
 - `$teng->dbh`
 
@@ -421,17 +458,17 @@ Teng provides a number of methods to all your classes,
 
 - How do you use display the profiling result?
 
-    use [Devel::KYTProf](http://search.cpan.org/perldoc?Devel::KYTProf).
+    use [Devel::KYTProf](https://metacpan.org/pod/Devel::KYTProf).
 
 # TRIGGERS
 
-Teng does not support triggers (NOTE: do not confuse it with SQL triggers - we're talking about Perl level triggers). If you really want to hook into the various methods, use something like [Moose](http://search.cpan.org/perldoc?Moose), [Mouse](http://search.cpan.org/perldoc?Mouse), and [Class::Method::Modifiers](http://search.cpan.org/perldoc?Class::Method::Modifiers).
+Teng does not support triggers (NOTE: do not confuse it with SQL triggers - we're talking about Perl level triggers). If you really want to hook into the various methods, use something like [Moose](https://metacpan.org/pod/Moose), [Mouse](https://metacpan.org/pod/Mouse), and [Class::Method::Modifiers](https://metacpan.org/pod/Class::Method::Modifiers).
 
 # SEE ALSO
 
 ## Fork
 
-This module was forked from [DBIx::Skinny](http://search.cpan.org/perldoc?DBIx::Skinny), around version 0.0732.
+This module was forked from [DBIx::Skinny](https://metacpan.org/pod/DBIx::Skinny), around version 0.0732.
 many incompatible changes have been made.
 
 # BUGS AND LIMITATIONS
@@ -458,7 +495,7 @@ Daisuke Maki `<daisuke@endeworks.jp>`
 
 # LICENCE AND COPYRIGHT
 
-Copyright (c) 2010, the Teng ["AUTHOR"](#AUTHOR). All rights reserved.
+Copyright (c) 2010, the Teng ["AUTHOR"](#author). All rights reserved.
 
 This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself. See [perlartistic](http://search.cpan.org/perldoc?perlartistic).
+modify it under the same terms as Perl itself. See [perlartistic](https://metacpan.org/pod/perlartistic).

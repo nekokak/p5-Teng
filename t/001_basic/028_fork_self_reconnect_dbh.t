@@ -3,6 +3,8 @@ use Test::More;
 use Mock::Basic;
 use Test::SharedFork;
 
+plan skip_all => 'not for Win32' if $^O eq 'MSWin32';
+
 my $dbh = t::Utils->setup_dbh('./t/main.db');
 my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;

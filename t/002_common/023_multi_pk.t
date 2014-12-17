@@ -133,7 +133,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         $row = $teng->insert( 'a_multi_pk_table', { id_a => 3, id_b => 40 } );
 
-        is_deeply( $row->get_columns, { id_a => 3, id_b => 40 } );
+        is_deeply( $row->get_columns, { id_a => 3, id_b => 40, memo => 'foobar' } );
 
         @rows = $teng->search( 'a_multi_pk_table', { id_a => 3 } );
         is( 0+@rows, 4 );
@@ -214,7 +214,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
         $row = $teng->insert( 'c_multi_pk_table', { id_c => 3, id_d => 40 } );
 
-        is_deeply( $row->get_columns, { id_c => 3, id_d => 40 } );
+        is_deeply( $row->get_columns, { id_c => 3, id_d => 40, memo => 'foobar' } );
 
         @rows = $teng->search( 'c_multi_pk_table', { id_c => 3 } );
         is( 0+@rows, 4 );

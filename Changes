@@ -2,6 +2,34 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.26 2014-12-16T06:10:34Z
+        - FIX: Teng::Plugin::Lookup quotes table name correctly (thanks tokuhirom).
+        - ADD: Teng#bulk_insert can take more option for last argument.
+        - MODIFY: Inside-out Teng instance from Teng::Row instance (for Data::Dumper friendly)
+        - MODIFY: Update document. (thanks kawamuraway)
+        - MODIFY: Teng#insert called in void context does not create row instance.
+
+0.25 2014-07-14T08:53:28Z
+        - FIX: Error on Teng#insert when using strict option for default sql_builder_class. (thanks nobuoka and kazuho)
+
+0.24 2014-07-02T09:37:57Z
+
+        - ADD: Teng#new takes `sql_builder_class` and `sql_builder_args`
+
+0.23 2014-06-17T06:06:16Z
+        - MODIFY: Teng::Row#refetch accepts `opt` optionally (thanks Songmu)
+        - MODIFY: Teng::Row#update accepts `where` cond optionally mainly for optimistic lock (thanks Songumu)
+        - MODIFY: Changed behavior of comment under TENG_SQL_COMMENT=1. See https://github.com/nekokak/p5-Teng/pull/130/files (thanks Songumu)
+
+0.22 2014-04-04T05:22:48Z
+        - FIXED: Allow calling `row_class` before `name` for Teng::Schema::Declare (thanks GeJ)
+        - MODIFY: Allow specify `txn_manager_class` parameter for Teng (thanks GeJ)
+
+0.21 2014-02-14T02:59:46Z
+        - ADD:: Implemented new_row_from_hash which just creates new Teng::Row instance with column data. (thanks karupanerura)
+        - MODIFY: Fixed around multiple primary key. (thanks Songmu)
+
+
 0.20 2013-08-21T07:39:25Z
         - Re-release for override UNAUTHORIZED flag (same as 0.19)
 

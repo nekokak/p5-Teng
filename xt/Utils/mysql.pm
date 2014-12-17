@@ -2,9 +2,10 @@ package xt::Utils::mysql;
 
 use strict;
 use warnings;
-use Test::mysqld;
 use Test::More;
 use t::Utils;
+eval "use Test::mysqld";
+plan skip_all => "Test::mysqld required" if $@;
 
 my $mysql = Test::mysqld->new({
     my_cnf => {

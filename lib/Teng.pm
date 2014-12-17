@@ -4,6 +4,8 @@ use warnings;
 use Carp ();
 use Class::Load ();
 use DBI 1.33;
+use Scalar::Util;
+use SQL::Maker::SQLType qw(sql_type);
 use Teng::Row;
 use Teng::Iterator;
 use Teng::Schema;
@@ -24,7 +26,7 @@ use Class::Accessor::Lite
     )]
 ;
 
-our $VERSION = '0.20';
+our $VERSION = '0.26';
 
 sub load_plugin {
     my ($class, $pkg, $opt) = @_;
@@ -203,8 +205,11 @@ sub _prepare_from_dbh {
     $self->{driver_name} = $self->{dbh}->{Driver}->{Name};
     my $builder = $self->{sql_builder};
     if (! $builder ) {
-        # XXX Hackish
-        $builder = Teng::QueryBuilder->new(driver => $self->{driver_name} );
+        my $sql_builder_class = $self->{sql_builder_class} || 'Teng::QueryBuilder';
+        $builder = $sql_builder_class->new(
+            driver => $self->{driver_name},
+            %{ $self->{sql_builder_args} || {} }
+        );
         $self->sql_builder( $builder );
     }
     $self->{dbh}->{FetchHashKeyName} = $self->{fields_case};
@@ -255,6 +260,7 @@ sub execute {
         my $i = $SQL_COMMENT_LEVEL; # optimize, as we would *NEVER* be called
         while ( my (@caller) = caller($i++) ) {
             next if ( $caller[0]->isa( __PACKAGE__ ) );
+            next if $caller[0] =~ /^Teng::/; # skip Teng::Row, Teng::Plugin::* etc.
             my $comment = "$caller[1] at line $caller[2]";
             $comment =~ s/\*\// /g;
             $sql = "/* $comment */\n$sql";
@@ -267,7 +273,11 @@ sub execute {
         $sth = $self->dbh->prepare($sql);
         my $i = 1;
         for my $v ( @{ $binds || [] } ) {
-            $sth->bind_param( $i++, ref($v) eq 'ARRAY' ? @$v : $v );
+            if (Scalar::Util::blessed($v) && ref($v) eq 'SQL::Maker::SQLType') {
+                $sth->bind_param($i++, ${$v->value_ref}, $v->type);
+            } else {
+                $sth->bind_param( $i++, $v);
+            }
         }
         $sth->execute();
     };
@@ -303,7 +313,7 @@ sub _bind_sql_type_to_args {
     for my $col (keys %{$args}) {
         # if $args->{$col} is a ref, it is scalar ref or already
         # sql type bined parameter. so ignored.
-        $bind_args->{$col} = ref $args->{$col} ? $args->{$col} : [ $args->{$col}, $table->get_sql_type($col) ];
+        $bind_args->{$col} = ref $args->{$col} ? $args->{$col} : sql_type(\$args->{$col}, $table->get_sql_type($col));
     }
 
     return $bind_args;
@@ -338,17 +348,31 @@ sub insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $self->do_insert($table_name, $args, $prefix);
+    return unless defined wantarray;
 
     my $table = $self->schema->get_table($table_name);
     my $pk = $table->primary_keys();
-    if (scalar(@$pk) == 1 && not defined $args->{$pk->[0]}) {
-        $args->{$pk->[0]} = $self->_last_insert_id($table_name);
+
+    my @missing_primary_keys = grep { not defined $args->{$_} } @$pk;
+    if (@missing_primary_keys == 1) {
+        $args->{$missing_primary_keys[0]} = $self->_last_insert_id($table_name);
     }
 
     return $args if $self->suppress_row_objects;
 
-    if (scalar(@$pk) == 1) {
-        return $self->single($table_name, {$pk->[0] => $args->{$pk->[0]}});
+    my %where;
+    my $refetch = 1;
+    for my $key (@$pk) {
+        if (ref $args->{$key}) {
+            # care references. eg. \'NOW()'
+            $refetch = undef;
+            last;
+        }
+        $where{$key} = $args->{$key};
+    }
+    if (%where && $refetch) {
+        # refetch the row for cleanup scalar refs and fill default values
+        return $self->single($table_name, \%where);
     }
 
     $table->row_class->new(
@@ -361,7 +385,7 @@ sub insert {
 }
 
 sub bulk_insert {
-    my ($self, $table_name, $args) = @_;
+    my ($self, $table_name, $args, $opt) = @_;
 
     return unless scalar(@{$args||[]});
 
@@ -385,14 +409,14 @@ sub bulk_insert {
             }
         }
 
-        my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args );
+        my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args, $opt );
         $self->execute($sql, \@binds);
     } else {
         # use transaction for better performance and atomicity.
         my $txn = $self->txn_scope();
         for my $arg (@$args) {
             # do not run trigger for consistency with mysql.
-            $self->insert($table_name, $arg);
+            $self->insert($table_name, $arg, $opt->{prefix});
         }
         $txn->commit;
     }
@@ -440,7 +464,9 @@ sub delete {
 sub txn_manager  {
     my $self = shift;
     $self->_verify_pid;
-    $self->{txn_manager} ||= DBIx::TransactionManager->new($self->dbh);
+    $self->{txn_manager} ||= ($self->{txn_manager_class})
+        ? $self->{txn_manager_class}->new($self->dbh)
+        : DBIx::TransactionManager->new($self->dbh);
 }
 
 sub in_transaction_check {
@@ -600,6 +626,32 @@ sub single_by_sql {
         {
             sql        => $sql,
             row_data   => $row,
+            teng       => $self,
+            table      => $table,
+            table_name => $table_name,
+        }
+    );
+}
+
+sub new_row_from_hash {
+    my ($self, $table_name, $data, $sql) = @_;
+
+    my $table = $self->{schema}->get_table( $table_name );
+    Carp::croak("No such table $table_name") unless $table;
+
+    return $data if $self->{suppress_row_objects};
+
+    $table->{row_class}->new(
+        {
+            sql => $sql || do {
+                my @caller = caller(0);
+                my $level = 0;
+                while ($caller[0] eq __PACKAGE__ || $caller[0] eq ref $self) {
+                    @caller = caller(++$level);
+                }
+                sprintf '/* DUMMY QUERY %s->new_row_from_hash created from %s line %d */', ref $self, $caller[1], $caller[2];
+            },
+            row_data   => $data,
             teng       => $self,
             table      => $table,
             table_name => $table_name,
@@ -801,6 +853,11 @@ instantiated for you.
 Specifies the schema class to use.
 By default {YOUR_MODEL_CLASS}::Schema is used.
 
+=item * C<txn_manager_class>
+
+Specifies the transaction manager class.
+By default DBIx::TransactionManager is used.
+
 =item * C<suppress_row_objects>
 
 Specifies the row object creation mode. By default this value is C<false>.
@@ -812,6 +869,25 @@ a C<SELECT> statement is issued..
 Speficies the SQL builder object. By default SQL::Maker is used, and as such,
 if you provide your own SQL builder the interface needs to be compatible
 with SQL::Maker.
+
+=item * C<sql_builder_class> : Str
+
+Speficies the SQL builder class name. By default SQL::Maker is used, and as such,
+if you provide your own SQL builder the interface needs to be compatible
+with SQL::Maker.
+
+Specified C<sql_builder_class> is instantiated with following:
+
+    $sql_builder_class->new(
+        driver => $teng->{driver_name},
+        %{ $teng->{sql_builder_args}  }
+    )
+
+This is not used when C<sql_builder> is specified.
+
+=item * C<sql_builder_args> : HashRef
+
+Speficies the arguments for constructor of C<sql_builder_class>. This is not used when C<sql_builder> is specified.
 
 =back
 
@@ -834,7 +910,7 @@ insert new record and get last_insert_id.
 
 no creation row object.
 
-=item C<$teng-E<gt>bulk_insert($table_name, \@rows_data)>
+=item C<$teng-E<gt>bulk_insert($table_name, \@rows_data, \%opt)>
 
 Accepts either an arrayref of hashrefs.
 each hashref should be a structure suitable
@@ -859,6 +935,8 @@ example:
             name => 'walf443',
         },
     ]);
+
+You can specify C<$opt> like C<< { prefix => 'INSERT IGNORE INTO' } >> or C<< { update => { name => 'updated' } } >> optionally, which will be passed to query builder.
 
 =item C<$update_row_count = $teng-E<gt>update($table_name, \%update_row_data, [\%update_condition])>
 
@@ -932,6 +1010,14 @@ get one record.
 give back one case of the beginning when it is acquired plural records by single method.
 
     my $row = $teng->single('user',{id =>1});
+
+=item C<$row = $teng-E<gt>new_row_from_hash($table_name, \%row_data, [$sql])>
+
+create row object from data. (not fetch from db.)
+It's useful in such as testing.
+
+    my $row = $teng->new_row_from_hash('user', { id => 1, foo => "bar" });
+    say $row->foo; # say bar
 
 =item C<$itr = $teng-E<gt>search_named($sql, [\%bind_values, [$table_name]])>
 
@@ -1015,7 +1101,7 @@ database disconnection.
 
 =item C<$txn_manager = $teng-E<gt>txn_manager>
 
-Get the DBIx::TransactionManager instance.
+Create the transaction manager instance with specified C<txn_manager_class>.
 
 =item C<$teng-E<gt>txn_begin>
 

@@ -4,6 +4,9 @@ use warnings;
 use Carp ();
 our $AUTOLOAD;
 
+# inside-out
+our %obj;
+
 sub new {
     my ($class, $args) = @_;
 
@@ -18,6 +21,8 @@ sub new {
 
     $self->{select_columns} ||= [keys %{$args->{row_data}}];
     $self->{table} ||= $args->{teng}->schema->get_table($args->{table_name});
+
+    $obj{$self+0} = delete $self->{teng};
 
     $self;
 }
@@ -36,7 +41,7 @@ sub generate_column_accessor {
     };
 }
 
-sub handle { $_[0]->{teng} }
+sub handle { $obj{$_[0]+0} }
 
 sub get {
     my ($self, $col) = @_;
@@ -128,7 +133,7 @@ sub is_changed {
 }
 
 sub update {
-    my ($self, $upd) = @_;
+    my ($self, $upd, $where) = @_;
 
     if (ref($self) eq 'Teng::Row') {
         Carp::croak q{can't update from basic Teng::Row class.};
@@ -146,17 +151,27 @@ sub update {
         }
     }
 
-    my $where = $self->_where_cond;
+    if ($where) {
+        $where = {
+            %$where,
+            %{ $self->_where_cond },
+        };
+    }
+    else {
+        $where = $self->_where_cond;
+    }
 
     $upd = $self->get_dirty_columns;
     return 0 unless %$upd;
 
-    my $bind_args = $self->{teng}->_bind_sql_type_to_args($table, $upd);
-    my $result = $self->{teng}->do_update($table_name, $bind_args, $where, 1);
-    $self->{row_data} = {
-        %{ $self->{row_data} },
-        %$upd,
-    };
+    my $bind_args = $self->handle->_bind_sql_type_to_args($table, $upd);
+    my $result = $self->handle->do_update($table_name, $bind_args, $where, 1);
+    if ($result > 0) {
+        $self->{row_data} = {
+            %{ $self->{row_data} },
+            %$upd,
+        };
+    }
     $self->{_dirty_columns} = {};
 
     $result;
@@ -169,12 +184,12 @@ sub delete {
         Carp::croak q{can't delete from basic Teng::Row class.};
     }
 
-    $self->{teng}->delete($self->{table_name}, $self->_where_cond);
+    $self->handle->delete($self->{table_name}, $self->_where_cond);
 }
 
 sub refetch {
-    my $self = shift;
-    $self->{teng}->single($self->{table_name}, $self->_where_cond);
+    my ($self, $opt) = @_;
+    $self->handle->single($self->{table_name}, $self->_where_cond, $opt);
 }
 
 # Generate a where clause to fetch this row itself.
@@ -223,7 +238,10 @@ sub AUTOLOAD {
 }
 
 ### don't autoload this
-sub DESTROY { 1 };
+sub DESTROY {
+    my $self = shift;
+    delete $obj{$self+0};
+};
 
 1;
 
@@ -302,18 +320,25 @@ returns those that have been changed.
 
 returns true, If the row object have a updated column.
 
-=item $row->update([$arg])
+=item $row->update([$arg : HashRef, $where : HashRef])
 
 update is executed for instance record.
 
 It works by schema in which primary key exists.
 
     $row->update({name => 'tokuhirom'});
-    # or 
+    # or
     $row->set({name => 'tokuhirom'});
     $row->update;
 
-If C<$arg> HashRef is supplied, each pairs are passed to C<set()> method before update.
+If C<$arg> is supplied, each pairs are passed to C<set()> method before update.
+
+If C<$where> is supplied, each pairs to be merged into default (primary keys) WHERE condition.
+It is useful for optimistic lock.
+
+    $row    = $teng->single(table_name, {id => 1});
+    $result = $row->update({point => 2}, {point => 1});
+    # UPDATE table_name SET point = 2 WHERE id = 1 AND point = 1;
 
 =item $row->delete
 
@@ -321,9 +346,11 @@ delete is executed for instance record.
 
 It works by schema in which primary key exists.
 
-=item my $refetched_row = $row->refetch;
+=item my $refetched_row = $row->refetch([$opt:HashRef]);
 
 refetch record from database. get new row object.
+
+You can specify C<$opt> like C<< { for_update => 1} >> optionally, which is used to build query.
 
 =item $row->handle
 
