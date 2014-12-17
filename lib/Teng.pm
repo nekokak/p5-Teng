@@ -276,7 +276,9 @@ sub execute {
             if (Scalar::Util::blessed($v) && ref($v) eq 'SQL::Maker::SQLType') {
                 $sth->bind_param($i++, ${$v->value_ref}, $v->type);
             } else {
-                $sth->bind_param( $i++, $v);
+                # allow array ref for using pg_types. e.g. [ $value => { pg_type => PG_BYTEA } ]
+                # ref. https://metacpan.org/pod/DBD::Pg#quote
+                $sth->bind_param( $i++, ref($v) eq 'ARRAY' ? @$v : $v );
             }
         }
         $sth->execute();
