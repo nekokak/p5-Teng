@@ -1,7 +1,7 @@
 package Teng::Schema::Dumper;
 use strict;
 use warnings;
-use DBIx::Inspector 0.03;
+use DBIx::Inspector 0.06;
 use Carp ();
 
 sub dump {

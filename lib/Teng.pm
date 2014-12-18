@@ -2,7 +2,7 @@ package Teng;
 use strict;
 use warnings;
 use Carp ();
-use Class::Load ();
+use Class::Load 0.06 ();
 use DBI 1.33;
 use Scalar::Util;
 use SQL::Maker::SQLType qw(sql_type);
@@ -11,7 +11,7 @@ use Teng::Iterator;
 use Teng::Schema;
 use DBIx::TransactionManager 1.06;
 use Teng::QueryBuilder;
-use Class::Accessor::Lite
+use Class::Accessor::Lite 0.05
    rw => [ qw(
         connect_info
         on_connect_do

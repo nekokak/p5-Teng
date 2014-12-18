@@ -1,4 +1,3 @@
-requires 'Carp';
 requires 'Class::Accessor::Lite', '0.05';
 requires 'Class::Load', '0.06';
 requires 'DBI', '1.33';
@@ -7,16 +6,28 @@ requires 'DBIx::TransactionManager', '1.06';
 requires 'Data::Page';
 requires 'Data::Page::NoTotalEntries', '0.02';
 requires 'SQL::Maker', '0.14';
+requires 'SQL::Maker::SQLType';
+requires 'Scalar::Util';
 requires 'parent';
 
-on build => sub {
-    requires 'ExtUtils::MakeMaker', '6.36';
-    requires 'Test::Mock::Guard';
+on configure => sub {
+    requires 'Module::Build';
+    requires 'perl', '5.008_001';
+};
+
+on test => sub {
+    requires 'DBD::SQLite';
+    requires 'File::Temp';
     requires 'Test::More', '0.96';
     requires 'Test::Requires';
     requires 'Test::SharedFork', '0.15';
 };
 
 on develop => sub {
+    requires 'DBD::SQLite';
     requires 'DBIx::Tracer';
+    requires 'Test::Perl::Critic';
+    requires 'Test::Pod', '1.14';
+    requires 'Test::Pod::Coverage', '1.00';
+    requires 'Test::Spellunker';
 };
