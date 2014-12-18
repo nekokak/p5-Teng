@@ -45,13 +45,16 @@ subtest 'insert with suppress_row_objects off' => sub {
     is $row->{name}, 'xs';
 };
 
-subtest 'fast_insert' => sub {
-    my $last_insert_id = $db->fast_insert('mock_basic',{
-        id   => 3,
-        name => 'ruby',
-    });
-    is $last_insert_id, 3;
-};
+SKIP: {
+    skip "last_insert_id doesn't work when explicitly inserting id in Pg", 1 if $dbh->{Driver}->{Name} eq 'Pg';
+    subtest 'fast_insert' => sub {
 
+        my $last_insert_id = $db->fast_insert('mock_basic',{
+            id   => 3,
+            name => 'ruby',
+        });
+        is $last_insert_id, 3;
+    };
+}
 
 done_testing;
