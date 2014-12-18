@@ -292,13 +292,14 @@ sub execute {
 }
 
 sub _last_insert_id {
-    my ($self, $table_name) = @_;
+    my ($self, $table_name, $column) = @_;
 
     my $driver = $self->{driver_name};
     if ( $driver eq 'mysql' ) {
         return $self->dbh->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
-        return $self->dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table_name, 'id', 'seq' ) } );
+        $column = defined $column ? $column : 'id';
+        return $self->dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table_name, $column, 'seq' ) } );
     } elsif ( $driver eq 'SQLite' ) {
         return $self->dbh->func('last_insert_rowid');
     } elsif ( $driver eq 'Oracle' ) {
@@ -343,6 +344,7 @@ sub fast_insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $self->do_insert($table_name, $args, $prefix);
+    # XXX in Pg, _last_insert_id has potential failure when inserting to non Serial table or explicitly inserting Serrial id
     $self->_last_insert_id($table_name);
 }
 
@@ -357,7 +359,7 @@ sub insert {
 
     my @missing_primary_keys = grep { not defined $args->{$_} } @$pk;
     if (@missing_primary_keys == 1) {
-        $args->{$missing_primary_keys[0]} = $self->_last_insert_id($table_name);
+        $args->{$missing_primary_keys[0]} = $self->_last_insert_id($table_name, $missing_primary_keys[0]);
     }
 
     return $args if $self->suppress_row_objects;
