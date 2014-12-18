@@ -57,4 +57,16 @@ SKIP: {
     };
 }
 
+subtest 'fast_insert with pkey not named "id"' => sub {
+    my $last_insert_id = $db->fast_insert('mock_basic_anotherpkey',{
+        name => 'ruby',
+    });
+    is $last_insert_id, 1;
+
+    $last_insert_id = $db->fast_insert('mock_basic_anotherpkey',{
+        name => 'perl',
+    });
+    is $last_insert_id, 2;
+};
+
 done_testing;
