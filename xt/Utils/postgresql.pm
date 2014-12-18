@@ -4,11 +4,11 @@ use strict;
 use warnings;
 use Test::More;
 use t::Utils;
-eval "use Test::postgresql";
+eval "use Test::PostgreSQL 1.00";
 plan skip_all => "Test::postgresql required" if $@;
 
-my $pgsql = Test::postgresql->new
-    or plan skip_all => $Test::postgresql::errstr;
+my $pgsql = Test::PostgreSQL->new
+    or plan skip_all => $Test::PostgreSQL::errstr;
 
 {
     no warnings "redefine";

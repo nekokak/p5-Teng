@@ -25,13 +25,9 @@ $dbh->do(q{
     );        
 });
 
-my $schema = Teng::Schema::Loader->load(
+my $db = Teng::Schema::Loader->load(
     dbh => $dbh,
     namespace => 'Mock::DB',
-);
-my $db = Teng->new(
-    dbh => $dbh,
-    schema => $schema,
 );
 
 isa_ok( $db, 'Teng' );

@@ -22,6 +22,14 @@ sub create_sqlite {
             primary key ( Id )
         )
     });
+    $dbh->do(q{
+        CREATE TABLE mock_basic_anotherpkey (
+            table_id   integer,
+            name text,
+            delete_fg int(1) default 0,
+            primary key ( table_id )
+        )
+    });
 }
 
 sub create_mysql {
@@ -44,6 +52,15 @@ sub create_mysql {
             primary key ( Id )
         )
     });
+    $dbh->do( q{DROP TABLE IF EXISTS mock_basic_anotherpkey} );
+    $dbh->do(q{
+        CREATE TABLE mock_basic_anotherpkey (
+            table_id        INT auto_increment,
+            name      TEXT,
+            delete_fg TINYINT(1) default 0,
+            PRIMARY KEY  (table_id)
+        ) ENGINE=InnoDB
+    });
 }
 
 sub create_pg {
@@ -53,7 +70,15 @@ sub create_pg {
         CREATE TABLE mock_basic (
             id   SERIAL PRIMARY KEY,
             name TEXT,
-            delete_fg boolean
+            delete_fg boolean default false
+        )
+    });
+    $dbh->do( q{DROP TABLE IF EXISTS mock_basic_anotherpkey});
+    $dbh->do(q{
+        CREATE TABLE mock_basic_anotherpkey (
+            table_id   SERIAL PRIMARY KEY,
+            name TEXT,
+            delete_fg boolean default false
         )
     });
 }
