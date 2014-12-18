@@ -4,8 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 use t::Utils;
-eval "use Test::PostgreSQL 1.00";
-plan skip_all => "Test::postgresql required" if $@;
+use Test::Requires {'Test::PostgreSQL' => '1.00'};
 
 my $pgsql = Test::PostgreSQL->new
     or plan skip_all => $Test::PostgreSQL::errstr;
