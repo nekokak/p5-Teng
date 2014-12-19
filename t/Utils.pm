@@ -4,7 +4,6 @@ use warnings;
 use utf8;
 use lib './t/lib';
 use Test::More;
-use Test::Requires 'DBD::SQLite';
 
 sub import {
     strict->import;
