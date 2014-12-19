@@ -6,8 +6,6 @@ requires 'DBIx::TransactionManager', '1.06';
 requires 'Data::Page';
 requires 'Data::Page::NoTotalEntries', '0.02';
 requires 'SQL::Maker', '0.14';
-requires 'SQL::Maker::SQLType';
-requires 'Scalar::Util';
 requires 'parent';
 
 on configure => sub {
@@ -24,7 +22,6 @@ on test => sub {
 };
 
 on develop => sub {
-    requires 'DBD::SQLite';
     requires 'DBIx::Tracer';
     requires 'Test::Perl::Critic';
     requires 'Test::Pod', '1.14';
