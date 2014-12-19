@@ -50,7 +50,7 @@ Teng::Plugin::BulkInsert - (DEPRECATED) Bulk insert helper
 
 =over 4
 
-=item C<$teng-&gt;bulk_insert($table_name, \@rows_data)>
+=item C<< $teng->bulk_insert($table_name, \@rows_data) >>
 
 Accepts either an arrayref of hashrefs.
 each hashref should be a structure suitable

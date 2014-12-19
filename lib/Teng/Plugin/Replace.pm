@@ -47,7 +47,7 @@ Teng::Plugin::Replace - Add replace for Teng
 
 =over 4
 
-=item C<$teng-&gt;replace($table_name, \%rows_data)>;
+=item C<< $teng->replace($table_name, \%rows_data) >>
 
 record by replace.
 
