@@ -75,7 +75,7 @@ search_by_sql_with_pager method adds LIMIT clause automatically.
 
 You can pass arguments as following.
 
-    $db->search_by_sql_with_pager($sql, $binds, $opt[, $table_name]);
+=head2 C<< $db->search_by_sql_with_pager($sql, $binds, $opt[, $table_name]); >>
 
 =over 4
 

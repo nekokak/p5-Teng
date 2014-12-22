@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Requires 'DBD::SQLite';
 use DBI;
 use Teng;
 use Teng::Schema::Loader;

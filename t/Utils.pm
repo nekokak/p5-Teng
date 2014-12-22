@@ -5,11 +5,6 @@ use utf8;
 use lib './t/lib';
 use Test::More;
 
-BEGIN {
-  eval "use DBD::SQLite";
-  plan skip_all => 'needs DBD::SQLite for testing' if $@;
-}
-
 sub import {
     strict->import;
     warnings->import;

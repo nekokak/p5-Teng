@@ -5,7 +5,7 @@ use utf8;
 use Carp ();
 use DBI;
 use Teng::Iterator;
-use Data::Page::NoTotalEntries;
+use Data::Page::NoTotalEntries 0.02;
 
 our @EXPORT = qw/search_with_pager/;
 

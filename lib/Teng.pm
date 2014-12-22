@@ -2,7 +2,7 @@ package Teng;
 use strict;
 use warnings;
 use Carp ();
-use Class::Load ();
+use Class::Load 0.06 ();
 use DBI 1.33;
 use Scalar::Util;
 use SQL::Maker::SQLType qw(sql_type);
@@ -11,7 +11,7 @@ use Teng::Iterator;
 use Teng::Schema;
 use DBIx::TransactionManager 1.06;
 use Teng::QueryBuilder;
-use Class::Accessor::Lite
+use Class::Accessor::Lite 0.05
    rw => [ qw(
         connect_info
         on_connect_do
@@ -838,7 +838,7 @@ You must pass C<connect_info> or C<dbh> to the constructor.
 
 =item * C<dbh>
 
-Specifies the database handle to use. 
+Specifies the database handle to use.
 
 =item * C<no_ping>
 
@@ -852,7 +852,7 @@ specific DBI.pm's FetchHashKeyName.
 =item * C<schema>
 
 Specifies the Teng::Schema instance to use.
-If not specified, the value specified in C<schema_class> is loaded and 
+If not specified, the value specified in C<schema_class> is loaded and
 instantiated for you.
 
 =item * C<schema_class>
@@ -916,6 +916,10 @@ C<fast_insert>.
 insert new record and get last_insert_id.
 
 no creation row object.
+
+=item C<< $teng->do_insert >>
+
+Internal method called from C<insert> and C<fast_insert>. You can hook it on your responsibility.
 
 =item C<$teng-E<gt>bulk_insert($table_name, \@rows_data, \%opt)>
 
@@ -1169,6 +1173,18 @@ BulkInsert's "bulk_insert" method is imported as "insert_bulk".
 =item C<$teng-E<gt>handle_error>
 
 handling error method.
+
+=item C<< $teng->connected >>
+
+check connected or not.
+
+=item C<< $teng->reconnect >>
+
+reconnect database
+
+=item C<< $teng->mode >>
+
+DEPRECATED AND *WILL* BE REMOVED. PLEASE USE C< no_ping > option.
 
 =item How do you use display the profiling result?
 

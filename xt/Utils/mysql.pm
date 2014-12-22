@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use Test::More;
 use t::Utils;
-eval "use Test::mysqld";
-plan skip_all => "Test::mysqld required" if $@;
+
+use Test::Requires 'Test::mysqld';
 
 my $mysql = Test::mysqld->new({
     my_cnf => {

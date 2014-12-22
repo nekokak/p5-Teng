@@ -1,5 +1,5 @@
 use t::Utils;
-use Test::More;
+use Test::More 0.96;
 
 BEGIN { use_ok( 'Mock::Basic' ); }
 

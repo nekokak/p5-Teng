@@ -42,7 +42,7 @@ Teng::Plugin::SingleBySQL - (DEPRECATED) Single by SQL
 
 =over 4
 
-=item C<$row = $teng-&gt;single_by_sqle($sql, [\%bind_values, [$table_name]])>
+=item C<< $row = $teng->single_by_sql($sql, [\%bind_values, [$table_name]]) >>
 
 get one record from your SQL.
 

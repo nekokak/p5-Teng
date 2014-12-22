@@ -1,7 +1,7 @@
 use t::Utils;
 use Test::More;
 use Mock::Basic;
-use Test::SharedFork;
+use Test::SharedFork 0.15;
 
 plan skip_all => 'not for Win32' if $^O eq 'MSWin32';
 
