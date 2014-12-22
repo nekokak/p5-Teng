@@ -17,6 +17,7 @@ on test => sub {
     requires 'DBD::SQLite';
     requires 'File::Temp';
     requires 'Test::More', '0.96';
+    requires 'Test::Warn';
     requires 'Test::Requires';
     requires 'Test::SharedFork', '0.15';
 };

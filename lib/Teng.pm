@@ -602,6 +602,10 @@ sub single {
 sub search_by_sql {
     my ($self, $sql, $bind, $table_name) = @_;
 
+    if ($table_name && $sql !~ /$table_name/i) {
+        warn "'$table_name' is not appeared in sql: $sql";
+    }
+
     $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->execute($sql, $bind);
     my $itr = Teng::Iterator->new(
@@ -618,6 +622,10 @@ sub search_by_sql {
 
 sub single_by_sql {
     my ($self, $sql, $bind, $table_name) = @_;
+
+    if ($table_name && $sql !~ /$table_name/i) {
+        warn "'$table_name' is not appeared in sql: $sql";
+    }
 
     $table_name ||= $self->_guess_table_name( $sql );
     my $table = $self->{schema}->get_table( $table_name );
