@@ -1,6 +1,9 @@
 Revision history for Perl extension Teng
 
 {{$NEXT}}
+        - FIX: PostgreSQL tests (thanks songmu)
+        - FIX: Dependency (thanks songmu)
+        - FIX: Documentations (thanks songmu)
 
 0.26 2014-12-16T06:10:34Z
         - FIX: Teng::Plugin::Lookup quotes table name correctly (thanks tokuhirom).
