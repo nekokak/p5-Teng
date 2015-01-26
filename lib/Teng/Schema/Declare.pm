@@ -227,6 +227,19 @@ This option is useful when you adds features for My::DB::Row class.
 
 Specify the default prefix of row class.
 
+C<row_class> of each table definition has priority over C<default_row_class_prefix>.
+
+e.g.:
+    use Teng::Schema::Declare;
+    my $schema = schema {
+        default_row_class_prefix 'My::Entity';
+        table {
+            name 'user';
+            column qw(name);
+        };
+    };
+    $schema->get_row_class('user'); # => My::Entity::User
+
 Default value is determined by the schema class.
 
 e.g.:
