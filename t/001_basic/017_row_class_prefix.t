@@ -4,7 +4,7 @@ use Teng::Schema::Declare;
 
 subtest 'with prefix' => sub {
     my $schema = schema {
-        row_class_prefix 'My::Entity';
+        default_row_class_prefix 'My::Entity';
         table {
             name 'body';
             columns qw(id);

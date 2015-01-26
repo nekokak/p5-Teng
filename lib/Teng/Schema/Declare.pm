@@ -15,7 +15,7 @@ our @EXPORT = qw(
     base_row_class
     inflate
     deflate
-    row_class_prefix
+    default_row_class_prefix
 );
 our $CURRENT_SCHEMA_CLASS;
 
@@ -31,14 +31,14 @@ sub base_row_class($) {
     $current->{__base_row_class} = $_[0];
 }
 
-sub row_class_prefix ($) {
-    _current_schema()->{__row_class_prefix} = $_[0];
+sub default_row_class_prefix ($) {
+    _current_schema()->{__default_row_class_prefix} = $_[0];
 }
 
 sub row_namespace ($) {
     my $table_name = shift;
 
-    my $prefix = defined(_current_schema()->{__row_class_prefix}) ? _current_schema()->{__row_class_prefix} : do {
+    my $prefix = defined(_current_schema()->{__default_row_class_prefix}) ? _current_schema()->{__default_row_class_prefix} : do {
         (my $caller = caller(1)) =~ s/::Schema$//;
         join '::', $caller, 'Row';
     };
@@ -223,9 +223,9 @@ Default value is L<Teng::Row>.
 
 This option is useful when you adds features for My::DB::Row class.
 
-=item C<row_class_prefix>
+=item C<default_row_class_prefix>
 
-Specify the prefix of row class.
+Specify the default prefix of row class.
 
 Default value is determined by the schema class.
 
