@@ -4,7 +4,10 @@ use strict;
 use warnings;
 use Test::More;
 use t::Utils;
-use Test::Requires {'Test::PostgreSQL' => '1.00'};
+use Test::Requires {
+    'DBD::Pg' => '0',
+    'Test::PostgreSQL' => '1.00'
+};
 
 my $pgsql = Test::PostgreSQL->new
     or plan skip_all => $Test::PostgreSQL::errstr;

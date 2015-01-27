@@ -1,9 +1,12 @@
 Revision history for Perl extension Teng
 
 {{$NEXT}}
+
+0.27 2015-01-27T04:45:44Z
         - FIX: PostgreSQL tests (thanks songmu)
         - FIX: Dependency (thanks songmu)
         - FIX: Documentations (thanks songmu)
+        - ADD: Teng::Schema::Declare#default_row_class_prefix (thanks aereal)
 
 0.26 2014-12-16T06:10:34Z
         - FIX: Teng::Plugin::Lookup quotes table name correctly (thanks tokuhirom).

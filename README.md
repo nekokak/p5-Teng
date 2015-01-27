@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/nekokak/p5-Teng.png?branch=master)](https://travis-ci.org/nekokak/p5-Teng)
 # NAME
 
 Teng - very simple DBI wrapper/ORMapper
@@ -126,7 +127,7 @@ Teng provides a number of methods to all your classes,
 
     - `dbh`
 
-        Specifies the database handle to use. 
+        Specifies the database handle to use.
 
     - `no_ping`
 
@@ -140,7 +141,7 @@ Teng provides a number of methods to all your classes,
     - `schema`
 
         Specifies the Teng::Schema instance to use.
-        If not specified, the value specified in `schema_class` is loaded and 
+        If not specified, the value specified in `schema_class` is loaded and
         instantiated for you.
 
     - `schema_class`
@@ -202,6 +203,10 @@ Teng provides a number of methods to all your classes,
     insert new record and get last\_insert\_id.
 
     no creation row object.
+
+- `$teng->do_insert`
+
+    Internal method called from `insert` and `fast_insert`. You can hook it on your responsibility.
 
 - `$teng->bulk_insert($table_name, \@rows_data, \%opt)`
 
@@ -455,6 +460,18 @@ Teng provides a number of methods to all your classes,
 - `$teng->handle_error`
 
     handling error method.
+
+- `$teng->connected`
+
+    check connected or not.
+
+- `$teng->reconnect`
+
+    reconnect database
+
+- `$teng->mode`
+
+    DEPRECATED AND \*WILL\* BE REMOVED. PLEASE USE ` no_ping ` option.
 
 - How do you use display the profiling result?
 
