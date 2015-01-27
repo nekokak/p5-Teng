@@ -230,6 +230,7 @@ Specify the default prefix of row class.
 C<row_class> of each table definition has priority over C<default_row_class_prefix>.
 
 e.g.:
+
     use Teng::Schema::Declare;
     my $schema = schema {
         default_row_class_prefix 'My::Entity';
