@@ -15,6 +15,7 @@ our @EXPORT = qw(
     base_row_class
     inflate
     deflate
+    default_row_class_prefix
 );
 our $CURRENT_SCHEMA_CLASS;
 
@@ -30,11 +31,18 @@ sub base_row_class($) {
     $current->{__base_row_class} = $_[0];
 }
 
+sub default_row_class_prefix ($) {
+    _current_schema()->{__default_row_class_prefix} = $_[0];
+}
+
 sub row_namespace ($) {
     my $table_name = shift;
 
-    (my $caller = caller(1)) =~ s/::Schema$//;
-    join '::', $caller, 'Row', Teng::Schema::camelize($table_name);
+    my $prefix = defined(_current_schema()->{__default_row_class_prefix}) ? _current_schema()->{__default_row_class_prefix} : do {
+        (my $caller = caller(1)) =~ s/::Schema$//;
+        join '::', $caller, 'Row';
+    };
+    join '::', $prefix, Teng::Schema::camelize($table_name);
 }
 
 sub _current_schema {
@@ -214,6 +222,37 @@ Specify the default base row class with Teng::Schema::Declare.
 Default value is L<Teng::Row>.
 
 This option is useful when you adds features for My::DB::Row class.
+
+=item C<default_row_class_prefix>
+
+Specify the default prefix of row class.
+
+C<row_class> of each table definition has priority over C<default_row_class_prefix>.
+
+e.g.:
+    use Teng::Schema::Declare;
+    my $schema = schema {
+        default_row_class_prefix 'My::Entity';
+        table {
+            name 'user';
+            column qw(name);
+        };
+    };
+    $schema->get_row_class('user'); # => My::Entity::User
+
+Default value is determined by the schema class.
+
+e.g.:
+
+    package My::DB::Schema;
+    use Teng::Schema::Declare;
+    table {
+        name 'user';
+        column qw(name);
+    };
+
+    __PACKAGE__->instance->get_row_class('user'); # => My::DB::Row::User
+    1;
 
 =back
 
