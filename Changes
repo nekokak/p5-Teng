@@ -2,6 +2,9 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.28 2015-02-26T06:49:27Z
+        - FIX: Dependency (thanks lestrrat, eserte, zakame)
+
 0.27 2015-01-27T04:45:44Z
         - FIX: PostgreSQL tests (thanks songmu)
         - FIX: Dependency (thanks songmu)
