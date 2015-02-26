@@ -16,6 +16,7 @@ on configure => sub {
 on test => sub {
     requires 'DBD::SQLite';
     requires 'File::Temp';
+    requires 'Test::Mock::Guard' => '0.10';
     requires 'Test::More', '0.96';
     requires 'Test::Requires';
     requires 'Test::SharedFork', '0.15';
