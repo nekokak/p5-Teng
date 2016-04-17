@@ -4,6 +4,7 @@ use utf8;
 use Test::More;
 use t::Utils;
 use Mock::Basic;
+use Test::Mock::Guard qw/mock_guard/;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
@@ -20,6 +21,17 @@ subtest 'fast_insert returning last_insert_id' => sub {
         name => 'ruby',
     });
     is $id2, 2;
+};
+
+subtest 'fast_insert returning mysql_insertid when sth has mysql_insertid' => sub {
+    my $guard = mock_guard('Teng' => {
+        do_insert => { mysql_insertid => 3 },
+    });
+
+    my $id = $db->fast_insert('mock_basic',{
+        name => 'ruby',
+    });
+    is $id, 3;
 };
 
 done_testing;
