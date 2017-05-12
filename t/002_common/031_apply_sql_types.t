@@ -31,9 +31,9 @@ sub isnum ($) {
 sub isbool {
     my ($db, $bool) = @_;
     if ($bool) {
-        $bool == $db->{boolean_type}->{true};
+        $bool == $db->{boolean_value}->{true};
     } else {
-        $bool == $db->{boolean_type}->{false};
+        $bool == $db->{boolean_value}->{false};
     }
 }
 
@@ -86,7 +86,7 @@ subtest 'search_apply_sql_types_db' => sub {
 };
 
 subtest 'search_apply_sql_types_boolean' => sub {
-    $db->set_boolean_type(JSON::XS::true, JSON::XS::false);
+    $db->set_boolean_value(JSON::XS::true, JSON::XS::false);
     my $itr = $db->search('mock_basic_sql_types');
     isa_ok $itr, 'Teng::Iterator';
 

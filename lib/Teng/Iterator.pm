@@ -2,6 +2,7 @@ package Teng::Iterator;
 use strict;
 use warnings;
 use Carp ();
+use Scalar::Util qw/looks_like_number/;
 use Class::Accessor::Lite (
     rw => [qw/suppress_object_creation apply_sql_types guess_sql_types/],
 );
@@ -78,7 +79,7 @@ sub _apply_sql_types {
                 $row->{$column} .= '';
             }
         } elsif ($self->{guess_sql_types}) {
-            if ($row->{$column} =~ m{^\d+(?:\.\d+)?$}) {
+            if (looks_like_number($row->{$column})) {
                 $row->{$column} += 0;
             } else {
                 $row->{$column} .= '';
@@ -164,7 +165,7 @@ Set row object creation mode.
 Set column type application mode.
 
 If column has sql type and it is numeric, regard it as number and add 0 to the value.
-If column has sql type and it isn't numeric, regart it as string adn add '' to the value.
+If column has sql type and it isn't numeric, regart it as string and add '' to the value.
 If column doesn't have sql type, the value won't be changed.
 
 =item $itr->guess_sql_types($bool)

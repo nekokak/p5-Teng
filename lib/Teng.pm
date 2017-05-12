@@ -65,7 +65,7 @@ sub new {
         owner_pid    => $$,
         no_ping      => 0,
         fields_case  => 'NAME_lc',
-        boolean_type => {true => 1, false => 0},
+        boolean_value => {true => 1, false => 0},
         %args,
     }, $class;
 
@@ -93,13 +93,13 @@ sub new {
     return $self;
 }
 
-sub set_boolean_type {
+sub set_boolean_value {
     my $self = shift;
     if (@_) {
         my ($true, $false) = @_;
-        $self->{boolean_type} = {true => $true, false => $false};
+        $self->{boolean_value} = {true => $true, false => $false};
     }
-    return $self->{boolean_type};
+    return $self->{boolean_value};
 }
 
 sub mode {
@@ -1181,12 +1181,12 @@ this implies apply_sql_type true.
 
 see guess_sql_types in L<Teng::Iterator/METHODS>
 
-=item C<$teng-E<gt>set_boolean_type($true, $false)>
+=item C<$teng-E<gt>set_boolean_value($true, $false)>
 
 set scalar to correspond boolean.
 this is ignored when aply_sql_type is not true.
 
-  $teng->set_boolean_type(JSON::XS::true, JSON::XS::false);
+  $teng->set_boolean_value(JSON::XS::true, JSON::XS::false);
 
 =item C<$teng-E<gt>load_plugin();>
 
