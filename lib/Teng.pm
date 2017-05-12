@@ -23,6 +23,8 @@ use Class::Accessor::Lite 0.05
         owner_pid
         no_ping
         fields_case
+        apply_sql_types
+        guess_sql_types
     )]
 ;
 
@@ -63,6 +65,7 @@ sub new {
         owner_pid    => $$,
         no_ping      => 0,
         fields_case  => 'NAME_lc',
+        boolean_type => {true => 1, false => 0},
         %args,
     }, $class;
 
@@ -88,6 +91,15 @@ sub new {
     }
 
     return $self;
+}
+
+sub set_boolean_type {
+    my $self = shift;
+    if (@_) {
+        my ($true, $false) = @_;
+        $self->{boolean_type} = {true => $true, false => $false};
+    }
+    return $self->{boolean_type};
 }
 
 sub mode {
@@ -611,6 +623,8 @@ sub search_by_sql {
         row_class        => $self->{schema}->get_row_class($table_name),
         table            => $self->{schema}->get_table( $table_name ),
         table_name       => $table_name,
+        apply_sql_types  => $self->{apply_sql_types} || $self->{guess_sql_types},
+        guess_sql_types  => $self->{guess_sql_types},
         suppress_object_creation => $self->{suppress_row_objects},
     );
     return wantarray ? $itr->all : $itr;
@@ -1153,6 +1167,26 @@ Disconnects from the currently connected database.
 =item C<$teng-E<gt>suppress_row_objects($flag)>
 
 set row object creation mode.
+
+=item C<$teng-E<gt>apply_sql_types($flag)>
+
+set sql type application mode.
+
+see apply_sql_types in L<Teng::Iterator/METHODS>
+
+=item C<$teng-E<gt>guess_sql_types($flag)>
+
+set sql type guessing mode.
+this implies apply_sql_type true.
+
+see guess_sql_types in L<Teng::Iterator/METHODS>
+
+=item C<$teng-E<gt>set_boolean_type($true, $false)>
+
+set scalar to correspond boolean.
+this is ignored when aply_sql_type is not true.
+
+  $teng->set_boolean_type(JSON::XS::true, JSON::XS::false);
 
 =item C<$teng-E<gt>load_plugin();>
 

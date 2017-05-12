@@ -30,6 +30,14 @@ sub create_sqlite {
             primary key ( table_id )
         )
     });
+    $dbh->do(q{
+        CREATE TABLE mock_basic_sql_types (
+            id   integer,
+            name text,
+            delete_fg tinyint(1) default 0,
+            primary key ( id )
+        )
+    });
 }
 
 sub create_mysql {
@@ -61,6 +69,15 @@ sub create_mysql {
             PRIMARY KEY  (table_id)
         ) ENGINE=InnoDB
     });
+    $dbh->do( q{DROP TABLE IF EXISTS mock_basic_sql_types} );
+    $dbh->do(q{
+        CREATE TABLE mock_basic_sql_types (
+            id        INT auto_increment,
+            name      TEXT,
+            delete_fg TINYINT(1) default 0,
+            PRIMARY KEY  (id)
+        ) ENGINE=InnoDB
+    });
 }
 
 sub create_pg {
@@ -77,6 +94,14 @@ sub create_pg {
     $dbh->do(q{
         CREATE TABLE mock_basic_anotherpkey (
             table_id   SERIAL PRIMARY KEY,
+            name TEXT,
+            delete_fg boolean default false
+        )
+    });
+    $dbh->do( q{DROP TABLE IF EXISTS mock_basic_sql_types});
+    $dbh->do(q{
+        CREATE TABLE mock_basic_sql_types (
+            id   SERIAL PRIMARY KEY,
             name TEXT,
             delete_fg boolean default false
         )
