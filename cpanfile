@@ -20,6 +20,7 @@ on test => sub {
     requires 'Test::More', '0.96';
     requires 'Test::Requires';
     requires 'Test::SharedFork', '0.15';
+    requires 'JSON::XS';
 };
 
 on develop => sub {
