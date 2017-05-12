@@ -1177,14 +1177,14 @@ see apply_sql_types in L<Teng::Iterator/METHODS>
 =item C<$teng-E<gt>guess_sql_types($flag)>
 
 set SQL type guessing mode.
-this implies apply_sql_type true.
+this implies apply_sql_types true.
 
 see guess_sql_types in L<Teng::Iterator/METHODS>
 
 =item C<$teng-E<gt>set_boolean_value($true, $false)>
 
 set scalar to correspond boolean.
-this is ignored when aply_sql_type is not true.
+this is ignored when apply_sql_types is not true.
 
   $teng->set_boolean_value(JSON::XS::true, JSON::XS::false);
 

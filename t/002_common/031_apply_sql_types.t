@@ -95,6 +95,7 @@ subtest 'search_apply_sql_types_boolean' => sub {
         is isnum($row->id), 1, "is num";
         is isnum($row->name), 0, "is string";
         is isbool($db, $row->delete_fg), 1, "is bool";
+        like ref $row->delete_fg, qr{^JSON::.+Boolean}, "is JSON::* object";
     }
 };
 

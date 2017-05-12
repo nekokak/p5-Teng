@@ -66,11 +66,11 @@ sub _apply_sql_types {
                ) {
                 $row->{$column} += 0;
             } elsif ($type == SQL_BOOLEAN) {
-                if ($self->{teng}->{boolean_type}) {
+                if ($self->{teng}->{boolean_value}) {
                     if ($row->{$column}) {
-                        $row->{$column} = $self->{teng}->{boolean_type}->{true};
+                        $row->{$column} = $self->{teng}->{boolean_value}->{true};
                     } else {
-                        $row->{$column} = $self->{teng}->{boolean_type}->{false};
+                        $row->{$column} = $self->{teng}->{boolean_value}->{false};
                     }
                 } else {
                     $row->{$column} += 0;
