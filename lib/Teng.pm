@@ -1170,13 +1170,13 @@ set row object creation mode.
 
 =item C<$teng-E<gt>apply_sql_types($flag)>
 
-set sql type application mode.
+set SQL type application mode.
 
 see apply_sql_types in L<Teng::Iterator/METHODS>
 
 =item C<$teng-E<gt>guess_sql_types($flag)>
 
-set sql type guessing mode.
+set SQL type guessing mode.
 this implies apply_sql_type true.
 
 see guess_sql_types in L<Teng::Iterator/METHODS>

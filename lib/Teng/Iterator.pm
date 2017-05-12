@@ -164,15 +164,15 @@ Set row object creation mode.
 
 Set column type application mode.
 
-If column has sql type and it is numeric, regard it as number and add 0 to the value.
-If column has sql type and it isn't numeric, regart it as string and add '' to the value.
-If column doesn't have sql type, the value won't be changed.
+If column has SQL type and it is numeric, regard it as number and add 0 to the value.
+If column has SQL type and it isn't numeric, regard it as string and add '' to the value.
+If column doesn't have SQL type, the value won't be changed.
 
 =item $itr->guess_sql_types($bool)
 
 If this is true, this implies apply_sql_types also true.
-If column has no sql type, it guesses sql type with its value.
-When column value likes numeric, regart it as number and add 0 to the value.
+If column has no SQL type, it guesses SQL type with its value.
+When column value likes numeric, regard it as number and add 0 to the value.
 If not, regard it as string and add '' to the value.
 
 =back
