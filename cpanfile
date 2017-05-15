@@ -6,6 +6,7 @@ requires 'DBIx::TransactionManager', '1.06';
 requires 'Data::Page';
 requires 'Data::Page::NoTotalEntries', '0.02';
 requires 'SQL::Maker', '0.14';
+requires 'Scalar::Util';
 requires 'parent';
 
 on configure => sub {
@@ -20,6 +21,7 @@ on test => sub {
     requires 'Test::More', '0.96';
     requires 'Test::Requires';
     requires 'Test::SharedFork', '0.15';
+    requires 'JSON::XS';
 };
 
 on develop => sub {
