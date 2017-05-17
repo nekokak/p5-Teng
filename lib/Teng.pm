@@ -308,7 +308,7 @@ sub _last_insert_id {
 
     my $driver = $self->{driver_name};
     if ( $driver eq 'mysql' ) {
-        return $self->dbh->{mysql_insertid};
+        return $self->{dbh}->{mysql_insertid};
     } elsif ( $driver eq 'Pg' ) {
         if (defined $column) {
             return $self->dbh->last_insert_id( undef, undef, undef, undef,{ sequence => join( '_', $table_name, $column, 'seq' ) } );
