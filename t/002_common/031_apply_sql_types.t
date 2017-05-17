@@ -52,9 +52,7 @@ subtest 'search_no_sql_types' => sub {
     } else {
         while (my $row = $itr->next) {
             isa_ok $row, 'Teng::Row';
-            is isnum($row->id), 0, "is string";
             is isnum($row->name), 0, "is string";
-            is isnum($row->delete_fg), 0, "is string";
         }
     }
 };
@@ -66,7 +64,6 @@ subtest 'search_apply_sql_types_itr' => sub {
     $itr->apply_sql_types(1);
     while (my $row = $itr->next) {
         isa_ok $row, 'Teng::Row';
-        is isnum($row->id), 1, "is num";
         is isnum($row->name), 0, "is string";
         is isbool($db, $row->delete_fg), 1, "is bool";
     }
@@ -79,7 +76,6 @@ subtest 'search_apply_sql_types_db' => sub {
 
     while (my $row = $itr->next) {
         isa_ok $row, 'Teng::Row';
-        is isnum($row->id), 1, "is num";
         is isnum($row->name), 0, "is string";
         is isbool($db, $row->delete_fg), 1, "is bool";
     }
@@ -92,7 +88,6 @@ subtest 'search_apply_sql_types_boolean' => sub {
 
     while (my $row = $itr->next) {
         isa_ok $row, 'Teng::Row';
-        is isnum($row->id), 1, "is num";
         is isnum($row->name), 0, "is string";
         is isbool($db, $row->delete_fg), 1, "is bool";
         like ref $row->delete_fg, qr{^JSON::.+Boolean}, "is JSON::* object";
@@ -107,8 +102,6 @@ subtest 'count' => sub {
     my $driver_name = $db->dbh->{Driver}->{Name};
     if ($driver_name ne 'mysql') {
         is isnum($row->cnt), 1, "is num($driver_name)";
-    } else {
-        is isnum($row->cnt), 0, 'is string';
     }
 };
 
