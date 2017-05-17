@@ -358,7 +358,12 @@ sub do_insert {
 sub fast_insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
-    $self->do_insert($table_name, $args, $prefix);
+    my $sth = $self->do_insert($table_name, $args, $prefix);
+
+    # XXX in MySQL 5.7.8 or later, $self->dbh->{mysql_insertid} will always return 0,
+    # so that get mysql_insertid from $sth. (https://bugs.mysql.com/bug.php?id=78778)
+    return $sth->{mysql_insertid} if defined $sth->{mysql_insertid};
+
     # XXX in Pg, _last_insert_id has potential failure when inserting to non Serial table or explicitly inserting Serrial id
     $self->_last_insert_id($table_name);
 }
@@ -366,7 +371,7 @@ sub fast_insert {
 sub insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
-    $self->do_insert($table_name, $args, $prefix);
+    my $sth = $self->do_insert($table_name, $args, $prefix);
     return unless defined wantarray;
 
     my $table = $self->schema->get_table($table_name);
@@ -374,7 +379,10 @@ sub insert {
 
     my @missing_primary_keys = grep { not defined $args->{$_} } @$pk;
     if (@missing_primary_keys == 1) {
-        $args->{$missing_primary_keys[0]} = $self->_last_insert_id($table_name, $missing_primary_keys[0]);
+        # XXX in MySQL 5.7.8 or later, $self->dbh->{mysql_insertid} will always return 0,
+        # so that get mysql_insertid from $sth. (https://bugs.mysql.com/bug.php?id=78778)
+        $args->{$missing_primary_keys[0]} = defined $sth->{mysql_insertid} ? $sth->{mysql_insertid}
+                                          : $self->_last_insert_id($table_name, $missing_primary_keys[0]);
     }
 
     return $args if $self->suppress_row_objects;

@@ -1,6 +1,7 @@
 use t::Utils;
 use Mock::Basic;
 use Test::More;
+use Test::Mock::Guard qw/mock_guard/;
 
 my $dbh = t::Utils->setup_dbh;
 my $db = Mock::Basic->new({dbh => $dbh});
@@ -67,6 +68,25 @@ subtest 'fast_insert with pkey not named "id"' => sub {
         name => 'perl',
     });
     is $last_insert_id, 2;
+};
+
+subtest 'insert returning row for mysql_insertid when sth has mysql_insertid' => sub {
+    $db->fast_insert('mock_basic',{
+        id   => 999,
+        name => 'python',
+    });
+
+    my $guard = mock_guard('Teng' => {
+        do_insert => { mysql_insertid => 999 },
+    });
+
+    my $row = $db->insert('mock_basic',{
+        name => 'python',
+    });
+
+    isa_ok $row, 'HASH';
+    is $row->{id}, 999;
+    is $row->{name}, 'python';
 };
 
 done_testing;
