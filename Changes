@@ -2,7 +2,7 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
         - ADD: apply_sql_types/guess_sql_types (thanks ktat)
-        - FIX: Failed to get last_inserted_id on MySQL
+        - FIX: Failed to get last_insert_id on MySQL 5.7 (thanks mihyaeru21)
 
 0.28 2015-02-26T06:49:27Z
         - FIX: Dependency (thanks lestrrat, eserte, zakame)
