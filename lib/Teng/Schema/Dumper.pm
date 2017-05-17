@@ -3,6 +3,9 @@ use strict;
 use warnings;
 use DBIx::Inspector 0.06;
 use Carp ();
+use DBI ();
+
+my %SQLTYPE2NAME = map { &{$DBI::{$_}} => $_ } @{$DBI::EXPORT_TAGS{sql_types}};
 
 sub dump {
     my $class = shift;
@@ -27,6 +30,7 @@ sub dump {
         $ret .= "package ${namespace}::Schema;\n";
         $ret .= "use strict;\n";
         $ret .= "use warnings;\n";
+        $ret .= "use DBI qw/:sql_types/;\n";
         $ret .= "use Teng::Schema::Declare;\n";
         $ret .= "base_row_class '$args{base_row_class}';\n" if $args{base_row_class};
         for my $table_info (sort { $a->name cmp $b->name } $inspector->tables) {
@@ -49,7 +53,7 @@ sub _render_table {
     $ret .= "    columns (\n";
     for my $col ($table_info->columns) {
         if ($col->data_type) {
-            $ret .= sprintf("        {name => '%s', type => %s},\n", $col->name, $col->data_type);
+            $ret .= sprintf("        {name => '%s', type => %s},\n", $col->name, $SQLTYPE2NAME{$col->data_type} || $col->data_type);
         } else {
             $ret .= sprintf("        '%s',\n", $col->name);
         }
