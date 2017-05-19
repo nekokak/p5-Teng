@@ -1,6 +1,8 @@
 Revision history for Perl extension Teng
 
 {{$NEXT}}
+
+0.29 2017-05-19T04:36:20Z
         - ADD: apply_sql_types/guess_sql_types (thanks ktat)
         - MODIFY: dump sql type as constant (thanks karupanerura)
         - FIX: Failed to get last_insert_id on MySQL 5.7 (thanks mihyaeru21)

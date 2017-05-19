@@ -4,7 +4,7 @@
       "Atsushi Kobayashi  C<< <nekokak __at__ gmail.com> >>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v2.1.1, CPAN::Meta::Converter version 2.141520",
+   "generated_by" : "Minilla/v3.0.10, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -28,7 +28,8 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "Module::Build" : "0.38",
+            "Module::Build" : "0",
+            "Module::Build::Tiny" : "0.035",
             "perl" : "5.008_001"
          }
       },
@@ -54,6 +55,7 @@
             "Data::Page" : "0",
             "Data::Page::NoTotalEntries" : "0.02",
             "SQL::Maker" : "0.14",
+            "Scalar::Util" : "0",
             "parent" : "0"
          }
       },
@@ -61,6 +63,7 @@
          "requires" : {
             "DBD::SQLite" : "0",
             "File::Temp" : "0",
+            "JSON::XS" : "0",
             "Test::Mock::Guard" : "0.10",
             "Test::More" : "0.96",
             "Test::Requires" : "0",
@@ -80,7 +83,7 @@
          "web" : "https://github.com/nekokak/p5-Teng"
       }
    },
-   "version" : "0.28",
+   "version" : "0.29",
    "x_authority" : "cpan:NEKOKAK",
    "x_contributors" : [
       "Yuki Ibe <yibe@yibe.org>",
@@ -93,7 +96,6 @@
       "Tomohiro Hosaka <bokutin@bokut.in>",
       "issm <issmxx@gmail.com>",
       "Atsushi Kato <ktat@cpan.org>",
-      "ktat <ktat.is@gmail.com>",
       "Kazuhiro Osawa <yappo@shibuya.pl>",
       "Masahiro Chiba <chiba@everqueue.com>",
       "Jun Kuriyama <kuriyama@s2factory.co.jp>",
@@ -101,7 +103,6 @@
       "k-sato <k-sato@mfac.jp>",
       "Asato Wakisaka <caaov627@hcn.zaq.ne.jp>",
       "ITO Nobuaki <daydream.trippers@gmail.com>",
-      "karupanerura <karupa@cpan.org>",
       "Kenichi Ishigaki <ishigaki@cpan.org>",
       "Geraud CONTINSOUZAS <geraud@hyaku.nijuu.nana>",
       "moznion <moznion@gmail.com>",
@@ -109,11 +110,17 @@
       "Kazuho Oku <kazuhooku@gmail.com>",
       "Ichito Nagata <i.nagata110@gmail.com>",
       "Atsushi Kobayashi <nekokak@gmail.com>",
+      "karupanerura <karupa@cpan.org>",
       "kawamuray <kawamuray.dadada@gmail.com>",
       "Tokuhiro Matsuno <tokuhirom@gmail.com>",
       "Songmu <y.songmu@gmail.com>",
       "aereal <aereal@aereal.org>",
       "Daisuke Maki <lestrrat+github@gmail.com>",
+      "Takuji Nishibayashi <takuji31@gmail.com>",
+      "Syohei YOSHIDA <syohex@gmail.com>",
+      "Mihyaeru <mihyaeru21@gmail.com>",
+      "ktat <ktat.is@gmail.com>",
       "cho45 <cho45@lowreal.net>"
-   ]
+   ],
+   "x_serialization_backend" : "JSON::PP version 2.27400"
 }

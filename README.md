@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/nekokak/p5-Teng.png?branch=master)](https://travis-ci.org/nekokak/p5-Teng)
+[![Build Status](https://travis-ci.org/nekokak/p5-Teng.svg?branch=master)](https://travis-ci.org/nekokak/p5-Teng)
 # NAME
 
 Teng - very simple DBI wrapper/ORMapper
@@ -440,6 +440,26 @@ Teng provides a number of methods to all your classes,
 - `$teng->suppress_row_objects($flag)`
 
     set row object creation mode.
+
+- `$teng->apply_sql_types($flag)`
+
+    set SQL type application mode.
+
+    see apply\_sql\_types in ["METHODS" in Teng::Iterator](https://metacpan.org/pod/Teng::Iterator#METHODS)
+
+- `$teng->guess_sql_types($flag)`
+
+    set SQL type guessing mode.
+    this implies apply\_sql\_types true.
+
+    see guess\_sql\_types in ["METHODS" in Teng::Iterator](https://metacpan.org/pod/Teng::Iterator#METHODS)
+
+- `$teng->set_boolean_value($true, $false)`
+
+    set scalar to correspond boolean.
+    this is ignored when apply\_sql\_types is not true.
+
+        $teng->set_boolean_value(JSON::XS::true, JSON::XS::false);
 
 - `$teng->load_plugin();`
 
