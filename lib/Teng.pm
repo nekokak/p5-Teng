@@ -288,6 +288,12 @@ sub execute {
         $self->handle_error($sql, $binds, $@);
     }
 
+    # When the return value is never used, should finish statement handler
+    unless (defined wantarray) {
+        $sth->finish();
+        return;
+    }
+
     return $sth;
 }
 
