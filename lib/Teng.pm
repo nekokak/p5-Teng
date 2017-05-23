@@ -300,6 +300,12 @@ sub execute {
         $self->handle_error($sql, $binds, $@);
     }
 
+    # When the return value is never used, should finish statement handler
+    unless (defined wantarray) {
+        $sth->finish();
+        return;
+    }
+
     return $sth;
 }
 
@@ -603,6 +609,14 @@ sub single {
         $opt
     );
     my $sth = $self->execute($sql, \@binds);
+
+    # When the return value is never used, should not create row object
+    # case example: use `FOR UPDATE` query for global locking
+    unless (defined wantarray) {
+        $sth->finish();
+        return;
+    }
+
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
     return undef unless $row; ## no critic
@@ -624,6 +638,14 @@ sub search_by_sql {
 
     $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->execute($sql, $bind);
+
+    # When the return value is never used, should not create iterator object
+    # case example: use `FOR UPDATE` query for global locking
+    unless (defined wantarray) {
+        $sth->finish();
+        return;
+    }
+
     my $itr = Teng::Iterator->new(
         teng             => $self,
         sth              => $sth,
@@ -646,6 +668,14 @@ sub single_by_sql {
     Carp::croak("No such table $table_name") unless $table;
 
     my $sth = $self->execute($sql, $bind);
+
+    # When the return value is never used, should not create row object
+    # case example: use `FOR UPDATE` query for global locking
+    unless (defined wantarray) {
+        $sth->finish();
+        return;
+    }
+
     my $row = $sth->fetchrow_hashref($self->{fields_case});
 
     return unless $row;
