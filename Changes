@@ -2,6 +2,9 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.30 2017-05-23T05:10:50Z
+        - MODIFY: row/iterator objects are not created in void context (`execute` and etc) (thanks karupanerura)
+
 0.29 2017-05-19T04:36:20Z
         - ADD: apply_sql_types/guess_sql_types (thanks ktat)
         - MODIFY: dump sql type as constant (thanks karupanerura)

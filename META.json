@@ -83,7 +83,7 @@
          "web" : "https://github.com/nekokak/p5-Teng"
       }
    },
-   "version" : "0.29",
+   "version" : "0.30",
    "x_authority" : "cpan:NEKOKAK",
    "x_contributors" : [
       "Yuki Ibe <yibe@yibe.org>",
@@ -110,7 +110,6 @@
       "Kazuho Oku <kazuhooku@gmail.com>",
       "Ichito Nagata <i.nagata110@gmail.com>",
       "Atsushi Kobayashi <nekokak@gmail.com>",
-      "karupanerura <karupa@cpan.org>",
       "kawamuray <kawamuray.dadada@gmail.com>",
       "Tokuhiro Matsuno <tokuhirom@gmail.com>",
       "Songmu <y.songmu@gmail.com>",
@@ -120,7 +119,8 @@
       "Syohei YOSHIDA <syohex@gmail.com>",
       "Mihyaeru <mihyaeru21@gmail.com>",
       "ktat <ktat.is@gmail.com>",
-      "cho45 <cho45@lowreal.net>"
+      "karupanerura <karupa@cpan.org>",
+      "Satoh, Hiroh <cho45@lowreal.net>"
    ],
    "x_serialization_backend" : "JSON::PP version 2.27400"
 }
