@@ -126,6 +126,8 @@ subtest 'insert/update on non existent table' => sub {
 };
 
 subtest 'update column name' => sub {
+    local $db->{force_deflate_set_column} = 1;
+
     # set method
     {
         my $row = $db->single('mock_inflate',{id => 1});
@@ -150,10 +152,25 @@ subtest 'update column name' => sub {
     }
     {
         my $row = $db->single('mock_inflate',{id => 1});
-        use Data::Dumper;
-        warn Dumper $row->hash ;
         is ref($row->hash), 'HASH';
         is $row->hash->{x}, 'foo';
+    }
+
+    # column name (update by same object)
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        $row->hash({ x => 'foo' });
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        my $hash = $row->hash;
+        $hash->{x} = 'bar';
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'bar';
     }
 };
 
