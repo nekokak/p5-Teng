@@ -13,6 +13,7 @@ sub setup_test_db {
                 name TEXT,
                 foo  TEXT,
                 bar  TEXT,
+                hash TEXT,
                 PRIMARY KEY  (id, bar)
             )
         });
@@ -26,6 +27,7 @@ sub setup_test_db {
                 name      TEXT,
                 foo       TEXT,
                 bar       VARCHAR(32),
+                hash      TEXT,
                 PRIMARY KEY  (id, bar)
             ) ENGINE=InnoDB
         });

@@ -125,5 +125,37 @@ subtest 'insert/update on non existent table' => sub {
     like $@, qr/Table definition for mock_inflate_non_existent2 does not exist \(Did you declare it in our schema\?\)/;
 };
 
+subtest 'update column name' => sub {
+    # set method
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        $row->set(hash => { x => 'foo' });
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+
+    # column name
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        $row->hash({ x => 'foo' });
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        use Data::Dumper;
+        warn Dumper $row->hash ;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+};
+
 done_testing;
 
