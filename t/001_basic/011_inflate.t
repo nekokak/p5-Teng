@@ -125,5 +125,54 @@ subtest 'insert/update on non existent table' => sub {
     like $@, qr/Table definition for mock_inflate_non_existent2 does not exist \(Did you declare it in our schema\?\)/;
 };
 
+subtest 'update column name' => sub {
+    local $db->{force_deflate_set_column} = 1;
+
+    # set method
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        $row->set(hash => { x => 'foo' });
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+
+    # column name
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        $row->hash({ x => 'foo' });
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+
+    # column name (update by same object)
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        $row->hash({ x => 'foo' });
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'foo';
+    }
+    {
+        my $row = $db->single('mock_inflate',{id => 1});
+        my $hash = $row->hash;
+        $hash->{x} = 'bar';
+        $row->update;
+        is ref($row->hash), 'HASH';
+        is $row->hash->{x}, 'bar';
+    }
+};
+
 done_testing;
 

@@ -62,7 +62,7 @@ sub get {
 
 sub set {
     my ($self, $col, $val) = @_;
-    $self->set_column( $col => $self->{table}->call_deflate($col, $val) ); 
+    $self->set_column( $col => $val, deflate => 1);
     delete $self->{_get_column_cached}->{$col};
     return $self;
 }
@@ -96,7 +96,10 @@ sub get_columns {
 }
 
 sub set_column {
-    my ($self, $col, $val) = @_;
+    my ($self, $col, $val, %opts) = @_;
+    if ($opts{deflate} || $self->handle->{force_deflate_set_column}) {
+        $val = $self->{table}->call_deflate($col, $val);
+    }
 
     if ( defined $self->{row_data}->{$col} 
       && defined $val 
