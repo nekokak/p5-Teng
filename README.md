@@ -160,6 +160,11 @@ Teng provides a number of methods to all your classes,
         If you specifies this to a `true` value, no row object will be created when
         a `SELECT` statement is issued..
 
+    - `force_deflate_set_column`
+
+        Specifies `set_column`, `set_columns` and column name method behaviour. By default this value is `false`.
+        If you specifies this to a `true` value, `set_column` or column name method will deflate argument.
+
     - `sql_builder`
 
         Speficies the SQL builder object. By default SQL::Maker is used, and as such,

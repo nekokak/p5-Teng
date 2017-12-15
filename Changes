@@ -2,6 +2,9 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.31 2017-12-15T07:50:45Z
+       - ADD: force_deflate_set_column option for compatibility to 0.18 or older.
+
 0.30 2017-05-23T05:10:50Z
         - MODIFY: row/iterator objects are not created in void context (`execute` and etc) (thanks karupanerura)
 
