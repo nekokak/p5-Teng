@@ -162,4 +162,21 @@ subtest 'do not update with where cond' => sub {
     is $row2->name, 'perl6';
 };
 
+subtest 'set original value again before update' => sub {
+    my $row = $db->single('mock_basic',{
+        id => 1,
+    });
+    is $row->name, 'perl6';
+
+    $row->name('raku');
+    ok $row->is_changed;
+    is $row->name, 'raku';
+
+    $row->name('perl6');
+    ok !$row->is_changed;
+
+    is $row->update, 0;
+    is $row->name, 'perl6';
+};
+
 done_testing;

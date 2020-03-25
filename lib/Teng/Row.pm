@@ -104,6 +104,11 @@ sub set_column {
     if ( defined $self->{row_data}->{$col} 
       && defined $val 
       && $self->{row_data}->{$col} eq $val ) {
+        if (exists $self->{_dirty_columns}->{$col}) {
+            delete $self->{_dirty_columns}->{$col};
+            delete $self->{_get_column_cached}->{$col};
+            delete $self->{_untrusted_row_data}->{$col};
+        }
         return $val;
     }
 
