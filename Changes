@@ -2,6 +2,9 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.32 2020-03-25T06:22:57Z
+        - FIX: Temg::Row#set_column ignores to set original value again (thanks nipotan)
+
 0.31 2017-12-15T07:50:45Z
        - ADD: force_deflate_set_column option for compatibility to 0.18 or older.
 

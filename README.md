@@ -297,7 +297,7 @@ Teng provides a number of methods to all your classes,
     simple search method.
     search method get Teng::Iterator's instance object.
 
-    see [Teng::Iterator](https://metacpan.org/pod/Teng::Iterator)
+    see [Teng::Iterator](https://metacpan.org/pod/Teng%3A%3AIterator)
 
     get iterator:
 
@@ -450,14 +450,14 @@ Teng provides a number of methods to all your classes,
 
     set SQL type application mode.
 
-    see apply\_sql\_types in ["METHODS" in Teng::Iterator](https://metacpan.org/pod/Teng::Iterator#METHODS)
+    see apply\_sql\_types in ["METHODS" in Teng::Iterator](https://metacpan.org/pod/Teng%3A%3AIterator#METHODS)
 
 - `$teng->guess_sql_types($flag)`
 
     set SQL type guessing mode.
     this implies apply\_sql\_types true.
 
-    see guess\_sql\_types in ["METHODS" in Teng::Iterator](https://metacpan.org/pod/Teng::Iterator#METHODS)
+    see guess\_sql\_types in ["METHODS" in Teng::Iterator](https://metacpan.org/pod/Teng%3A%3AIterator#METHODS)
 
 - `$teng->set_boolean_value($true, $false)`
 
@@ -500,17 +500,17 @@ Teng provides a number of methods to all your classes,
 
 - How do you use display the profiling result?
 
-    use [Devel::KYTProf](https://metacpan.org/pod/Devel::KYTProf).
+    use [Devel::KYTProf](https://metacpan.org/pod/Devel%3A%3AKYTProf).
 
 # TRIGGERS
 
-Teng does not support triggers (NOTE: do not confuse it with SQL triggers - we're talking about Perl level triggers). If you really want to hook into the various methods, use something like [Moose](https://metacpan.org/pod/Moose), [Mouse](https://metacpan.org/pod/Mouse), and [Class::Method::Modifiers](https://metacpan.org/pod/Class::Method::Modifiers).
+Teng does not support triggers (NOTE: do not confuse it with SQL triggers - we're talking about Perl level triggers). If you really want to hook into the various methods, use something like [Moose](https://metacpan.org/pod/Moose), [Mouse](https://metacpan.org/pod/Mouse), and [Class::Method::Modifiers](https://metacpan.org/pod/Class%3A%3AMethod%3A%3AModifiers).
 
 # SEE ALSO
 
 ## Fork
 
-This module was forked from [DBIx::Skinny](https://metacpan.org/pod/DBIx::Skinny), around version 0.0732.
+This module was forked from [DBIx::Skinny](https://metacpan.org/pod/DBIx%3A%3ASkinny), around version 0.0732.
 many incompatible changes have been made.
 
 # BUGS AND LIMITATIONS
