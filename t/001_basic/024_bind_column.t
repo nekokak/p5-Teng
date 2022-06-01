@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Test::More;
 use Mock::BasicBindColumn;
@@ -92,7 +94,7 @@ subtest 'insert data' => sub {
             id => 5,
         }
     );
- 
+
     ok not +$db->search_by_sql('select * from mock_basic_bind_column where id = ?',[5])->next;
 
     ok +$db->insert('mock_basic_bind_column',{

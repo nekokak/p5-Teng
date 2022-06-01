@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Test::More;
 use Mock::Basic;
@@ -32,4 +34,4 @@ $db->setup_test_db;
         my $row = $db->insert('mock_basic',{id => 1, name => 'perl'});
         is $row->id, 1;
     }
- 
+

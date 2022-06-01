@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Test::More;
 
@@ -119,7 +121,7 @@ subtest 'instance level on_connect_do / array' => sub {
 
     is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'];
     @query = ();
-    $db->connect; 
+    $db->connect;
     is_deeply \@query, ['select * from sqlite_master', 'select * from sqlite_master'], 'called after connect';
 
     @query = ();

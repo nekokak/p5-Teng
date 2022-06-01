@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Mock::Basic;
 use Test::More;
@@ -22,7 +24,7 @@ subtest 'get_column' => sub {
     like $@, qr/please specify \$col for first argument/;
 
     eval {
-        $row->get_column('bazbaz'); 
+        $row->get_column('bazbaz');
     };
     ok $@;
     like $@, qr/Specified column 'bazbaz' not found in row/;

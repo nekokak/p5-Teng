@@ -1,11 +1,13 @@
 use strict;
 use Test::More;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Mock::Basic;
 
 subtest 'use transaction, disconnect, reconnect and use transaction again' => sub {
     my @connect_info = (
-        'dbi:SQLite::memory:', 
+        'dbi:SQLite::memory:',
         undef,
         undef,
         {RaiseError => 1, AutoCommit => 1},
@@ -51,7 +53,7 @@ subtest 'use transaction, disconnect, reconnect and use transaction again' => su
 
 subtest 'connect, use transaction, then connect' => sub {
     my @connect_info = (
-        'dbi:SQLite::memory:', 
+        'dbi:SQLite::memory:',
         undef,
         undef,
         {RaiseError => 1, AutoCommit => 1},

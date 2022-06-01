@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Test::More;
 use Mock::Basic;
@@ -22,4 +24,4 @@ $db->setup_test_db;
         ok not $@;
         isa_ok $dbh, 'DBI::db';
     }
- 
+

@@ -3,6 +3,8 @@ use warnings;
 use Teng;
 use Test::More;
 
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Mock::Basic;
 use Test::More;

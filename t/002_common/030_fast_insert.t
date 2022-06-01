@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use utf8;
 use Test::More;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Mock::Basic;
 use Test::Mock::Guard qw/mock_guard/;
