@@ -37,9 +37,5 @@ jobs:
       - name: Install dependencies
         run: |
           cpanm -nq --installdeps --with-develop --with-recommends .
-      - name: Build
-        run: |
-          perl Build.PL
-          ./Build
       - name: Run test
-        run: ./Build test
+        run: prove -lr t
