@@ -2,7 +2,6 @@ package t::Utils;
 use strict;
 use warnings;
 use utf8;
-use lib './t/lib';
 use Test::More;
 
 sub import {
