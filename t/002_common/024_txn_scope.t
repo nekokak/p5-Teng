@@ -40,7 +40,7 @@ subtest 'insert using txn_scope (and let the guard fire)' => sub {
         is $row->name, 'perl';
     }
 
-    like $warning, qr{Guard created at \.?\/?t/002_common/024_txn_scope\.t line 32};
+    like $warning, qr{Guard created at \.?\/?t/002_common/024_txn_scope\.t line 34};
 };
 
 done_testing;
