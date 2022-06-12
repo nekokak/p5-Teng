@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Mock::Basic;
 use Test::More;
@@ -5,7 +7,7 @@ use Test::More;
 subtest 'basic' => sub {
     my $db = Mock::Basic->new( connect_info => [ 'dbi:SQLite::memory:', '', '' ] );
     my $connect_info = $db->connect_info();
-    is_deeply 
+    is_deeply
         $connect_info,
         [ 'dbi:SQLite::memory:', '', '', { RaiseError => 1, AutoCommit => 1, PrintError => 0 } ],
         "connect_info is as expected",

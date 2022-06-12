@@ -19,3 +19,4 @@ MYMETA.*
 !Build/
 !META.json
 !LICENSE
+!.github/workflows/test.yml

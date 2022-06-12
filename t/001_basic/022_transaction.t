@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Test::More;
 use Mock::Basic;
@@ -17,7 +19,7 @@ subtest 'do basic transaction' => sub {
 
     is +$db->single('mock_basic',{id => 1})->name, 'perl';
 };
- 
+
 subtest 'do rollback' => sub {
     $db->txn_begin;
     my $row = $db->insert('mock_basic',{
@@ -26,10 +28,10 @@ subtest 'do rollback' => sub {
     is $row->id, 2;
     is $row->name, 'perl';
     $db->txn_rollback;
-    
+
     ok not +$db->single('mock_basic',{id => 2});
 };
- 
+
 subtest 'do commit' => sub {
     $db->txn_begin;
     my $row = $db->insert('mock_basic',{
@@ -38,7 +40,7 @@ subtest 'do commit' => sub {
     is $row->id, 2;
     is $row->name, 'perl';
     $db->txn_commit;
- 
+
     ok +$db->single('mock_basic',{id => 2});
 };
 

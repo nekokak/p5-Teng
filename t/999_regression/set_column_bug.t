@@ -1,3 +1,5 @@
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use t::Utils;
 use Mock::Inflate;
 use Mock::Inflate::Name;
