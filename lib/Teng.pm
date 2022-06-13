@@ -25,10 +25,13 @@ use Class::Accessor::Lite 0.05
         fields_case
         apply_sql_types
         guess_sql_types
+        trace_ignore_if
     )]
 ;
 
 our $VERSION = '0.32';
+
+sub _noop {}
 
 sub load_plugin {
     my ($class, $pkg, $opt) = @_;
@@ -66,6 +69,7 @@ sub new {
         no_ping      => 0,
         fields_case  => 'NAME_lc',
         boolean_value => {true => 1, false => 0},
+        trace_ignore_if => $args{trace_ignore_if} || \&_noop,
         %args,
     }, $class;
 
@@ -272,6 +276,7 @@ sub trace_query_set_comment {
     while ( my (@caller) = caller($i++) ) {
         next if ( $caller[0]->isa( __PACKAGE__ ) );
         next if $caller[0] =~ /^Teng::/; # skip Teng::Row, Teng::Plugin::* etc.
+        next if $self->trace_ignore_if->(@caller);
         my $comment = "$caller[1] at line $caller[2]";
         $comment =~ s/\*\// /g;
         $sql = "/* $comment */\n$sql";
@@ -960,6 +965,10 @@ This is not used when C<sql_builder> is specified.
 =item * C<sql_builder_args> : HashRef
 
 Speficies the arguments for constructor of C<sql_builder_class>. This is not used when C<sql_builder> is specified.
+
+=item * C<trace_ignore_if> : CodeRef
+
+Ignore to inject the SQL comment when trace_ignore_if's return value is true.
 
 =back
 
