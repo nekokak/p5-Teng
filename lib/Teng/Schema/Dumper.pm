@@ -33,6 +33,7 @@ sub dump {
         $ret .= "use DBI qw/:sql_types/;\n";
         $ret .= "use Teng::Schema::Declare;\n";
         $ret .= "base_row_class '$args{base_row_class}';\n" if $args{base_row_class};
+        $ret .= "default_row_class_prefix '$args{default_row_class_prefix}';\n" if $args{default_row_class_prefix};
         for my $table_info (sort { $a->name cmp $b->name } $inspector->tables) {
             $ret .= _render_table($table_info, \%args);
         }
@@ -137,6 +138,10 @@ your project Teng namespace.
 =item C<base_row_class>
 
 Specify the default base row class for L<Teng::Schema::Declare>.
+
+=item C<default_row_class_prefix>
+
+Specify the default row class prefix for L<Teng::Schema::Declare>.
 
 =back
 

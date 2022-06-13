@@ -113,5 +113,15 @@ subtest "dump with base_row_class" => sub {
     note $code;
     like $code, qr/base_row_class 'Mock::DB::Row';\n/;
 };
+subtest "dump with default_row_class_prefix" => sub {
+    # generate schema and eval.
+    my $code = Teng::Schema::Dumper->dump(
+        dbh                      => $dbh,
+        namespace                => 'Mock::DB',
+        default_row_class_prefix => 'My::Entity',
+    );
+    note $code;
+    like $code, qr/default_row_class_prefix 'My::Entity';\n/;
+};
 
 done_testing;
