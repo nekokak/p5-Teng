@@ -2,6 +2,15 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.33 2022-06-21T00:58:11Z
+        - [IMPORTANT]  BREAKING CHANGE to existing code that uses SQL_COMMENT_LEVEL.
+            - They need to increment SQL_COMMENT_LEVEL by +1.
+            - (But, this is an undocumented variable)
+        - FIX: Perl 5.26+ removes dot from @INC(#161)
+        - ADD: default_row_class_prefix option to Teng::Schema::Dumper (#160 thanks onk)
+        - MODIFY: Extract trace_query_set_comment (#162  thanks onk)
+        - ADD: trace_ignore_if option for ignoreing class in tracing (#163  thanks onk)
+
 0.32 2020-03-25T06:22:57Z
         - FIX: Temg::Row#set_column ignores to set original value again (thanks nipotan)
 

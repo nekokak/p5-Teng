@@ -29,7 +29,7 @@ use Class::Accessor::Lite 0.05
     )]
 ;
 
-our $VERSION = '0.32';
+our $VERSION = '0.33';
 
 sub _noop {}
 

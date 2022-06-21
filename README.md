@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/nekokak/p5-Teng.svg?branch=master)](https://travis-ci.org/nekokak/p5-Teng)
+[![Actions Status](https://github.com/nekokak/p5-Teng/actions/workflows/test.yml/badge.svg)](https://github.com/nekokak/p5-Teng/actions)
 # NAME
 
 Teng - very simple DBI wrapper/ORMapper
@@ -189,6 +189,10 @@ Teng provides a number of methods to all your classes,
     - `sql_builder_args` : HashRef
 
         Speficies the arguments for constructor of `sql_builder_class`. This is not used when `sql_builder` is specified.
+
+    - `trace_ignore_if` : CodeRef
+
+        Ignore to inject the SQL comment when trace\_ignore\_if's return value is true.
 
 - `$row = $teng->insert($table_name, \%row_data)`
 
