@@ -101,9 +101,9 @@ sub set_column {
         $val = $self->{table}->call_deflate($col, $val);
     }
 
-    if ( defined $self->{row_data}->{$col} 
-      && defined $val 
-      && $self->{row_data}->{$col} eq $val ) {
+    my $has_same_value =  defined $self->{row_data}->{$col} &&  defined $val && $self->{row_data}->{$col} eq $val;
+    my $both_are_undef     = !defined $self->{row_data}->{$col} && !defined $val;
+    if ($has_same_value || $both_are_undef) {
         if (exists $self->{_dirty_columns}->{$col}) {
             delete $self->{_dirty_columns}->{$col};
             delete $self->{_get_column_cached}->{$col};
