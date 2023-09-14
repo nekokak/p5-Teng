@@ -11,7 +11,7 @@ requires 'parent';
 
 on configure => sub {
     requires 'Module::Build';
-    requires 'perl', '5.008_001';
+    requires 'perl', '5.016';
 };
 
 on test => sub {

@@ -4,7 +4,7 @@
       "Atsushi Kobayashi  C<< <nekokak __at__ gmail.com> >>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.1.18, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Minilla/v3.1.20, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -30,7 +30,7 @@
          "requires" : {
             "Module::Build" : "0",
             "Module::Build::Tiny" : "0.035",
-            "perl" : "5.008_001"
+            "perl" : "5.016"
          }
       },
       "develop" : {
@@ -113,6 +113,7 @@
       "Yuki Ibe <yibe@yibe.org>",
       "aereal <aereal@aereal.org>",
       "cho45 <cho45@lowreal.net>",
+      "hitode909 <hitode909@gmail.com>",
       "issm <issmxx@gmail.com>",
       "k-sato <k-sato@mfac.jp>",
       "karupanerura <karupa@cpan.org>",
