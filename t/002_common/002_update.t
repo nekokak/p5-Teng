@@ -181,4 +181,31 @@ subtest 'set original value again before update' => sub {
     is $row->name, 'perl6';
 };
 
+subtest 'set null again before update' => sub {
+    $db->insert('mock_basic',{
+        id   => 4,
+        name => undef,
+    });
+    my $row = $db->single('mock_basic',{
+        id => 4,
+    });
+    is $row->name, undef;
+
+    # undef to undef
+    $row->name(undef);
+    ok !$row->is_changed;
+    is $row->update, 0;
+
+    # undef to string
+    $row->name('php');
+    ok $row->is_changed;
+    is $row->update, 1;
+
+    # string to undef
+    $row->name(undef);
+    ok $row->is_changed;
+    is $row->update, 1;
+
+};
+
 done_testing;
