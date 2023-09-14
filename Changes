@@ -2,6 +2,10 @@ Revision history for Perl extension Teng
 
 {{$NEXT}}
 
+0.34 2023-09-14T03:02:36Z
+        - [IMPORTANT]  change the minimum supported perl version to 5.16 (#165)
+        - FIX: Don't update when set column from null to null (#164 thanks hitode909)
+
 0.33 2022-06-21T00:58:11Z
         - [IMPORTANT]  BREAKING CHANGE to existing code that uses SQL_COMMENT_LEVEL.
             - They need to increment SQL_COMMENT_LEVEL by +1.
