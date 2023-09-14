@@ -29,8 +29,7 @@
       "configure" : {
          "requires" : {
             "Module::Build" : "0",
-            "Module::Build::Tiny" : "0.035",
-            "perl" : "5.016"
+            "Module::Build::Tiny" : "0.035"
          }
       },
       "develop" : {
@@ -56,7 +55,8 @@
             "Data::Page::NoTotalEntries" : "0.02",
             "SQL::Maker" : "0.14",
             "Scalar::Util" : "0",
-            "parent" : "0"
+            "parent" : "0",
+            "perl" : "5.016"
          }
       },
       "test" : {
