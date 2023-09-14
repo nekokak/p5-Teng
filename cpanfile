@@ -8,10 +8,10 @@ requires 'Data::Page::NoTotalEntries', '0.02';
 requires 'SQL::Maker', '0.14';
 requires 'Scalar::Util';
 requires 'parent';
+requires 'perl', '5.016';
 
 on configure => sub {
     requires 'Module::Build';
-    requires 'perl', '5.008_001';
 };
 
 on test => sub {
