@@ -102,7 +102,7 @@ The number of entries per page.
 
 =back
 
-This method returns ArrayRef[Teng::Row] and instance of L<Teng::Plugin::Pager::Page>.
+This method returns ArrayRef[Teng::Row] and instance of L<Data::Page>.
 
 =back
 
