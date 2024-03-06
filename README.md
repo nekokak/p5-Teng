@@ -167,13 +167,13 @@ Teng provides a number of methods to all your classes,
 
     - `sql_builder`
 
-        Speficies the SQL builder object. By default SQL::Maker is used, and as such,
+        Specifies the SQL builder object. By default SQL::Maker is used, and as such,
         if you provide your own SQL builder the interface needs to be compatible
         with SQL::Maker.
 
     - `sql_builder_class` : Str
 
-        Speficies the SQL builder class name. By default SQL::Maker is used, and as such,
+        Specifies the SQL builder class name. By default SQL::Maker is used, and as such,
         if you provide your own SQL builder the interface needs to be compatible
         with SQL::Maker.
 
@@ -188,7 +188,7 @@ Teng provides a number of methods to all your classes,
 
     - `sql_builder_args` : HashRef
 
-        Speficies the arguments for constructor of `sql_builder_class`. This is not used when `sql_builder` is specified.
+        Specifies the arguments for constructor of `sql_builder_class`. This is not used when `sql_builder` is specified.
 
     - `trace_ignore_if` : CodeRef
 

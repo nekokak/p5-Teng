@@ -186,7 +186,7 @@ sub reconnect {
         # my $dbh3 = $dbh2->clone({});
         # $dbh2 is ok, but $dbh3 is undef.
         # ---
-        # Don't assign $self-{dbh} directry.
+        # Don't assign $self-{dbh} directly.
         # Because if $self->{dbh} is undef then reconnect fail always.
         # https://github.com/nekokak/p5-Teng/pull/98
         my $new_dbh = eval { $dbh->clone }
@@ -943,13 +943,13 @@ If you specifies this to a C<true> value, C<set_column> or column name method wi
 
 =item * C<sql_builder>
 
-Speficies the SQL builder object. By default SQL::Maker is used, and as such,
+Specifies the SQL builder object. By default SQL::Maker is used, and as such,
 if you provide your own SQL builder the interface needs to be compatible
 with SQL::Maker.
 
 =item * C<sql_builder_class> : Str
 
-Speficies the SQL builder class name. By default SQL::Maker is used, and as such,
+Specifies the SQL builder class name. By default SQL::Maker is used, and as such,
 if you provide your own SQL builder the interface needs to be compatible
 with SQL::Maker.
 
@@ -964,7 +964,7 @@ This is not used when C<sql_builder> is specified.
 
 =item * C<sql_builder_args> : HashRef
 
-Speficies the arguments for constructor of C<sql_builder_class>. This is not used when C<sql_builder> is specified.
+Specifies the arguments for constructor of C<sql_builder_class>. This is not used when C<sql_builder> is specified.
 
 =item * C<trace_ignore_if> : CodeRef
 
