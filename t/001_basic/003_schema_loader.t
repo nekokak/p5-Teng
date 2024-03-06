@@ -92,7 +92,7 @@ subtest 'auto create teng class' => sub {
     }
 }
 
-subtest 'constructor is overrided' => sub {
+subtest 'constructor is overrode' => sub {
     local $@;
 
     my $db = eval {
